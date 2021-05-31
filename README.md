@@ -1,2 +1,3 @@
 # CILISSA
-Interactive tool for assessing digital image similarity
+
+CILISSA stands for **C**omputer **I**mage **Li**keness A**ss**essing **A**utomation
