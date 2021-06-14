@@ -1,0 +1,9 @@
+[flake8]
+filename = 
+    *.py,
+
+exclude = 
+    .git,
+    __pycache__,
+
+max_line_length = 120
