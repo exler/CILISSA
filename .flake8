@@ -6,4 +6,8 @@ exclude =
     .git,
     __pycache__,
 
+ignore = 
+    ANN101,
+    ANN102
+
 max_line_length = 120
