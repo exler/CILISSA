@@ -1,16 +1,18 @@
+from abc import ABC, abstractmethod
+
 import numpy as np
 
 from cilissa.images import ImagePair
 
 
-class Metric:
+class Metric(ABC):
     """
     Base class for creating new metrics to use in the program.
 
     All metrics must implement the `analyze` method.
     """
 
-    name = None
+    name: str = ""
 
     def __init__(self, image_pair: ImagePair) -> None:
         self._image_pair = image_pair
@@ -18,7 +20,8 @@ class Metric:
     def get_metric_name(self) -> str:
         return self.name
 
-    def analyze(self) -> None:
+    @abstractmethod
+    def analyze(self) -> np.float64:
         raise NotImplementedError("Metrics must implement the `analyze` method")
 
 
@@ -31,7 +34,7 @@ class MSE(Metric):
 
     name = "mse"
 
-    def analyze(self) -> None:
+    def analyze(self) -> np.float64:
         base_image, test_image = self._image_pair.as_floats()
         return np.mean((base_image - test_image) ** 2, dtype=np.float64)
 

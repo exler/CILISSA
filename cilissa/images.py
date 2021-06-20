@@ -1,4 +1,5 @@
 import os
+from typing import Tuple
 
 import cv2
 import numpy as np
@@ -68,7 +69,7 @@ class ImagePair:
         else:
             raise IndexError
 
-    def as_floats(self) -> np.ndarray:
+    def as_floats(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns a tuple with both images as :data:`np.ndarray` of floats
         """
