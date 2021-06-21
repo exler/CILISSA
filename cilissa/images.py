@@ -69,6 +69,10 @@ class ImagePair:
         else:
             raise IndexError
 
+    @property
+    def matching_dtype(self) -> bool:
+        return self.first.dtype == self.second.dtype
+
     def as_floats(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns a tuple with both images as :data:`np.ndarray` of floats

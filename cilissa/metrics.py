@@ -12,16 +12,15 @@ class Metric(ABC):
     All metrics must implement the `analyze` method.
     """
 
-    name: str = ""
+    NAME: str = ""
 
-    def __init__(self, image_pair: ImagePair) -> None:
-        self._image_pair = image_pair
+    @classmethod
+    def get_metric_name(cls) -> str:
+        return cls.NAME
 
-    def get_metric_name(self) -> str:
-        return self.name
-
+    @staticmethod
     @abstractmethod
-    def analyze(self) -> np.float64:
+    def analyze(image_pair: ImagePair) -> np.float64:
         raise NotImplementedError("Metrics must implement the `analyze` method")
 
 
@@ -32,10 +31,11 @@ class MSE(Metric):
     Average squared difference between the estimated values and the actual value.
     """
 
-    name = "mse"
+    NAME = "mse"
 
-    def analyze(self) -> np.float64:
-        base_image, test_image = self._image_pair.as_floats()
+    @staticmethod
+    def analyze(image_pair: ImagePair) -> np.float64:
+        base_image, test_image = image_pair.as_floats()
         return np.mean((base_image - test_image) ** 2, dtype=np.float64)
 
 
@@ -49,7 +49,11 @@ class PSNR(Metric):
     PSNR is most easily defined via the mean squared error (MSE).
     """
 
-    name = "psnr"
+    NAME = "psnr"
+
+    @staticmethod
+    def analyze(image_pair: ImagePair) -> np.float64:
+        pass
 
 
 class SSIM(Metric):
@@ -61,4 +65,8 @@ class SSIM(Metric):
     The overall index is a multiplicative combination of the three terms.
     """
 
-    name = "ssim"
+    NAME = "ssim"
+
+    @staticmethod
+    def analyze(image_pair: ImagePair) -> np.float64:
+        pass
