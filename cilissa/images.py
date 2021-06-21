@@ -13,6 +13,7 @@ class Image:
     path: str
     name: str
     dtype: np.dtype
+    shape: tuple
 
     def __init__(self, image_path: str) -> None:
         self.path = image_path
@@ -20,6 +21,7 @@ class Image:
         self._image = cv2.imread(image_path)
 
         self.dtype = self._image.dtype
+        self.shape = self._image.shape
 
         if self._image is None:
             raise IOError(f"Cannot open image path: `{self.path}`")
