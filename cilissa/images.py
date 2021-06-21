@@ -81,6 +81,10 @@ class ImagePair:
             raise IndexError
 
     @property
+    def matching_shape(self) -> bool:
+        return self.base.shape == self.test.shape
+
+    @property
     def matching_dtype(self) -> bool:
         return self.base.dtype == self.test.dtype
 

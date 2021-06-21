@@ -1,0 +1,2 @@
+class ShapesNotEqual(Exception):
+    pass
