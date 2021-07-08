@@ -4,8 +4,7 @@ from typing import Any
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
-from cilissa.helpers import crop_array
-from cilissa.images import Image, ImagePair
+from cilissa.images import ImagePair
 
 
 class Metric(ABC):
