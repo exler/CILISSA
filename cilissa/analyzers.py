@@ -23,8 +23,9 @@ class ImageAnalyzer:
 
         results: Dict[str, np.float64] = {}
         for metric in self._metrics:
-            name = metric.get_metric_name()
-            result = metric.analyze(image_pair)
+            m = metric()
+            name = m.get_metric_name()
+            result = m.analyze(image_pair)
 
             results[name] = result
 

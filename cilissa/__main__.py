@@ -2,7 +2,7 @@ import argparse
 
 from cilissa.analyzers import ImageAnalyzer
 from cilissa.images import Image, ImagePair
-from cilissa.metrics import MSE, PSNR
+from cilissa.metrics import MSE, PSNR, SSIM
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Interactive computer image likeness assessing.")
@@ -15,6 +15,6 @@ if __name__ == "__main__":
 
     image_pair = ImagePair(image1, image2)
 
-    analyzer = ImageAnalyzer([MSE, PSNR])
+    analyzer = ImageAnalyzer([MSE, PSNR, SSIM])
     result = analyzer.analyze_pair(image_pair)
     print(result)
