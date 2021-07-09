@@ -1,5 +1,6 @@
+import logging
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict, Optional, Type
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
@@ -14,11 +15,20 @@ class Metric(ABC):
     All metrics must implement the `analyze` method.
     """
 
-    NAME: str = ""
+    name: str = ""
+
+    def __init__(self, verbose_name: Optional[str] = None, **kwargs: Any) -> None:
+        self.verbose_name = verbose_name
+
+        for k in kwargs.keys():
+            logging.info(f"Discarding unexpected keyword argument: {k}")
+
+    def __str__(self) -> str:
+        return f"Metric: {self.verbose_name or self.name}"
 
     @classmethod
     def get_metric_name(cls) -> str:
-        return cls.NAME
+        return cls.name
 
     @abstractmethod
     def analyze(self, image_pair: ImagePair) -> np.float64:
@@ -35,7 +45,7 @@ class MSE(Metric):
         - https://en.wikipedia.org/wiki/Mean_squared_error
     """
 
-    NAME = "mse"
+    name = "mse"
 
     def analyze(self, image_pair: ImagePair) -> np.float64:
         base_image, test_image = image_pair.as_floats()
@@ -53,15 +63,11 @@ class PSNR(Metric):
         - https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio
     """
 
-    NAME = "psnr"
+    name = "psnr"
 
     def analyze(self, image_pair: ImagePair) -> np.float64:
-        if not image_pair.matching_dtype:
-            # TODO: Move to real logging
-            print("Input images have mismatched data types. Using base image's pixel value.")
-
         # dmax - maximum possible pixel value of the image
-        dmax = image_pair.base.max
+        dmax = image_pair.orig.im.max()
 
         err = MSE().analyze(image_pair)
         return 20 * np.log10(dmax) - 10 * np.log10(err)
@@ -88,9 +94,12 @@ class SSIM(Metric):
         - https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf
     """
 
-    NAME = "ssim"
+    name = "ssim"
 
     def __init__(self, channels_num: int = 1, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+        # Number of channels in image
         self.channels_num = channels_num
 
         # Small constants 0 <= K1, K2 <= 1
@@ -143,10 +152,6 @@ class SSIM(Metric):
         return S.mean()
 
     def analyze(self, image_pair: ImagePair) -> np.float64:
-        if not image_pair.matching_dtype:
-            # TODO: Move to real logging
-            print("Input images have mismatched data types. Using base image's pixel value.")
-
         base_image, test_image = image_pair.as_floats()
 
         # Create an empty array to hold results from each channel
@@ -157,3 +162,12 @@ class SSIM(Metric):
 
         mssim = ssim_results.mean()
         return mssim
+
+
+def get_all_metrics() -> Dict[str, Type[Metric]]:
+    subclasses = Metric.__subclasses__()
+    metrics = {}
+    for metric in subclasses:
+        metrics[metric.get_metric_name()] = metric
+
+    return metrics

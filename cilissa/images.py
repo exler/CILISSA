@@ -12,21 +12,19 @@ class Image:
 
     path: str
     name: str
-    dtype: np.dtype
-    ndim: int
-    shape: tuple
 
     def __init__(self, image_path: str) -> None:
         self.path = image_path
         self.name = os.path.basename(self.path)
         self.im = cv2.imread(image_path)
 
-        self.dtype = self.im.dtype
-        self.ndim = self.im.ndim
-        self.shape = self.im.shape
-
         if self.im is None:
             raise IOError(f"Cannot open image path: `{self.path}`")
+
+    @property
+    def channels_num(self) -> Optional[int]:
+        # 2D array is a grayscale image, 3D array gives the number of channels
+        return None if self.ndim == 2 else self.shape[-1]
 
     def display(self) -> None:
         """
@@ -38,19 +36,6 @@ class Image:
                 k = cv2.waitKey(0)
                 if k == 27:  # ESCAPE key
                     cv2.destroyWindow(self.name)
-
-    @property
-    def max(self) -> int:
-        return np.max(self.im)
-
-    @property
-    def min(self) -> int:
-        return np.min(self.im)
-
-    @property
-    def channels_num(self) -> Optional[int]:
-        # 2D array is a grayscale image, 3D array gives the number of channels
-        return None if self.ndim == 2 else self.shape[-1]
 
     def as_float(self) -> np.ndarray:
         """
@@ -66,42 +51,42 @@ class ImagePair:
     A pair of 2 :class:`cilissa.images.Image`. Analysis is performed using this class.
     """
 
-    base: Image
-    test: Image
+    orig: Image
+    comp: Image
 
-    def __init__(self, base_image: Image, test_image: Image) -> None:
-        self.base = base_image
-        self.test = test_image
+    def __init__(self, orig_image: Image, comp_image: Image) -> None:
+        self.orig = orig_image
+        self.comp = comp_image
 
     def __getitem__(self, key: int) -> Image:
         if key == 0:
-            return self.base
+            return self.orig
         elif key == 1:
-            return self.test
+            return self.comp
         else:
             raise IndexError
 
     def __setitem__(self, key: int, value: Image) -> None:
         if key == 0:
-            self.base = value
+            self.orig = value
         elif key == 1:
-            self.test = value
+            self.comp = value
         else:
             raise IndexError
 
     @property
     def matching_shape(self) -> bool:
-        return self.base.shape == self.test.shape
+        return self.orig.im.shape == self.comp.im.shape
 
     @property
     def matching_dtype(self) -> bool:
-        return self.base.dtype == self.test.dtype
+        return self.orig.im.dtype == self.comp.im.dtype
 
     def as_floats(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns a tuple with both images as :data:`np.ndarray` of floats
         """
-        return (self.base.as_float(), self.test.as_float())
+        return (self.orig.as_float(), self.comp.as_float())
 
 
 class ImageCollection:
