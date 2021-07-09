@@ -8,6 +8,8 @@ exclude =
 
 ignore = 
     ANN101,
-    ANN102
+    ANN102,
+    # See https://github.com/PyCQA/pycodestyle/issues/373
+    E203,
 
 max_line_length = 120
