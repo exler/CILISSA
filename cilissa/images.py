@@ -24,7 +24,7 @@ class Image:
     @property
     def channels_num(self) -> Optional[int]:
         # 2D array is a grayscale image, 3D array gives the number of channels
-        return None if self.ndim == 2 else self.shape[-1]
+        return None if self.im.ndim == 2 else self.im.shape[-1]
 
     def display(self) -> None:
         """

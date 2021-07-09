@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Optional, Type
+from typing import Dict, List
 
 import numpy as np
 
@@ -16,10 +16,10 @@ class ImageAnalyzer:
     ImageAnalyzer should be given instances of metrics with configured attributes.
     """
 
-    def __init__(self, metrics: Optional[List[Type[Metric]]] = None) -> None:
+    def __init__(self, metrics: List[Metric] = []) -> None:
         self._metrics = metrics
 
-    def add_metric(self, metric: Type[Metric]) -> None:
+    def add_metric(self, metric: Metric) -> None:
         self._metrics.append(metric)
 
     def remove_metric(self, metric_name: str) -> None:
@@ -30,7 +30,7 @@ class ImageAnalyzer:
             if metric_name == (metric.verbose_name or metric.get_metric_name()):
                 del self._metrics[i]
 
-    def replace_metrics(self, metrics: List[Type[Metric]]) -> None:
+    def replace_metrics(self, metrics: List[Metric]) -> None:
         self._metrics = metrics
 
     def analyze_pair(self, image_pair: ImagePair) -> Dict[str, np.float64]:
