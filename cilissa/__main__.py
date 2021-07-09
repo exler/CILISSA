@@ -19,11 +19,23 @@ if __name__ == "__main__":
         description=help_message,
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument("-o", "--orig-image", required=True)
-    parser.add_argument("-c", "--comp-image", required=True)
-    parser.add_argument("-m", "--metric", choices=list(all_metrics.keys()), action="extend", nargs="+", required=True)
-    parser.add_argument("-d", "--debug", action="store_true")
-    parser.add_argument("--kwargs", nargs="+")
+    parser.add_argument("-o", "--orig-image", required=True, help="Original image working as a base for comparison")
+    parser.add_argument("-c", "--comp-image", required=True, help="Modified image to be analyzed against the original")
+    parser.add_argument(
+        "-m",
+        "--metric",
+        choices=list(all_metrics.keys()),
+        action="extend",
+        nargs="+",
+        required=True,
+        help="Which metrics to use for analysis",
+    )
+    parser.add_argument("-d", "--debug", action="store_true", help="Turn on debugging messages")
+    parser.add_argument(
+        "--kwargs",
+        nargs="+",
+        help="Keyword arguments to be passed to their respective metric. Example: `ssim-channels-num=3`",
+    )
     args = parser.parse_args()
 
     if args.debug:
