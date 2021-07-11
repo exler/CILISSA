@@ -22,11 +22,11 @@ if __name__ == "__main__":
     for val_row in data.values():
         for r in val_row:
             p = Path(r["reference"])
-            r["reference"] = str(p.relative_to(*p.parts[:1]))
+            r["reference"] = str(p.relative_to(*p.parts[:1])).replace("\\", "/")
 
             p = Path(r["measured"])
-            r["measured"] = str(p.relative_to(*p.parts[:1]))
+            r["measured"] = str(p.relative_to(*p.parts[:1])).replace("\\", "/")
 
-    fp = open(path, "wb")
+    fp = open(path, "w")
     json.dump(data, fp)
     fp.close()
