@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional, Type
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
+from cilissa.helpers import crop_array
 from cilissa.images import ImagePair
 
 
@@ -152,7 +153,11 @@ class SSIM(Metric):
         D = B1 * B2
         S = (A1 * A2) / D
 
-        return S.mean()
+        # Avoid edge effects by ignoring filter radius around edges
+        # Pad equal to radius as in scipy gaussian_filter: https://github.com/scipy/scipy/blob/v1.7.0/scipy/ndimage/filters.py#L258
+        pad = int(self.truncate * self.sigma + 0.5)
+
+        return crop_array(S, pad).mean()
 
     def analyze(self, image_pair: ImagePair) -> np.float64:
         base_image, test_image = image_pair.as_floats()
