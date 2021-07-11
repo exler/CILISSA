@@ -67,7 +67,7 @@ image_pair = ImagePair(image1, image2)
 
 # Compare using standalone metric
 ssim = SSIM(channels_num=3)
-result = mse.analyze(image_pair)
+result = ssim.analyze(image_pair)
 
 # Or use ImageAnalyzer
 mse = MSE()

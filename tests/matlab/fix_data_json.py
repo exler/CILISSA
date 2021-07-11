@@ -10,7 +10,11 @@ if __name__ == "__main__":
     data = json.load(fp)
     fp.close()
 
-    data = dict((key, d[key]) for d in data for key in d)
+    try:
+        data = dict((key, d[key]) for d in data for key in d)
+    except TypeError:
+        print("File is already fixed!")
+        exit(0)
 
     for val_row in data.values():
         for row in val_row:

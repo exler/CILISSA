@@ -1,5 +1,6 @@
 import os
-from typing import Optional, Tuple
+from pathlib import Path
+from typing import Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -13,9 +14,13 @@ class Image:
     path: str
     name: str
 
-    def __init__(self, image_path: str) -> None:
+    def __init__(self, image_path: Union[str, Path]) -> None:
         self.path = image_path
         self.name = os.path.basename(self.path)
+
+        if isinstance(image_path, Path):
+            image_path = str(image_path)
+
         self.im = cv2.imread(image_path)
 
         if self.im is None:

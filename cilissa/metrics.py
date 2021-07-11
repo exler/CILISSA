@@ -70,6 +70,9 @@ class PSNR(Metric):
         dmax = image_pair.orig.im.max()
 
         err = MSE().analyze(image_pair)
+        if err == 0:
+            return np.inf
+
         return 20 * np.log10(dmax) - 10 * np.log10(err)
 
 
@@ -96,7 +99,7 @@ class SSIM(Metric):
 
     name = "ssim"
 
-    def __init__(self, channels_num: int = 1, **kwargs: Any) -> None:
+    def __init__(self, channels_num: Optional[int] = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Number of channels in image
@@ -154,9 +157,12 @@ class SSIM(Metric):
     def analyze(self, image_pair: ImagePair) -> np.float64:
         base_image, test_image = image_pair.as_floats()
 
+        if not self.channels_num:
+            channels_num = image_pair.orig.channels_num
+
         # Create an empty array to hold results from each channel
-        ssim_results = np.empty(self.channels_num)
-        for ch in range(self.channels_num):
+        ssim_results = np.empty(channels_num)
+        for ch in range(channels_num):
             ch_result = self.mssim_single_channel(base_image[:, :, ch], test_image[:, :, ch])
             ssim_results[ch] = ch_result
 
