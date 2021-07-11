@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import List, Mapping, Union
 
 import numpy as np
 
@@ -33,7 +33,7 @@ class ImageAnalyzer:
     def replace_metrics(self, metrics: List[Metric]) -> None:
         self._metrics = metrics
 
-    def analyze_pair(self, image_pair: ImagePair) -> Dict[str, np.float64]:
+    def analyze_pair(self, image_pair: ImagePair) -> Mapping[str, Union[float, np.float64]]:
         """
         Runs every metric passed to the analyzer on an :class:`cilissa.images.ImagePair`
         Images need to be of equal shape.
@@ -46,7 +46,7 @@ class ImageAnalyzer:
                 "Input images have mismatched data types. Metrics relying on data range will use original image's type."
             )
 
-        results: Dict[str, np.float64] = {}
+        results = {}
         for metric in self._metrics:
             name = metric.verbose_name if metric.verbose_name else metric.get_metric_name()
             result = metric.analyze(image_pair)

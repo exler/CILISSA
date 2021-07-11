@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import SupportsIndex, Tuple, Union
 
 import cv2
 import numpy as np
@@ -14,22 +14,19 @@ class Image:
     path: str
     name: str
 
-    def __init__(self, image_path: Union[str, Path]) -> None:
-        self.path = image_path
+    def __init__(self, image_path: Union[Path, str]) -> None:
+        self.path = str(image_path)
         self.name = os.path.basename(self.path)
 
-        if isinstance(image_path, Path):
-            image_path = str(image_path)
-
-        self.im = cv2.imread(image_path)
+        self.im = cv2.imread(self.path)
 
         if self.im is None:
             raise IOError(f"Cannot open image path: `{self.path}`")
 
     @property
-    def channels_num(self) -> Optional[int]:
+    def channels_num(self) -> SupportsIndex:
         # 2D array is a grayscale image, 3D array gives the number of channels
-        return None if self.im.ndim == 2 else self.im.shape[-1]
+        return 1 if self.im.ndim == 2 else self.im.shape[-1]
 
     def display(self) -> None:
         """

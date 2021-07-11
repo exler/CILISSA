@@ -3,10 +3,11 @@ import os
 import unittest
 from pathlib import Path
 
+from numpy import isinf
+
 from cilissa.analyzers import ImageAnalyzer
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR, SSIM
-from numpy import isinf
 
 
 class TestImageAnalysis(unittest.TestCase):

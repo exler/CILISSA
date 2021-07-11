@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional, SupportsIndex, Type, Union
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
@@ -32,7 +32,7 @@ class Metric(ABC):
         return cls.name
 
     @abstractmethod
-    def analyze(self, image_pair: ImagePair) -> np.float64:
+    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
         raise NotImplementedError("Metrics must implement the `analyze` method")
 
 
@@ -48,7 +48,7 @@ class MSE(Metric):
 
     name = "mse"
 
-    def analyze(self, image_pair: ImagePair) -> np.float64:
+    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
         base_image, test_image = image_pair.as_floats()
         return np.mean(np.square((base_image - test_image)), dtype=np.float64)
 
@@ -66,7 +66,7 @@ class PSNR(Metric):
 
     name = "psnr"
 
-    def analyze(self, image_pair: ImagePair) -> np.float64:
+    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
         # dmax - maximum possible pixel value of the image
         dmax = image_pair.orig.im.max()
 
@@ -100,7 +100,7 @@ class SSIM(Metric):
 
     name = "ssim"
 
-    def __init__(self, channels_num: Optional[int] = None, **kwargs: Any) -> None:
+    def __init__(self, channels_num: Optional[SupportsIndex] = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Number of channels in image
@@ -124,7 +124,7 @@ class SSIM(Metric):
         if self.truncate < 0:
             raise ValueError("Truncate must be positive!")
 
-    def mssim_single_channel(self, im1: np.ndarray, im2: np.ndarray) -> np.ndarray:
+    def mssim_single_channel(self, im1: np.ndarray, im2: np.ndarray) -> Union[float, np.float64]:
         dmax = im1.max()
         dmin = im1.min()
         drange = dmax - dmin
@@ -160,15 +160,15 @@ class SSIM(Metric):
 
         return crop_array(S, pad).mean()
 
-    def analyze(self, image_pair: ImagePair) -> np.float64:
+    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
         base_image, test_image = image_pair.as_floats()
 
-        if not self.channels_num:
-            channels_num = image_pair.orig.channels_num
+        if self.channels_num is None:
+            ch_num = image_pair.orig.channels_num
 
         # Create an empty array to hold results from each channel
-        ssim_results = np.empty(channels_num)
-        for ch in range(channels_num):
+        ssim_results = np.empty(ch_num)
+        for ch in range(ch_num):
             ch_result = self.mssim_single_channel(base_image[:, :, ch], test_image[:, :, ch])
             ssim_results[ch] = ch_result
 

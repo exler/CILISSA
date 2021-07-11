@@ -27,6 +27,6 @@ if __name__ == "__main__":
             p = Path(r["measured"])
             r["measured"] = str(p.relative_to(*p.parts[:1]))
 
-    fp = open(path, "w")
+    fp = open(path, "wb")
     json.dump(data, fp)
     fp.close()
