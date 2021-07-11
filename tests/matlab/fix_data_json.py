@@ -16,14 +16,16 @@ if __name__ == "__main__":
         print("File is already fixed!")
         exit(0)
 
-    for val_row in data.values():
-        for row in val_row:
-            for r in row:
-                p = Path(r["reference"])
-                r["reference"] = str(p.relative_to(*p.parts[:1]))
+    for key in data.keys():
+        data[key] = data[key][0]
 
-                p = Path(r["measured"])
-                r["measured"] = str(p.relative_to(*p.parts[:1]))
+    for val_row in data.values():
+        for r in val_row:
+            p = Path(r["reference"])
+            r["reference"] = str(p.relative_to(*p.parts[:1]))
+
+            p = Path(r["measured"])
+            r["measured"] = str(p.relative_to(*p.parts[:1]))
 
     fp = open(path, "w")
     json.dump(data, fp)

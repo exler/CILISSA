@@ -21,7 +21,7 @@ class TestImageAnalysis(unittest.TestCase):
         mse = MSE()
 
         for m_type in self.metrics_data.values():
-            for m in next(iter(m_type)):
+            for m in m_type:
                 ref_image = Image(Path(self.base_path, m["reference"]))
                 mea_image = Image(Path(self.base_path, m["measured"]))
                 image_pair = ImagePair(ref_image, mea_image)
@@ -34,7 +34,7 @@ class TestImageAnalysis(unittest.TestCase):
         psnr = PSNR()
 
         for m_type in self.metrics_data.values():
-            for m in next(iter(m_type)):
+            for m in m_type:
                 ref_image = Image(Path(self.base_path, m["reference"]))
                 mea_image = Image(Path(self.base_path, m["measured"]))
                 image_pair = ImagePair(ref_image, mea_image)
@@ -50,7 +50,7 @@ class TestImageAnalysis(unittest.TestCase):
         ssim = SSIM()
 
         for m_type in self.metrics_data.values():
-            for m in next(iter(m_type)):
+            for m in m_type:
                 ref_image = Image(Path(self.base_path, m["reference"]))
                 mea_image = Image(Path(self.base_path, m["measured"]))
                 image_pair = ImagePair(ref_image, mea_image)
@@ -60,4 +60,15 @@ class TestImageAnalysis(unittest.TestCase):
                 self.assertAlmostEqual(result, m["metrics"]["ssim"], delta=0.5)
 
     def test_image_analyzer(self) -> None:
-        pass
+        mse, psnr, ssim = MSE(), PSNR(), SSIM()
+        metrics = [mse, psnr, ssim]
+        analyzer = ImageAnalyzer(metrics)
+
+        row = self.metrics_data["jpeg"][0]
+        ref_image = Image(Path(self.base_path, row["reference"]))
+        mea_image = Image(Path(self.base_path, row["measured"]))
+        image_pair = ImagePair(ref_image, mea_image)
+
+        result = analyzer.analyze_pair(image_pair)
+
+        self.assertListEqual(list(result.keys()), [m.get_metric_name() for m in metrics])

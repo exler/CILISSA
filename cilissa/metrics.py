@@ -154,7 +154,8 @@ class SSIM(Metric):
         S = (A1 * A2) / D
 
         # Avoid edge effects by ignoring filter radius around edges
-        # Pad equal to radius as in scipy gaussian_filter: https://github.com/scipy/scipy/blob/v1.7.0/scipy/ndimage/filters.py#L258
+        # Pad equal to radius as in scipy gaussian_filter
+        # https://github.com/scipy/scipy/blob/v1.7.0/scipy/ndimage/filters.py#L258
         pad = int(self.truncate * self.sigma + 0.5)
 
         return crop_array(S, pad).mean()
