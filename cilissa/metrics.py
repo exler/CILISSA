@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, SupportsIndex, Type, Union
+from typing import Any, Dict, Optional, Type, Union
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
@@ -100,7 +100,7 @@ class SSIM(Metric):
 
     name = "ssim"
 
-    def __init__(self, channels_num: Optional[SupportsIndex] = None, **kwargs: Any) -> None:
+    def __init__(self, channels_num: Optional[int] = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
         # Number of channels in image
