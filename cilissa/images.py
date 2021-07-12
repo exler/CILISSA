@@ -51,44 +51,51 @@ class Image:
 class ImagePair:
     """
     A pair of 2 :class:`cilissa.images.Image`. Analysis is performed using this class.
+
+    If any of the attributes in the image pair are mismatched, the attribute of the reference image
+    will be used if necessary.
+
+    Attributes:
+        ref (:class:`cilissa.images.Image`): Reference image against which quality is measured
+        A (:class:`cilissa.images.Image`): Image whose quality is to be measured
     """
 
-    orig: Image
-    comp: Image
+    ref: Image
+    A: Image
 
-    def __init__(self, orig_image: Image, comp_image: Image) -> None:
-        self.orig = orig_image
-        self.comp = comp_image
+    def __init__(self, ref_image: Image, A_image: Image) -> None:
+        self.ref = ref_image
+        self.A = A_image
 
     def __getitem__(self, key: int) -> Image:
         if key == 0:
-            return self.orig
+            return self.ref
         elif key == 1:
-            return self.comp
+            return self.A
         else:
             raise IndexError
 
     def __setitem__(self, key: int, value: Image) -> None:
         if key == 0:
-            self.orig = value
+            self.ref = value
         elif key == 1:
-            self.comp = value
+            self.A = value
         else:
             raise IndexError
 
     @property
     def matching_shape(self) -> bool:
-        return self.orig.im.shape == self.comp.im.shape
+        return self.ref.im.shape == self.A.im.shape
 
     @property
     def matching_dtype(self) -> bool:
-        return self.orig.im.dtype == self.comp.im.dtype
+        return self.ref.im.dtype == self.A.im.dtype
 
     def as_floats(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns a tuple with both images as :data:`np.ndarray` of floats
         """
-        return (self.orig.as_float(), self.comp.as_float())
+        return (self.ref.as_float(), self.A.as_float())
 
 
 class ImageCollection:

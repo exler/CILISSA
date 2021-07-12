@@ -68,7 +68,7 @@ class PSNR(Metric):
 
     def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
         # dmax - maximum possible pixel value of the image
-        dmax = image_pair.orig.im.max()
+        dmax = image_pair.ref.im.max()
 
         err = MSE().analyze(image_pair)
         if err == 0:
@@ -164,7 +164,7 @@ class SSIM(Metric):
         base_image, test_image = image_pair.as_floats()
 
         if self.channels_num is None:
-            ch_num = image_pair.orig.channels_num
+            ch_num = image_pair.ref.channels_num
 
         # Create an empty array to hold results from each channel
         ssim_results = np.empty(ch_num)
