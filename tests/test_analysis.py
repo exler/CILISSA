@@ -5,7 +5,7 @@ from pathlib import Path
 
 from numpy import isinf
 
-from cilissa.analyzers import ImageAnalyzer
+from cilissa.core import ImageAnalyzer
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR, SSIM
 
@@ -70,6 +70,6 @@ class TestImageAnalysis(unittest.TestCase):
         mea_image = Image(Path(self.base_path, row["measured"]))
         image_pair = ImagePair(ref_image, mea_image)
 
-        result = analyzer.analyze_pair(image_pair)
+        result = analyzer.analyze(image_pair)
 
         self.assertListEqual(list(result.keys()), [m.get_metric_name() for m in metrics])

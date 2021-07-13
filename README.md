@@ -59,7 +59,7 @@ optional arguments:
 ```python
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import SSIM
-from cilissa.analyzers import ImageAnalyzer
+from cilissa.core import ImageAnalyzer
 
 image1 = Image("path/to/original/image")
 image2 = Image("path/to/other/image")
@@ -72,6 +72,6 @@ result = ssim.analyze(image_pair)
 # Or use ImageAnalyzer
 mse = MSE()
 analyzer = ImageAnalyzer([mse, ssim])
-results = analyzer.analyze_pair(image_pair)
+results = analyzer.analyze(image_pair)
 ```
 
