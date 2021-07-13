@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from queue import Queue
 from typing import Tuple, Union
 
 import cv2
@@ -15,18 +16,36 @@ class Image:
     name: str
 
     def __init__(self, image_path: Union[Path, str]) -> None:
-        self.path = str(image_path)
-        self.name = os.path.basename(self.path)
-
-        self.im = cv2.imread(self.path)
-
-        if self.im is None:
-            raise IOError(f"Cannot open image path: `{self.path}`")
+        self.load(image_path)
 
     @property
     def channels_num(self) -> int:
         # 2D array is a grayscale image, 3D array gives the number of channels
         return 1 if self.im.ndim == 2 else self.im.shape[-1]
+
+    def load(self, image_path: Union[Path, str]) -> None:
+        """
+        Loads the image from given path
+
+        Args:
+            - image_path (Path/str): Path where the image is located.
+        """
+        self.path = str(image_path)
+        self.name = os.path.basename(self.path)
+
+        self.im = cv2.imread(self.path)
+        if self.im is None:
+            raise IOError(f"Cannot open image path: `{self.path}`")
+
+    def save(self, save_path: Union[Path, str]) -> None:
+        """
+        Saves the image
+
+        Args:
+            - save_path (Path/str): Path to save the image at.
+            Must contain the filename with extension.
+        """
+        cv2.imwrite(save_path, self.im)
 
     def display(self) -> None:
         """
@@ -98,9 +117,9 @@ class ImagePair:
         return (self.ref.as_float(), self.A.as_float())
 
 
-class ImageCollection:
+class ImageCollection(Queue):
     """
-    A collection of one or more :class:`cillisa.images.ImagePair`.
+    A collection of one or more :class:`cillisa.images.ImagePair`, implemented as a FIFO queue.
 
     Operations performed on :class:`cillisa.images.ImagePair` can be applied to the whole collection.
     """
