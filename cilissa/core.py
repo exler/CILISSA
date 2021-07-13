@@ -4,7 +4,7 @@ from typing import List, Mapping, Union
 import numpy as np
 
 from cilissa.exceptions import ShapesNotEqual
-from cilissa.images import ImagePair
+from cilissa.images import ImageCollection, ImagePair
 from cilissa.metrics import Metric
 
 
@@ -19,10 +19,10 @@ class ImageAnalyzer:
     def __init__(self, metrics: List[Metric] = []) -> None:
         self._metrics = metrics
 
-    def add_metric(self, metric: Metric) -> None:
+    def add(self, metric: Metric) -> None:
         self._metrics.append(metric)
 
-    def remove_metric(self, metric_name: str) -> None:
+    def remove(self, metric_name: str) -> None:
         """
         Removal is done by either using the instance's verbose_name or the class name
         """
@@ -30,14 +30,26 @@ class ImageAnalyzer:
             if metric_name == (metric.verbose_name or metric.get_metric_name()):
                 del self._metrics[i]
 
-    def replace_metrics(self, metrics: List[Metric]) -> None:
+    def replace(self, metrics: List[Metric]) -> None:
         self._metrics = metrics
 
-    def analyze_pair(self, image_pair: ImagePair) -> Mapping[str, Union[float, np.float64]]:
+    def analyze(self, images: Union[ImagePair, ImageCollection]) -> Mapping[str, Union[float, np.float64]]:
         """
         Runs every metric passed to the analyzer on an :class:`cilissa.images.ImagePair`
         Images need to be of equal shape.
         """
+        if isinstance(images, ImagePair):
+            return self._use_metrics_on_pair(images)
+        elif isinstance(images, ImageCollection):
+            results = []
+            while not ImageCollection.empty():
+                res = self._use_metrics_on_pair(images.get(block=True))
+                results.append(res)
+            return results
+        else:
+            raise TypeError("ImageAnalyzer can only be used on objects of type ImagePair, ImageCollection")
+
+    def _use_metrics_on_pair(self, image_pair: ImagePair) -> Mapping[str, Union[float, np.float64]]:
         if not image_pair.matching_shape:
             raise ShapesNotEqual("Images must be of equal size to analyze")
 
@@ -54,3 +66,7 @@ class ImageAnalyzer:
             results[name] = result
 
         return results
+
+
+class ImageTransformer:
+    pass

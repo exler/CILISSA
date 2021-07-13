@@ -2,7 +2,7 @@ import argparse
 import ast
 import logging
 
-from cilissa.analyzers import ImageAnalyzer
+from cilissa.core import ImageAnalyzer
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import get_all_metrics
 
