@@ -1,9 +1,11 @@
+import logging
 import os
 from pathlib import Path
 from queue import Queue
 from typing import Tuple, Union
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -57,6 +59,38 @@ class Image:
                 k = cv2.waitKey(0)
                 if k == 27:  # ESCAPE key
                     cv2.destroyWindow(self.name)
+
+    def show_histogram(self) -> None:
+        """
+        Shows grayscale histogram of the loaded image
+        """
+        plt.figure()
+        title = self.name
+        xlim = 0
+
+        if self.channels_num == 1:
+            title += " - grayscale histogram"
+            xlim = 1
+
+            histogram, bin_edges = np.histogram(self.im, bins=256, range=(0, 1))
+            plt.plot(bin_edges[0:-1], histogram)
+        elif self.channels_num == 3:
+            title += " - RGB histogram"
+            xlim = 256
+
+            colors = ("red", "green", "blue")
+            for channel_id, color in enumerate(colors):
+                histogram, bin_edges = np.histogram(self.im[:, :, channel_id], bins=256, range=(0, 256))
+                plt.plot(bin_edges[0:-1], histogram, color=color)
+        else:
+            logging.warn(f"Cannot display histogram of image with {self.channels_num} channels!")
+            return
+
+        plt.title(title)
+        plt.xlim([0, xlim])
+        plt.xlabel("Color value")
+        plt.ylabel("Pixel count")
+        plt.show()
 
     def as_float(self) -> np.ndarray:
         """
