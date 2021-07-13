@@ -58,4 +58,4 @@ def get_all_transformations() -> Dict[str, Type[Transformation]]:
     for transformation in subclasses:
         transformations[transformation.get_transformation_name()] = transformation
 
-    return transformation
+    return transformations

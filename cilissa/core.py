@@ -1,5 +1,5 @@
 import logging
-from typing import List, Mapping, Union
+from typing import Any, List, Mapping, Union
 
 import numpy as np
 
@@ -33,7 +33,7 @@ class ImageAnalyzer:
     def replace(self, metrics: List[Metric]) -> None:
         self._metrics = metrics
 
-    def analyze(self, images: Union[ImagePair, ImageCollection]) -> Mapping[str, Union[float, np.float64]]:
+    def analyze(self, images: Union[ImagePair, ImageCollection]) -> Any:
         """
         Runs every metric passed to the analyzer on an :class:`cilissa.images.ImagePair`
         Images need to be of equal shape.
@@ -42,7 +42,7 @@ class ImageAnalyzer:
             return self._use_metrics_on_pair(images)
         elif isinstance(images, ImageCollection):
             results = []
-            while not ImageCollection.empty():
+            while not images.empty():
                 res = self._use_metrics_on_pair(images.get(block=True))
                 results.append(res)
             return results

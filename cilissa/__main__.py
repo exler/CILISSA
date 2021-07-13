@@ -76,5 +76,5 @@ if __name__ == "__main__":
         metrics.append(metric(**kwargs))
 
     analyzer = ImageAnalyzer(metrics)
-    result = analyzer.analyze_pair(image_pair)
+    result = analyzer.analyze(image_pair)
     print(result)
