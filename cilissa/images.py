@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import logging
 import os
 from pathlib import Path
 from queue import Queue
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import cv2
 import matplotlib.pyplot as plt
@@ -11,26 +13,29 @@ import numpy as np
 
 class Image:
     """
-    Image wrapper to work with CILISSA
+    `np.ndarray` wrapper, a core structure in CILISSA
     """
 
     path: str
     name: str
 
-    def __init__(self, image_path: Union[Path, str]) -> None:
-        self.load(image_path)
+    def __init__(self, image: Optional[Union[Path, str, np.ndarray]]) -> None:
+        if isinstance(image, Path) or isinstance(image, str):
+            self.load(image)
+        elif isinstance(image, np.ndarray):
+            self.from_array(image)
+        else:
+            raise TypeError("Cannot create an Image from given object")
 
     @property
     def channels_num(self) -> int:
         # 2D array is a grayscale image, 3D array gives the number of channels
         return 1 if self.im.ndim == 2 else self.im.shape[-1]
 
-    def replace(self, image_array: np.ndarray) -> None:
+    def from_array(self, image_array: np.ndarray) -> None:
         """
         Replaces the underlying image array with given `np.ndarray`
         """
-        self.path = None
-        self.name = f"(Modified) {self.name}"
         self.im = image_array
 
     def load(self, image_path: Union[Path, str]) -> None:
@@ -47,15 +52,30 @@ class Image:
         if self.im is None:
             raise IOError(f"Cannot open image path: `{self.path}`")
 
-    def save(self, save_path: Union[Path, str]) -> None:
+    def save(self, save_path: Union[Path, str] = "") -> None:
         """
         Saves the image
 
         Args:
-            - save_path (Path/str): Path to save the image at.
-            Must contain the filename with extension.
+            - save_path (Path/str/None):
+            Path to save the image at. Must contain the filename with extension.
+            If empty string, then will save to the path the image was loaded from (if available)
         """
-        cv2.imwrite(save_path, self.im)
+        if save_path:
+            self.path = str(save_path)
+
+        if self.path:
+            cv2.imwrite(self.path, self.im)
+        else:
+            logging.error("No save path supplied!")
+
+    def copy(self) -> Image:
+        """
+        Copies and returns the image
+        """
+        image = Image(self.im)
+        image.name = self.name
+        return image
 
     def display(self) -> None:
         """

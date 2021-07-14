@@ -78,9 +78,10 @@ class Blur(Transformation):
             new_im = cv2.blur(im, self.kernel_size)
 
         if inplace:
-            image.replace(new_im)
+            image.from_array(new_im)
+            return None
         else:
-            return new_im
+            return Image(new_im)
 
 
 class Sharpen(Transformation):
@@ -126,7 +127,10 @@ class Sharpen(Transformation):
 
     def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
         im = image.as_int()
-        blurred = Blur(gaussian=True, **self.blur_params).transform(image)
+        im_copy = image.copy()
+
+        Blur(gaussian=True, **self.blur_params).transform(im_copy, inplace=True)
+        blurred = im_copy.as_int()
 
         new_im = im * (1 + self.amount) + blurred * (-self.amount)
         new_im = np.maximum(new_im, np.zeros(new_im.shape))
@@ -137,9 +141,10 @@ class Sharpen(Transformation):
             np.copyto(new_im, im, where=low_contrast_mask)
 
         if inplace:
-            image.replace(new_im)
+            image.from_array(new_im)
+            return None
         else:
-            return new_im
+            return Image(new_im)
 
 
 class Linear(Transformation):
@@ -182,9 +187,10 @@ class Linear(Transformation):
         new_im = cv2.convertScaleAbs(im, alpha=self.contrast, beta=self.brightness)
 
         if inplace:
-            image.replace(new_im)
+            image.from_array(new_im)
+            return None
         else:
-            return new_im
+            return Image(new_im)
 
 
 class Translation(Transformation):
