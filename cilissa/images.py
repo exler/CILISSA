@@ -25,6 +25,14 @@ class Image:
         # 2D array is a grayscale image, 3D array gives the number of channels
         return 1 if self.im.ndim == 2 else self.im.shape[-1]
 
+    def replace(self, image_array: np.ndarray) -> None:
+        """
+        Replaces the underlying image array with given `np.ndarray`
+        """
+        self.path = None
+        self.name = f"(Modified) {self.name}"
+        self.im = image_array
+
     def load(self, image_path: Union[Path, str]) -> None:
         """
         Loads the image from given path
@@ -91,6 +99,14 @@ class Image:
         plt.xlabel("Color value")
         plt.ylabel("Pixel count")
         plt.show()
+
+    def as_int(self) -> np.ndarray:
+        """
+        Converts the image to :data:`np.ndarray` of ints
+        """
+        int_type = np.result_type(self.im, np.uint8)
+        image = np.asarray(self.im, dtype=int_type)
+        return image
 
     def as_float(self) -> np.ndarray:
         """
