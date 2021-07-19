@@ -27,7 +27,7 @@ class ImageAnalyzer:
         Removal is done by either using the instance's verbose_name or the class name
         """
         for i, metric in enumerate(self._metrics):
-            if metric_name == (metric.verbose_name or metric.get_metric_name()):
+            if metric_name == (metric.verbose_name or metric.get_class_name()):
                 del self._metrics[i]
 
     def replace(self, metrics: List[Metric]) -> None:
@@ -60,7 +60,7 @@ class ImageAnalyzer:
 
         results = {}
         for metric in self._metrics:
-            name = metric.verbose_name if metric.verbose_name else metric.get_metric_name()
+            name = metric.verbose_name if metric.verbose_name else metric.get_class_name()
             result = metric.analyze(image_pair)
 
             results[name] = result

@@ -1,35 +1,20 @@
-import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
 from cilissa.helpers import crop_array
 from cilissa.images import ImagePair
+from cilissa.operations import ImageOperation
 
 
-class Metric(ABC):
+class Metric(ImageOperation, ABC):
     """
     Base class for creating new metrics to use in the program.
 
     All metrics must implement the `analyze` method.
     """
-
-    name: str = ""
-
-    def __init__(self, verbose_name: Optional[str] = None, **kwargs: Any) -> None:
-        self.verbose_name = verbose_name
-
-        for k in kwargs.keys():
-            logging.info(f"Discarding unexpected keyword argument: {k}")
-
-    def __str__(self) -> str:
-        return f"Metric: {self.verbose_name or self.name}"
-
-    @classmethod
-    def get_metric_name(cls) -> str:
-        return cls.name
 
     @abstractmethod
     def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
@@ -163,8 +148,7 @@ class SSIM(Metric):
     def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
         base_image, test_image = image_pair.as_floats()
 
-        if self.channels_num is None:
-            ch_num = image_pair.ref.channels_num
+        ch_num = self.channels_num or image_pair.ref.channels_num
 
         # Create an empty array to hold results from each channel
         ssim_results = np.empty(ch_num)
@@ -174,12 +158,3 @@ class SSIM(Metric):
 
         mssim = ssim_results.mean()
         return mssim
-
-
-def get_all_metrics() -> Dict[str, Type[Metric]]:
-    subclasses = Metric.__subclasses__()
-    metrics = {}
-    for metric in subclasses:
-        metrics[metric.get_metric_name()] = metric
-
-    return metrics

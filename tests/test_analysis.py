@@ -72,4 +72,4 @@ class TestImageAnalysis(unittest.TestCase):
 
         result = analyzer.analyze(image_pair)
 
-        self.assertListEqual(list(result.keys()), [m.get_metric_name() for m in metrics])
+        self.assertListEqual(list(result.keys()), [m.get_class_name() for m in metrics])

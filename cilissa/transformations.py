@@ -1,34 +1,19 @@
-import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Tuple, Type, Union
+from typing import Any, Optional, Tuple, Union
 
 import cv2
 import numpy as np
 
 from cilissa.images import Image
+from cilissa.operations import ImageOperation
 
 
-class Transformation(ABC):
+class Transformation(ImageOperation, ABC):
     """
     Base class for creating new transformations to use in the program.
 
     All transformations must implement the `transform` method.
     """
-
-    name: str = ""
-
-    def __init__(self, verbose_name: Optional[str] = None, **kwargs: Any) -> None:
-        self.verbose_name = verbose_name
-
-        for k in kwargs.keys():
-            logging.info(f"Discarding unexpected keyword argument: {k}")
-
-    def __str__(self) -> str:
-        return f"Transformation: {self.verbose_name or self.name}"
-
-    @classmethod
-    def get_transformation_name(cls) -> str:
-        return cls.name
 
     @abstractmethod
     def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
@@ -54,6 +39,8 @@ class Blur(Transformation):
         - https://docs.opencv.org/4.5.2/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1
 
     """
+
+    name = "blur"
 
     def __init__(
         self,
@@ -101,6 +88,8 @@ class Sharpen(Transformation):
     References:
         - https://en.wikipedia.org/wiki/Unsharp_masking
     """
+
+    name = "sharpen"
 
     def __init__(
         self,
@@ -171,6 +160,8 @@ class Linear(Transformation):
         - https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
     """
 
+    name = "linear"
+
     def __init__(
         self,
         contrast: Optional[Union[int, float]] = None,
@@ -194,7 +185,41 @@ class Linear(Transformation):
 
 
 class Translation(Transformation):
-    pass
+    """
+    Shifts an image by given amount in pixels along X and/or Y axis.
+
+    Uses an affine transformation to perform image translation.
+
+    Args:
+        - x (int): Value (in px) to move the image along X-axis.
+        Positive - right, negative - left.
+        - y (int): Value (in px) to move the image along Y-axis.
+        Positive - down, negative - up.
+
+    References:
+        - https://en.wikipedia.org/wiki/Affine_transformation
+    """
+
+    name = "translation"
+
+    def __init__(self, x: int = 0, y: int = 0, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+        self.x = x
+        self.y = y
+
+    def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
+        im = image.as_int()
+
+        # Transformation matrix
+        M = np.float32([[1, 0, self.x], [0, 1, self.y]])
+        new_im = cv2.warpAffine(im, M, (im.shape[1], im.shape[0]))
+
+        if inplace:
+            image.from_array(new_im)
+            return None
+        else:
+            return Image(new_im)
 
 
 class Stretch(Transformation):
@@ -202,13 +227,4 @@ class Stretch(Transformation):
     Histogram stretch
     """
 
-    pass
-
-
-def get_all_transformations() -> Dict[str, Type[Transformation]]:
-    subclasses = Transformation.__subclasses__()
-    transformations = {}
-    for transformation in subclasses:
-        transformations[transformation.get_transformation_name()] = transformation
-
-    return transformations
+    name = "stretch"

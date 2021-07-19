@@ -1,10 +1,10 @@
 import argparse
-import ast
 import logging
 
+from cilissa.cli import get_operation_instances
 from cilissa.core import ImageAnalyzer
 from cilissa.images import Image, ImagePair
-from cilissa.metrics import get_all_metrics
+from cilissa.utils import all_metrics, all_transformations
 
 help_message = """
 CILISSA - Interactive computer image likeness assessing.
@@ -13,22 +13,29 @@ Example: `cilissa -m ssim ssim-channels-num=3` will be created as `SSIM(channels
 """
 
 if __name__ == "__main__":
-    all_metrics = get_all_metrics()
-
     parser = argparse.ArgumentParser(
         description=help_message,
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument("-o", "--orig-image", required=True, help="Original image working as a base for comparison")
-    parser.add_argument("-c", "--comp-image", required=True, help="Modified image to be analyzed against the original")
+    parser.add_argument("-r", "--ref-image", required=True, help="Reference image against which quality is measured")
+    parser.add_argument("-c", "--comp-image", required=True, help="Modified/distorted image to be analyzed")
     parser.add_argument(
         "-m",
         "--metric",
         choices=list(all_metrics.keys()),
         action="extend",
         nargs="+",
-        required=True,
+        required=False,
         help="Which metrics to use for analysis",
+    )
+    parser.add_argument(
+        "-t",
+        "--transformation",
+        choices=list(all_transformations.keys()),
+        action="extend",
+        nargs="+",
+        required=False,
+        help="Which transformations to use on the compared image",
     )
     parser.add_argument("-d", "--debug", action="store_true", help="Turn on debugging messages")
     parser.add_argument(
@@ -36,45 +43,29 @@ if __name__ == "__main__":
         nargs="+",
         help="Keyword arguments to be passed to their respective metric. Example: `ssim-channels-num=3`",
     )
+    parser.add_argument("-s", "--show-end-image", action="store_true", help="Shows the image after all transformations")
     args = parser.parse_args()
 
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    image1 = Image(args.orig_image)
+    image1 = Image(args.ref_image)
     image2 = Image(args.comp_image)
+
+    operations = list(args.metric or []) + list(args.transformation or [])
+    instances = get_operation_instances(operations, args.kwargs or [])
+
+    if len(instances["transformations"]) > 0:
+        # transformer = ImageTransformer(instances["transformations"])
+        # transformer.transform(image2, inplace=True)
+        pass
+
+    if args.show_end_image:
+        image2.display()
+
     image_pair = ImagePair(image1, image2)
 
-    metrics = []
-    for metric in args.metric:
-        metric = all_metrics.get(metric)
-        metric_args = [arg for arg in args.kwargs if arg.find(metric.get_metric_name()) == 0]
-        kwargs = {}
-        for m_arg in metric_args:
-            start = len(metric.get_metric_name()) + 1
-            evaluate_type = False
-            try:
-                # Checking if argument has a value supplied
-                key = m_arg[start : m_arg.index("=")].replace("-", "_")
-                value = m_arg[m_arg.index("=") + 1 :]
-                evaluate_type = True
-            except ValueError:
-                # Argument is a flag
-                key = m_arg[start:]
-                value = True
-
-            if evaluate_type:
-                # Try to figure out the correct type for argument
-                try:
-                    value = ast.literal_eval(value)
-                except ValueError:
-                    # Argument is a string or cannot guess correct type
-                    pass
-
-            kwargs[key] = value
-
-        metrics.append(metric(**kwargs))
-
-    analyzer = ImageAnalyzer(metrics)
-    result = analyzer.analyze(image_pair)
-    print(result)
+    if len(instances["metrics"]) > 0:
+        analyzer = ImageAnalyzer(instances["metrics"])
+        result = analyzer.analyze(image_pair)
+        print(result)
