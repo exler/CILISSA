@@ -17,7 +17,7 @@ class ImageAnalyzer:
     """
 
     def __init__(self, metrics: List[Metric] = []) -> None:
-        self._metrics = metrics
+        self.replace(metrics)
 
     def add(self, metric: Metric) -> None:
         self._metrics.append(metric)

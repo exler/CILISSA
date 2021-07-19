@@ -66,6 +66,6 @@ if __name__ == "__main__":
     image_pair = ImagePair(image1, image2)
 
     if len(instances["metrics"]) > 0:
-        analyzer = ImageAnalyzer(instances["metrics"])
+        analyzer = ImageAnalyzer(instances["metrics"])  # type: ignore
         result = analyzer.analyze(image_pair)
         print(result)

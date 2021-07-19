@@ -212,7 +212,7 @@ class Translation(Transformation):
         im = image.as_int()
 
         # Transformation matrix
-        M = np.float32([[1, 0, self.x], [0, 1, self.y]])
+        M = np.array([[1, 0, self.x], [0, 1, self.y]], dtype=np.float32)
         new_im = cv2.warpAffine(im, M, (im.shape[1], im.shape[0]))
 
         if inplace:

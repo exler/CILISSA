@@ -36,6 +36,8 @@ class Image:
         """
         Replaces the underlying image array with given `np.ndarray`
         """
+        self.path = ""
+        self.name = "Image loaded from array"
         self.im = image_array
 
     def load(self, image_path: Union[Path, str]) -> None:
