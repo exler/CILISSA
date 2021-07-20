@@ -1,15 +1,12 @@
 import logging
-from abc import ABC, abstractmethod
-from queue import PriorityQueue
-from typing import Any, List, Mapping, Optional, Tuple, Union
+from abc import ABC
+from typing import Any, List, Mapping, Union
 
 import numpy as np
 
 from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImageCollection, ImagePair
-from cilissa.metrics import Metric
 from cilissa.operations import ImageOperation
-from cilissa.transformations import Transformation
 
 
 class OperationsHandler(ABC):
