@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 from queue import Queue
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import cv2
 import matplotlib.pyplot as plt
@@ -196,4 +196,8 @@ class ImageCollection(Queue):
     Operations performed on :class:`cillisa.images.ImagePair` can be applied to the whole collection.
     """
 
-    pass
+    def __init__(self, images: List[Optional[Image]] = [], maxsize: int = 0) -> None:
+        super().__init__(maxsize=maxsize)
+
+        for image in images:
+            self.put(image)

@@ -28,28 +28,33 @@ CILISSA can be used as a command line program, albeit it has limited functionali
 
 Currently the CLI only supports working with a single pair of images.
 
-The parameters of metrics can be modified by passing them to the `--kwargs` argument using the following format:
+The parameters of metrics and transformations can be modified by passing them to the `--kwargs` argument using the following format:
 ```
-<metric-name>-<parameter-name>=<value>
+<operation-name>-<parameter-name>=<value>
 ``` 
 where `parameter-name` uses hyphens (-) instead of underscores (_)
 
 **Help message**
 
 ```bash
-usage: python -m cilissa [-h] -o ORIG_IMAGE -c COMP_IMAGE -m {mse,psnr,ssim} [{mse,psnr,ssim} ...] [-d] [--kwargs KWARGS [KWARGS ...]]
+usage: cilissa [-h] -r REF_IMAGE -c COMP_IMAGE [-m {mse,psnr,ssim} [{mse,psnr,ssim} ...]]
+               [-t {blur,sharpen,linear,translation,equalization} [{blur,sharpen,linear,translation,equalization} ...]] [-d]
+               [--kwargs KWARGS [KWARGS ...]] [-s]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -o ORIG_IMAGE, --orig-image ORIG_IMAGE
-                        Original image working as a base for comparison
+  -r REF_IMAGE, --ref-image REF_IMAGE
+                        Reference image against which quality is measured
   -c COMP_IMAGE, --comp-image COMP_IMAGE
-                        Modified image to be analyzed against the original
+                        Modified/distorted image to be analyzed
   -m {mse,psnr,ssim} [{mse,psnr,ssim} ...], --metric {mse,psnr,ssim} [{mse,psnr,ssim} ...]
                         Which metrics to use for analysis
+  -t {blur,sharpen,linear,translation,equalization} [{blur,sharpen,linear,translation,equalization} ...], --transformation {blur,sharpen,linear,translation,equalization} [{blur,sharpen,linear,translation,equalization} ...]
+                        Which transformations to use on the compared image
   -d, --debug           Turn on debugging messages
   --kwargs KWARGS [KWARGS ...]
-                        Keyword arguments to be passed to their respective metric. Example: `ssim-channels-num=3`
+                        Keyword arguments to be passed to their respective operation. Example: `ssim-channels-num=3`
+  -s, --show-end-image  Shows the image after all transformations
 ```
 
 ### Library

@@ -2,7 +2,7 @@ import argparse
 import logging
 
 from cilissa.cli import get_operation_instances
-from cilissa.core import ImageAnalyzer
+from cilissa.core import ImageAnalyzer, ImageTransformer
 from cilissa.images import Image, ImagePair
 from cilissa.utils import all_metrics, all_transformations
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--kwargs",
         nargs="+",
-        help="Keyword arguments to be passed to their respective metric. Example: `ssim-channels-num=3`",
+        help="Keyword arguments to be passed to their respective operation. Example: `ssim-channels-num=3`",
     )
     parser.add_argument("-s", "--show-end-image", action="store_true", help="Shows the image after all transformations")
     args = parser.parse_args()
@@ -56,9 +56,8 @@ if __name__ == "__main__":
     instances = get_operation_instances(operations, args.kwargs or [])
 
     if len(instances["transformations"]) > 0:
-        # transformer = ImageTransformer(instances["transformations"])
-        # transformer.transform(image2, inplace=True)
-        pass
+        transformer = ImageTransformer(instances["transformations"])
+        transformer.transform(image2, inplace=True)
 
     if args.show_end_image:
         image2.display()
@@ -66,6 +65,6 @@ if __name__ == "__main__":
     image_pair = ImagePair(image1, image2)
 
     if len(instances["metrics"]) > 0:
-        analyzer = ImageAnalyzer(instances["metrics"])  # type: ignore
+        analyzer = ImageAnalyzer(instances["metrics"])
         result = analyzer.analyze(image_pair)
         print(result)

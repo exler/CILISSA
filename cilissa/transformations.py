@@ -16,7 +16,7 @@ class Transformation(ImageOperation, ABC):
     """
 
     @abstractmethod
-    def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
+    def transform(self, image: Image) -> Image:
         raise NotImplementedError("Transformations must implement the `transform` method")
 
 
@@ -56,7 +56,7 @@ class Blur(Transformation):
         self.kernel_size = kernel_size
         self.sigma = sigma
 
-    def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
+    def transform(self, image: Image) -> Image:
         im = image.as_int()
 
         if self.gaussian:
@@ -64,11 +64,7 @@ class Blur(Transformation):
         else:
             new_im = cv2.blur(im, self.kernel_size)
 
-        if inplace:
-            image.from_array(new_im)
-            return None
-        else:
-            return Image(new_im)
+        return Image(new_im)
 
 
 class Sharpen(Transformation):
@@ -114,12 +110,11 @@ class Sharpen(Transformation):
         self.amount = amount
         self.threshold = threshold
 
-    def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
+    def transform(self, image: Image) -> Image:
         im = image.as_int()
         im_copy = image.copy()
 
-        Blur(gaussian=True, **self.blur_params).transform(im_copy, inplace=True)
-        blurred = im_copy.as_int()
+        blurred = Blur(gaussian=True, **self.blur_params).transform(im_copy).as_int()
 
         new_im = im * (1 + self.amount) + blurred * (-self.amount)
         new_im = np.maximum(new_im, np.zeros(new_im.shape))
@@ -129,11 +124,7 @@ class Sharpen(Transformation):
             low_contrast_mask = np.absolute(im - blurred) < self.threshold
             np.copyto(new_im, im, where=low_contrast_mask)
 
-        if inplace:
-            image.from_array(new_im)
-            return None
-        else:
-            return Image(new_im)
+        return Image(new_im)
 
 
 class Linear(Transformation):
@@ -173,15 +164,13 @@ class Linear(Transformation):
         self.contrast = contrast
         self.brightness = brightness
 
-    def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
+    def transform(self, image: Image) -> Image:
         im = image.as_int()
+
+        # Apply linear transformation
         new_im = cv2.convertScaleAbs(im, alpha=self.contrast, beta=self.brightness)
 
-        if inplace:
-            image.from_array(new_im)
-            return None
-        else:
-            return Image(new_im)
+        return Image(new_im)
 
 
 class Translation(Transformation):
@@ -208,18 +197,14 @@ class Translation(Transformation):
         self.x = x
         self.y = y
 
-    def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
+    def transform(self, image: Image) -> Image:
         im = image.as_int()
 
         # Transformation matrix
         M = np.array([[1, 0, self.x], [0, 1, self.y]], dtype=np.float32)
         new_im = cv2.warpAffine(im, M, (im.shape[1], im.shape[0]))
 
-        if inplace:
-            image.from_array(new_im)
-            return None
-        else:
-            return Image(new_im)
+        return Image(new_im)
 
 
 class Equalization(Transformation):
@@ -236,10 +221,7 @@ class Equalization(Transformation):
 
     name = "equalization"
 
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
-    def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
+    def transform(self, image: Image) -> Image:
         im = image.as_int()
 
         # Transform to YCbCr color space
@@ -251,8 +233,4 @@ class Equalization(Transformation):
         # Transform back to RGB color space
         new_im = cv2.cvtColor(new_im, cv2.COLOR_YCrCb2RGB)
 
-        if inplace:
-            image.from_array(new_im)
-            return None
-        else:
-            return Image(new_im)
+        return Image(new_im)
