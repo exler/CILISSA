@@ -222,9 +222,37 @@ class Translation(Transformation):
             return Image(new_im)
 
 
-class Stretch(Transformation):
+class Equalization(Transformation):
     """
-    Histogram stretch
+    Constrast adjustment using histogram equalization.
+
+    Transforms the image into YCbCr color space and then performs equalization.
+
+    References:
+        - https://en.wikipedia.org/wiki/Histogram_equalization
+        - https://en.wikipedia.org/wiki/YCbCr
+        - https://www.programmersought.com/article/55274250088/
     """
 
-    name = "stretch"
+    name = "equalization"
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+    def transform(self, image: Image, inplace: bool = False) -> Union[Image, None]:
+        im = image.as_int()
+
+        # Transform to YCbCr color space
+        new_im = cv2.cvtColor(im, cv2.COLOR_RGB2YCrCb)
+
+        # Equalize histogram
+        new_im[:, :, 0] = cv2.equalizeHist(new_im[:, :, 0])
+
+        # Transform back to RGB color space
+        new_im = cv2.cvtColor(new_im, cv2.COLOR_YCrCb2RGB)
+
+        if inplace:
+            image.from_array(new_im)
+            return None
+        else:
+            return Image(new_im)
