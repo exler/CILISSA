@@ -59,7 +59,7 @@ optional arguments:
 
 ### Library
 
-* Basic example of image pair analysis
+* Example: image pair analysis
 
 ```python
 from cilissa.images import Image, ImagePair
@@ -80,3 +80,20 @@ analyzer = ImageAnalyzer([mse, ssim])
 results = analyzer.analyze(image_pair)
 ```
 
+* Example: image transformation
+```python
+from cilissa.images import Image
+from cilissa.transformations import Blur, Equalization
+from cilissa.core import ImageTransformer
+
+image = Image("path/to/original/image")
+
+# Transform using standalone transformation
+blur = Blur(gaussian=False, sigma=2.0)
+result = blur.transform(image)
+
+# Or use ImageTransformer
+eq = Equalization()
+transformer = ImageTransformer([blur, eq])
+result = transformer.transform(image)
+```
