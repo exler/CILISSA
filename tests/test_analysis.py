@@ -16,12 +16,12 @@ class TestImageAnalysis(unittest.TestCase):
         cls.base_path = os.path.dirname(__file__)
 
         fp = open(Path(cls.base_path, "data", "data.json"))
-        cls.metrics_data = json.load(fp)
+        cls.images_data = json.load(fp)
 
     def test_metric_mse(self) -> None:
         mse = MSE()
 
-        for m_type in self.metrics_data.values():
+        for m_type in self.images_data.values():
             for m in m_type:
                 ref_image = Image(Path(self.base_path, m["reference"]))
                 mea_image = Image(Path(self.base_path, m["measured"]))
@@ -34,7 +34,7 @@ class TestImageAnalysis(unittest.TestCase):
     def test_metric_psnr(self) -> None:
         psnr = PSNR()
 
-        for m_type in self.metrics_data.values():
+        for m_type in self.images_data.values():
             for m in m_type:
                 ref_image = Image(Path(self.base_path, m["reference"]))
                 mea_image = Image(Path(self.base_path, m["measured"]))
@@ -50,7 +50,7 @@ class TestImageAnalysis(unittest.TestCase):
     def test_metric_ssim(self) -> None:
         ssim = SSIM()
 
-        for m_type in self.metrics_data.values():
+        for m_type in self.images_data.values():
             for m in m_type:
                 ref_image = Image(Path(self.base_path, m["reference"]))
                 mea_image = Image(Path(self.base_path, m["measured"]))
@@ -65,7 +65,7 @@ class TestImageAnalysis(unittest.TestCase):
         metrics = [mse, psnr, ssim]
         analyzer = ImageAnalyzer(metrics)
 
-        row = self.metrics_data["jpeg"][0]
+        row = self.images_data["jpeg"][0]
         ref_image = Image(Path(self.base_path, row["reference"]))
         mea_image = Image(Path(self.base_path, row["measured"]))
         image_pair = ImagePair(ref_image, mea_image)

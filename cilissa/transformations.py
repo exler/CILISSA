@@ -89,8 +89,8 @@ class Sharpen(Transformation):
 
     def __init__(
         self,
-        amount: float = 1.0,
-        threshold: int = 0,
+        amount: float = 1.5,
+        threshold: int = 10,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)

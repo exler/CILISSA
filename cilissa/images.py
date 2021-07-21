@@ -27,6 +27,16 @@ class Image:
         else:
             raise TypeError("Cannot create an Image from given object")
 
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, Image):
+            comparison = self.im == o.im
+        elif isinstance(o, np.ndarray):
+            comparison = self.im == o
+        else:
+            raise TypeError(f"Cannot compare object of type Image and {type(o)}")
+
+        return comparison.all()
+
     @property
     def channels_num(self) -> int:
         # 2D array is a grayscale image, 3D array gives the number of channels
@@ -89,6 +99,7 @@ class Image:
                 k = cv2.waitKey(0)
                 if k == 27:  # ESCAPE key
                     cv2.destroyWindow(self.name)
+                    break
 
     def show_histogram(self) -> None:
         """
@@ -137,6 +148,9 @@ class Image:
         float_type = np.result_type(self.im, np.float32)
         image = np.asarray(self.im, dtype=float_type)
         return image
+
+    def __str__(self):
+        return f"Image(name={self.name})"
 
 
 class ImagePair:

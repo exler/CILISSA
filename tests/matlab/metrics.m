@@ -4,7 +4,7 @@ close all; clear; clc;
 
 base_path = "../data";
 ref_base_path = "../data/ref_images";
-excluded = [".", "..", "ref_images"];
+excluded = [".", "..", "ref_images", "transformations"];
 data = {};
 
 files = dir(base_path);
