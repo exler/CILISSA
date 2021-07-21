@@ -149,7 +149,7 @@ class Image:
         image = np.asarray(self.im, dtype=float_type)
         return image
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Image(name={self.name})"
 
 

@@ -1,13 +1,9 @@
-import json
 import os
 import unittest
 from pathlib import Path
 
-from numpy import isinf
-
-from cilissa.core import ImageAnalyzer, ImageTransformer
-from cilissa.images import Image, ImagePair
-from cilissa.metrics import MSE, PSNR, SSIM
+from cilissa.core import ImageTransformer
+from cilissa.images import Image
 from cilissa.transformations import (
     Blur,
     Equalization,
