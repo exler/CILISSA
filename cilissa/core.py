@@ -13,6 +13,7 @@ class OperationsHandler(ABC):
     operations: List[ImageOperation] = []
 
     def __init__(self, operations: List[ImageOperation] = []) -> None:
+        self.clear()
         for op in operations:
             self.push(op)
 
