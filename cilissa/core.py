@@ -1,6 +1,6 @@
 import logging
 from abc import ABC
-from typing import Any, List, Mapping, Union
+from typing import Any, List, Mapping, Tuple, Union
 
 import numpy as np
 
@@ -28,6 +28,12 @@ class OperationsHandler(ABC):
                 return self.operations.pop(i)
 
         return None
+
+    def get_order(self) -> List[Tuple[int, ImageOperation]]:
+        return [(index, element) for index, element in enumerate(self.operations)]
+
+    def change_order(self, a: int, b: int) -> None:
+        self.operations[a], self.operations[b] = self.operations[b], self.operations[a]
 
     def clear(self) -> None:
         self.operations = []
