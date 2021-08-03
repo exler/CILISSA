@@ -1,6 +1,10 @@
 ### Visual Studio Code ###
 .vscode/
 
+### QtCreator ###
+.qt_for_python/
+*.pro.user*
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
