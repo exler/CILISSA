@@ -40,6 +40,9 @@ exclude = "tests"
 [tool.isort]
 profile = "black"
 
+[tool.black]
+extend-exclude = "cilissa_gui/resources"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
