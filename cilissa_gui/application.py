@@ -2,18 +2,22 @@ from PySide6.QtGui import QAction, QDesktopServices, QIcon
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 import cilissa_gui.resources  # noqa
+from cilissa_gui.ui.layout import Layout
 
 
 class Application(QMainWindow):
     def __init__(self) -> None:
         QMainWindow.__init__(self)
         self.setWindowTitle("CILISSA")
-        self.resize(800, 600)
+        self.resize(1024, 768)
 
         self._create_actions()
         self._create_menubar()
         self._create_toolbar()
         self._create_statusbar()
+
+        self.layout = Layout()
+        self.setCentralWidget(self.layout)
 
     def _create_actions(self) -> None:
         self.open_images_action = QAction(QIcon(":add-file"), "&Open Images...", self)

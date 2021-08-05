@@ -3,4 +3,7 @@
     <file alias="add-file">icons/add-file.svg</file>
     <file alias="add-folder">icons/add-folder.svg</file>
 </qresource>
+<qresource>
+    <file alias="placeholder-128">placeholder-128.png</file>
+</qresource>
 </RCC>
