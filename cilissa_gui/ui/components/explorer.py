@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from PySide6.QtWidgets import QGridLayout, QLabel, QTabWidget, QWidget
 
@@ -19,14 +19,14 @@ class ExplorerTab(QWidget):
         self.layout = QGridLayout()
         self.setLayout(self.layout)
 
-        self.items = []
+        self.items: List[Any] = []
 
     def add_item(self, item: Any) -> None:
         self.layout.addWidget(item, self.get_row(), self.get_column())
         self.items.append(item)
 
     def get_row(self) -> int:
-        return (len(self.items) - len(self.items) % 2) / 2
+        return int((len(self.items) - len(self.items) % 2) / 2)
 
     def get_column(self) -> int:
         return len(self.items) % 2
