@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QScrollArea, QVBoxLayout, QWidget
 
 from cilissa_gui.ui.components import (
-    Console,
+    ConsoleBox,
     Explorer,
     OperationsQueue,
     Properties,
@@ -53,7 +53,7 @@ class Layout(QWidget):
         workspace_box = QGroupBox("Workspace")
         workspace_box.setLayout(Workspace())
         middle_panel.addWidget(workspace_box)
-        middle_panel.addWidget(Console())
+        middle_panel.addWidget(ConsoleBox())
         return middle_panel
 
     def _init_right_panel(self) -> QVBoxLayout:
