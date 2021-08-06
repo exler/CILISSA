@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QScrollArea, QVBoxLayout, QWidget
 
 from cilissa_gui.ui.components import (
     Console,
@@ -42,7 +42,10 @@ class Layout(QWidget):
 
     def _init_left_panel(self) -> QVBoxLayout:
         left_panel = QVBoxLayout()
-        left_panel.addWidget(Explorer())
+        scroll_area = QScrollArea()
+        scroll_area.setWidget(Explorer())
+        scroll_area.setWidgetResizable(True)
+        left_panel.addWidget(scroll_area)
         return left_panel
 
     def _init_middle_panel(self) -> QVBoxLayout:
