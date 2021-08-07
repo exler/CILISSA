@@ -1,3 +1,4 @@
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QGridLayout, QLabel
 
@@ -13,6 +14,7 @@ class Workspace(QGridLayout):
         # TODO: Implement me
         image = QPixmap(":placeholder-128")
         image_label = QLabel()
+        image_label.setAlignment(Qt.AlignCenter)
         image_label.setPixmap(image)
         self.addWidget(image_label, 0, 0)
 
@@ -20,5 +22,6 @@ class Workspace(QGridLayout):
         # TODO: Implement me
         image = QPixmap(":placeholder-128")
         image_label = QLabel()
+        image_label.setAlignment(Qt.AlignCenter)
         image_label.setPixmap(image)
         self.addWidget(image_label, 0, 1)

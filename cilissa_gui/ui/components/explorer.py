@@ -1,8 +1,11 @@
 from pathlib import Path
 from typing import Any, List
 
-from PySide6.QtCore import QDir
+from PySide6.QtCore import QDir, Qt
 from PySide6.QtWidgets import QFileDialog, QGridLayout, QLabel, QTabWidget, QWidget
+
+from cilissa.utils import all_metrics, all_transformations
+from cilissa_gui.widgets.operation import CQOperation
 
 
 class Explorer(QTabWidget):
@@ -11,9 +14,9 @@ class Explorer(QTabWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.images_tab = ImagesTab()
-        self.metrics_tab = MetricsTab()
-        self.transformations_tab = TransformationsTab()
+        self.images_tab = ImagesTab(self)
+        self.metrics_tab = MetricsTab(self)
+        self.transformations_tab = TransformationsTab(self)
 
         self.addTab(self.images_tab, "Images")
         self.addTab(self.metrics_tab, "Metrics")
@@ -39,11 +42,14 @@ class Explorer(QTabWidget):
 
 
 class ExplorerTab(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, parent: QTabWidget) -> None:
         super().__init__()
 
         self.layout = QGridLayout()
+        self.layout.setAlignment(Qt.AlignTop)
         self.setLayout(self.layout)
+
+        self.setMaximumWidth(parent.width())
 
         self.items: List[Any] = []
 
@@ -59,13 +65,21 @@ class ExplorerTab(QWidget):
 
 
 class ImagesTab(ExplorerTab):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, parent: QTabWidget) -> None:
+        super().__init__(parent)
 
 
 class MetricsTab(ExplorerTab):
-    pass
+    def __init__(self, parent: QTabWidget) -> None:
+        super().__init__(parent)
+
+        for metric in all_metrics.values():
+            self.add_item(CQOperation(metric))
 
 
 class TransformationsTab(ExplorerTab):
-    pass
+    def __init__(self, parent: QTabWidget) -> None:
+        super().__init__(parent)
+
+        for transformation in all_transformations.values():
+            self.add_item(CQOperation(transformation))

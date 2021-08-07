@@ -1,4 +1,4 @@
-from PySide6.QtGui import QAction, QDesktopServices, QIcon
+from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
@@ -88,15 +88,26 @@ class Interface(QWidget):
         return right_panel
 
     def _create_actions(self) -> None:
-        self.open_images_action = QAction(QIcon(":add-file"), "&Open Images...", self)
-        self.open_images_action.triggered.connect(self.explorer.open_image_dialog)
-
-        self.open_folder_action = QAction(QIcon(":add-folder"), "Open Folder...", self)
-        self.open_folder_action.triggered.connect(self.explorer.open_image_folder_dialog)
-
-        self.documentation_action = QAction("Documentation", self)
-        self.documentation_action.triggered.connect(
-            lambda: QDesktopServices.openUrl("https://github.com/exler/cilissa")
+        self.open_images_action = QAction(
+            QIcon(":add-file"),
+            "Open Images...",
+            self,
+            statusTip="Open an image file",
+            shortcut=QKeySequence.Open,
+            triggered=self.explorer.open_image_dialog,
+        )
+        self.open_folder_action = QAction(
+            QIcon(":add-folder"),
+            "Open Folder...",
+            self,
+            statusTip="Open an image folder",
+            triggered=self.explorer.open_image_folder_dialog,
+        )
+        self.documentation_action = QAction(
+            "Documentation",
+            self,
+            statusTip="Open documentation website",
+            triggered=lambda: QDesktopServices.openUrl("https://github.com/exler/cilissa"),
         )
 
     def _create_menubar(self) -> None:
