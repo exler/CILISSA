@@ -5,7 +5,6 @@ from pathlib import Path
 
 from numpy import isinf
 
-from cilissa.core import ImageAnalyzer
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR, SSIM
 
@@ -59,17 +58,3 @@ class TestImageAnalysis(unittest.TestCase):
                 result = ssim.analyze(image_pair)
 
                 self.assertAlmostEqual(result, m["metrics"]["ssim"], delta=0.5)
-
-    def test_image_analyzer(self) -> None:
-        mse, psnr, ssim = MSE(), PSNR(), SSIM()
-        metrics = [mse, psnr, ssim]
-        analyzer = ImageAnalyzer(metrics)
-
-        row = self.images_data["jpeg"][0]
-        ref_image = Image(Path(self.base_path, row["reference"]))
-        mea_image = Image(Path(self.base_path, row["measured"]))
-        image_pair = ImagePair(ref_image, mea_image)
-
-        result = analyzer.analyze(image_pair)
-
-        self.assertListEqual(list(result.keys()), [m.get_class_name() for m in metrics])

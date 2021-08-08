@@ -1,70 +1,85 @@
 import logging
-from abc import ABC
-from typing import Any, List, Mapping, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
 from cilissa.exceptions import ShapesNotEqual
-from cilissa.images import Image, ImageCollection, ImagePair
-from cilissa.operations import ImageOperation
+from cilissa.images import ImageCollection, ImagePair
+from cilissa.operations import ImageOperation, Metric, Transformation
 
 
-class OperationsHandler(ABC):
-    operations: List[ImageOperation] = []
+class OrderedQueue:
+    """
+    Simple synchronous FIFO queue that can be reordered.
 
-    def __init__(self, operations: List[ImageOperation] = []) -> None:
+    Implements a subset of :type:`queue.Queue` operations.
+
+    Implements additional `get_order` and `change_order` methods to manage the queue's order.
+    """
+
+    queue: List[Any] = []
+
+    def __init__(self, items: List[Any] = []) -> None:
         self.clear()
-        for op in operations:
-            self.push(op)
+        for item in items:
+            self.push(item)
 
-    def push(self, operation: ImageOperation) -> None:
-        self.operations.append(operation)
+    def empty(self) -> bool:
+        return not self.queue
 
-    def pop(self, operation_name: str) -> Union[None, ImageOperation]:
-        """
-        Popping is done by either using the instance's verbose_name or the class name
-        """
-        for i, op in enumerate(self.operations):
-            if operation_name == (op.verbose_name or op.get_class_name()):
-                return self.operations.pop(i)
+    def push(self, item: Any) -> None:
+        self.queue.append(item)
 
-        return None
+    def pop(self, index: Optional[int] = None) -> Any:
+        if index:
+            return self.queue.pop(index)
 
-    def get_order(self) -> List[Tuple[int, ImageOperation]]:
-        return [(index, element) for index, element in enumerate(self.operations)]
+        return self.queue.pop(0)
+
+    def get_order(self) -> List[Tuple[int, Any]]:
+        return [(index, element) for index, element in enumerate(self.queue)]
 
     def change_order(self, a: int, b: int) -> None:
-        self.operations[a], self.operations[b] = self.operations[b], self.operations[a]
+        self.queue[a], self.queue[b] = self.queue[b], self.queue[a]
 
     def clear(self) -> None:
-        self.operations = []
+        self.queue = []
 
 
-class ImageAnalyzer(OperationsHandler):
-    """
-    ImageAnalyzer analyzes :class:`cilissa.images.ImagePair` and :class:`cilissa.images.ImageCollection`
-    using multiple metrics.
-
-    ImageAnalyzer should be given instances of metrics with configured attributes.
-    """
-
-    def analyze(self, images: Union[ImagePair, ImageCollection]) -> Any:
-        """
-        Runs every metric passed to the analyzer on an :class:`cilissa.images.ImagePair`
-        Images need to be of equal shape.
-        """
+class OperationsQueue(OrderedQueue):
+    def run(self, images: Union[ImagePair, ImageCollection], **kwargs: Any) -> Any:
         if isinstance(images, ImagePair):
-            return self._use_metrics_on_pair(images)
+            return self._use_operations_on_pair(images)
         elif isinstance(images, ImageCollection):
             results = []
             while not images.empty():
-                res = self._use_metrics_on_pair(images.get(block=True))
+                res = self._use_operations_on_pair(images.get(block=True))
                 results.append(res)
+
             return results
         else:
-            raise TypeError("ImageAnalyzer can only be used on objects of type ImagePair, ImageCollection")
+            raise TypeError("Objects must be of type ImagePair, ImageCollection")
 
-    def _use_metrics_on_pair(self, image_pair: ImagePair) -> Mapping[str, Union[float, np.float64]]:
+    def _get_function_for_operation(self, operation: Type[ImageOperation]) -> Callable:
+        if isinstance(operation, Metric):
+            return self._use_metric_on_pair
+        elif isinstance(operation, Transformation):
+            return self._use_transformation_on_image
+        else:
+            raise TypeError("Operations must be of type Metric, Transformation")
+
+    def _use_operations_on_pair(self, image_pair: ImagePair) -> Any:
+        results = []
+        while not self.empty():
+            operation = self.pop()
+            func = self._get_function_for_operation(operation)
+            result = func(operation, image_pair)
+            if result is not None:
+                results.append(result)
+
+        return results
+
+    def _use_metric_on_pair(self, metric: Metric, image_pair: ImagePair) -> Union[float, np.float64]:
         if not image_pair.matching_shape:
             raise ShapesNotEqual("Images must be of equal size to analyze")
 
@@ -73,48 +88,8 @@ class ImageAnalyzer(OperationsHandler):
                 "Input images have mismatched data types. Metrics relying on data range will use original image's type."
             )
 
-        results = {}
-        for metric in self.operations:
-            name = metric.verbose_name if metric.verbose_name else metric.get_class_name()
-            results[name] = metric.analyze(image_pair)  # type: ignore
+        return metric.analyze(image_pair)
 
-        return results
-
-
-class ImageTransformer(OperationsHandler):
-    """
-    ImageAnalyzer analyzes :class:`cilissa.images.ImagePair` and :class:`cilissa.images.ImageCollection`
-    using multiple metrics.
-
-    ImageTransformer should be given instances of metrics with configured attributes.
-    """
-
-    def transform(
-        self, target: Union[Image, ImagePair, ImageCollection], inplace: bool = False
-    ) -> Union[None, Image, ImagePair, ImageCollection]:
-        if isinstance(target, Image):
-            return self._use_transformations_on_image(target, inplace=inplace)
-        elif isinstance(target, ImagePair):
-            return self._use_transformations_on_image(target.A, inplace=inplace)
-        elif isinstance(target, ImageCollection):
-            results = []
-            while not target.empty():
-                res = self._use_transformations_on_image(target.get(block=True).A, inplace=inplace)
-                results.append(res)
-
-            if not inplace:
-                return ImageCollection(results)
-            return None
-        else:
-            raise TypeError("ImageTransformer can only be used on objects of type Image, ImagePair, ImageCollection")
-
-    def _use_transformations_on_image(self, image: Image, inplace: bool = False) -> Union[None, Image]:
-        new_im = image
-        for transformation in self.operations:
-            new_im = transformation.transform(new_im)  # type: ignore
-
-        if inplace:
-            image.from_array(new_im.im)
-            return None
-        else:
-            return new_im
+    def _use_transformation_on_image(self, transformation: Transformation, image_pair: ImagePair) -> None:
+        new_im = transformation.transform(image_pair.A)
+        image_pair.A.from_array(new_im.im)

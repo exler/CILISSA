@@ -2,9 +2,10 @@ import argparse
 import logging
 
 from cilissa.cli import get_operation_instances
-from cilissa.core import ImageAnalyzer, ImageTransformer
+from cilissa.core import OperationsQueue
 from cilissa.images import Image, ImagePair
-from cilissa.utils import all_metrics, all_transformations
+from cilissa.metrics import all_metrics
+from cilissa.transformations import all_transformations
 
 help_message = """
 CILISSA - Interactive computer image likeness assessing.
@@ -51,20 +52,16 @@ if __name__ == "__main__":
 
     image1 = Image(args.ref_image)
     image2 = Image(args.comp_image)
+    image_pair = ImagePair(image1, image2)
 
     operations = list(args.metric or []) + list(args.transformation or [])
     instances = get_operation_instances(operations, args.kwargs or [])
 
-    if len(instances["transformations"]) > 0:
-        transformer = ImageTransformer(instances["transformations"])
-        transformer.transform(image2, inplace=True)
+    queue = OperationsQueue(instances["transformations"] + instances["metrics"])
+    result = queue.run(image_pair)
+
+    if result:
+        print(result)
 
     if args.show_end_image:
-        image2.display()
-
-    image_pair = ImagePair(image1, image2)
-
-    if len(instances["metrics"]) > 0:
-        analyzer = ImageAnalyzer(instances["metrics"])
-        result = analyzer.analyze(image_pair)
-        print(result)
+        image_pair.A.display()

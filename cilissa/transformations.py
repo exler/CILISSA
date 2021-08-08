@@ -1,23 +1,11 @@
-from abc import ABC, abstractmethod
 from typing import Any, Optional, Tuple, Union
 
 import cv2
 import numpy as np
 
 from cilissa.images import Image
-from cilissa.operations import ImageOperation
-
-
-class Transformation(ImageOperation, ABC):
-    """
-    Base class for creating new transformations to use in the program.
-
-    All transformations must implement the `transform` method.
-    """
-
-    @abstractmethod
-    def transform(self, image: Image) -> Image:
-        raise NotImplementedError("Transformations must implement the `transform` method")
+from cilissa.operations import Transformation
+from cilissa.utils import get_operation_subclasses
 
 
 class Blur(Transformation):
@@ -234,3 +222,6 @@ class Equalization(Transformation):
         new_im = cv2.cvtColor(new_im, cv2.COLOR_YCrCb2RGB)
 
         return Image(new_im)
+
+
+all_transformations = get_operation_subclasses(Transformation)
