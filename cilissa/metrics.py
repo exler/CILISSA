@@ -6,6 +6,7 @@ from scipy.ndimage import gaussian_filter
 from cilissa.helpers import crop_array
 from cilissa.images import ImagePair
 from cilissa.operations import Metric
+from cilissa.utils import get_operation_subclasses
 
 
 class MSE(Metric):
@@ -145,3 +146,6 @@ class SSIM(Metric):
 
         mssim = ssim_results.mean()
         return mssim
+
+
+all_metrics = get_operation_subclasses(Metric)

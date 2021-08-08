@@ -4,7 +4,8 @@ import logging
 from cilissa.cli import get_operation_instances
 from cilissa.core import OperationsQueue
 from cilissa.images import Image, ImagePair
-from cilissa.utils import all_metrics, all_transformations
+from cilissa.metrics import all_metrics
+from cilissa.transformations import all_transformations
 
 help_message = """
 CILISSA - Interactive computer image likeness assessing.

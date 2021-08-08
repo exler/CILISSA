@@ -1,10 +1,9 @@
 import ast
 from typing import Any, Dict, List
 
-from cilissa.metrics import Metric
+from cilissa.metrics import Metric, all_metrics
 from cilissa.operations import ImageOperation
-from cilissa.transformations import Transformation
-from cilissa.utils import all_metrics, all_transformations
+from cilissa.transformations import Transformation, all_transformations
 
 
 def get_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[str, List[ImageOperation]]:
