@@ -2,7 +2,6 @@ import os
 import unittest
 from pathlib import Path
 
-from cilissa.core import ImageTransformer
 from cilissa.images import Image
 from cilissa.transformations import (
     Blur,
@@ -64,15 +63,5 @@ class TestImageTransformation(unittest.TestCase):
 
         result = self.use_transformation(translation)
         comp = self.get_image_for_comparison("translation")
-
-        self.assertEqual(result, comp)
-
-    def test_image_transformer(self) -> None:
-        blur, eq = Blur(), Equalization()
-        transformations = [blur, eq]
-        transformer = ImageTransformer(transformations)
-
-        result = transformer.transform(self.ref_image)
-        comp = self.get_image_for_comparison("multiple")
 
         self.assertEqual(result, comp)

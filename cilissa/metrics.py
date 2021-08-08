@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -6,19 +5,7 @@ from scipy.ndimage import gaussian_filter
 
 from cilissa.helpers import crop_array
 from cilissa.images import ImagePair
-from cilissa.operations import ImageOperation
-
-
-class Metric(ImageOperation, ABC):
-    """
-    Base class for creating new metrics to use in the program.
-
-    All metrics must implement the `analyze` method.
-    """
-
-    @abstractmethod
-    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
-        raise NotImplementedError("Metrics must implement the `analyze` method")
+from cilissa.operations import Metric
 
 
 class MSE(Metric):

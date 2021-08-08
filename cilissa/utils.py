@@ -1,8 +1,6 @@
 from typing import Dict, Type
 
-from cilissa.metrics import Metric
-from cilissa.operations import ImageOperation
-from cilissa.transformations import Transformation
+from cilissa.operations import ImageOperation, Metric, Transformation
 
 
 def get_operation_subclasses(operation: Type[ImageOperation]) -> Dict[str, Type[ImageOperation]]:
