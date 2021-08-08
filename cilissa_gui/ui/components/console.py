@@ -5,12 +5,15 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QPushButton,
     QVBoxLayout,
+    QWidget,
 )
 
 
 class ConsoleBox(QGroupBox):
-    def __init__(self) -> None:
+    def __init__(self, parent: QWidget) -> None:
         super().__init__("Console")
+
+        self.parent = parent
 
         self.setMaximumHeight(168)
 
@@ -18,14 +21,16 @@ class ConsoleBox(QGroupBox):
         self.buttons_panel = QVBoxLayout()
         self.buttons_panel.addWidget(QPushButton("&Clear"))
 
-        self.layout.addWidget(Console())
+        self.layout.addWidget(Console(self))
         self.layout.addLayout(self.buttons_panel)
         self.setLayout(self.layout)
 
 
 class Console(QListWidget):
-    def __init__(self) -> None:
+    def __init__(self, parent: QWidget) -> None:
         super().__init__()
+
+        self.parent = parent
 
         # TODO: Implement me
         self.addItem(QListWidgetItem("Metric: MSE, result: 0.67"))

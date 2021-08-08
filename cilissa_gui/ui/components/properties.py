@@ -1,11 +1,20 @@
 from typing import Union
 
-from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QVBoxLayout
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class Properties(QVBoxLayout):
-    def __init__(self) -> None:
+    def __init__(self, parent: QWidget) -> None:
         super().__init__()
+
+        self.parent = parent
 
         self.addWidget(QCheckBox("Boolean"))
         self.create_input("Example")

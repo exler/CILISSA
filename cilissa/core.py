@@ -24,7 +24,8 @@ class OrderedQueue:
         for item in items:
             self.push(item)
 
-    def empty(self) -> bool:
+    @property
+    def is_empty(self) -> bool:
         return not self.queue
 
     def push(self, item: Any) -> None:
@@ -70,7 +71,7 @@ class OperationsQueue(OrderedQueue):
 
     def _use_operations_on_pair(self, image_pair: ImagePair) -> Any:
         results = []
-        while not self.empty():
+        while not self.is_empty:
             operation = self.pop()
             func = self._get_function_for_operation(operation)
             result = func(operation, image_pair)

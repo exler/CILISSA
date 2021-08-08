@@ -1,14 +1,22 @@
-from PySide6.QtWidgets import QListWidget, QListWidgetItem
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QListWidget, QWidget
+
+from cilissa_gui.managers import QueueManager
 
 
-class OperationsQueue(QListWidget):
-    def __init__(self) -> None:
+class Queue(QListWidget):
+    def __init__(self, parent: QWidget) -> None:
         super().__init__()
+
+        self.parent = parent
+
+        self.queue_manager = QueueManager()
+        self.queue_manager.changed.connect(self.refresh)
 
         self.setMaximumHeight(168)
 
-        # TODO: Implement me
-        self.addItem(QListWidgetItem("MSE"))
-        self.addItem(QListWidgetItem("Blur"))
-        self.addItem(QListWidgetItem("Sharpen"))
-        self.addItem(QListWidgetItem("SSIM"))
+    @Slot()
+    def refresh(self) -> None:
+        self.clear()
+        for item in self.queue_manager.get_order():
+            self.addItem(item[1].get_class_name())

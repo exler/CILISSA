@@ -4,15 +4,18 @@ from typing import Any, List
 from PySide6.QtCore import QDir, Qt
 from PySide6.QtWidgets import QFileDialog, QGridLayout, QLabel, QTabWidget, QWidget
 
-from cilissa.utils import all_metrics, all_transformations
+from cilissa.metrics import all_metrics
+from cilissa.transformations import all_transformations
 from cilissa_gui.widgets.operation import CQOperation
 
 
 class Explorer(QTabWidget):
     IMAGE_EXTENSIONS = ["*.png", "*.jpg", "*.jpeg", "*.bmp"]
 
-    def __init__(self) -> None:
+    def __init__(self, parent: QWidget) -> None:
         super().__init__()
+
+        self.parent = parent
 
         self.images_tab = ImagesTab(self)
         self.metrics_tab = MetricsTab(self)
@@ -74,7 +77,7 @@ class MetricsTab(ExplorerTab):
         super().__init__(parent)
 
         for metric in all_metrics.values():
-            self.add_item(CQOperation(metric))
+            self.add_item(CQOperation(self, metric))
 
 
 class TransformationsTab(ExplorerTab):
@@ -82,4 +85,4 @@ class TransformationsTab(ExplorerTab):
         super().__init__(parent)
 
         for transformation in all_transformations.values():
-            self.add_item(CQOperation(transformation))
+            self.add_item(CQOperation(self, transformation))
