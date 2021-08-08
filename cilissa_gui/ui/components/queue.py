@@ -1,14 +1,12 @@
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QListWidget, QWidget
+from PySide6.QtWidgets import QListWidget
 
 from cilissa_gui.managers import QueueManager
 
 
 class Queue(QListWidget):
-    def __init__(self, parent: QWidget) -> None:
+    def __init__(self) -> None:
         super().__init__()
-
-        self.parent = parent
 
         self.queue_manager = QueueManager()
         self.queue_manager.changed.connect(self.refresh)

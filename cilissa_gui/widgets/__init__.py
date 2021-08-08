@@ -7,12 +7,10 @@ class BackgroundColorMixin:
     Mixin used to see the boundaries of QWidget. Useful while debugging.
     """
 
-    palette: QPalette
-
     def __init__(self) -> None:
         super().__init__()
 
-        palette = self.palette()
-        palette.setColor(QPalette.Window, Qt.red)
+        palette = self.palette()  # type: ignore
+        palette.setColor(QPalette.Window, Qt.red)  # type: ignore
         self.setAutoFillBackground(True)  # type: ignore
         self.setPalette(palette)  # type: ignore

@@ -30,7 +30,7 @@ class Interface(QWidget):
     def __init__(self, window: QMainWindow) -> None:
         super().__init__()
 
-        self.window = window
+        self.main_window = window
 
         self.init_components()
         self.create_actions()
@@ -51,11 +51,11 @@ class Interface(QWidget):
         self.panels.setStretch(1, 16)
 
     def init_components(self) -> None:
-        self.explorer = Explorer(self)
-        self.workspace = Workspace(self)
-        self.console = ConsoleBox(self)
-        self.properties = Properties(self)
-        self.queue = Queue(self)
+        self.explorer = Explorer()
+        self.workspace = Workspace()
+        self.console = ConsoleBox()
+        self.properties = Properties()
+        self.queue = Queue()
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QVBoxLayout()
@@ -105,7 +105,7 @@ class Interface(QWidget):
         )
 
     def create_menubar(self) -> None:
-        menubar = self.window.menuBar()
+        menubar = self.main_window.menuBar()
 
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(self.open_images_action)
@@ -115,7 +115,7 @@ class Interface(QWidget):
         help_menu.addAction(self.documentation_action)
 
     def create_toolbar(self) -> None:
-        self.toolbar = self.window.addToolBar("Main toolbar")
+        self.toolbar = self.main_window.addToolBar("Main toolbar")
         self.toolbar.setFloatable(False)
         self.toolbar.setMovable(False)
 
@@ -123,5 +123,5 @@ class Interface(QWidget):
         self.toolbar.addAction(self.open_folder_action)
 
     def create_statusbar(self) -> None:
-        self.statusbar = self.window.statusBar()
+        self.statusbar = self.main_window.statusBar()
         self.statusbar.showMessage("CILISSA is ready.")

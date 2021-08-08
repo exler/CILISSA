@@ -10,11 +10,10 @@ from cilissa_gui.widgets import BackgroundColorMixin
 
 
 class CQOperation(BackgroundColorMixin, QWidget):
-    def __init__(self, parent: QWidget, operation: Type[ImageOperation]) -> None:
+    def __init__(self, operation: Type[ImageOperation]) -> None:
         super().__init__()
 
-        self.parent = parent
-        self.layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout()
 
         self.operation = operation
         self.queue_manager = QueueManager()
@@ -29,9 +28,9 @@ class CQOperation(BackgroundColorMixin, QWidget):
         self.text_label = QLabel(operation.get_class_name())
         self.text_label.setAlignment(Qt.AlignCenter)
 
-        self.layout.addWidget(self.image_label)
-        self.layout.addWidget(self.text_label)
-        self.setLayout(self.layout)
+        self.main_layout.addWidget(self.image_label)
+        self.main_layout.addWidget(self.text_label)
+        self.setLayout(self.main_layout)
 
         self.setMaximumHeight(96)
 

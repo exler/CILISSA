@@ -1,13 +1,11 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QGridLayout, QLabel, QWidget
+from PySide6.QtWidgets import QGridLayout, QLabel
 
 
 class Workspace(QGridLayout):
-    def __init__(self, parent: QWidget) -> None:
+    def __init__(self) -> None:
         super().__init__()
-
-        self.parent = parent
 
         self.change_base_image()
         self.change_comp_image()
