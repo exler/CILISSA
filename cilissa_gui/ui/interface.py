@@ -73,9 +73,7 @@ class Interface(QWidget):
 
     def init_middle_panel(self) -> QVBoxLayout:
         middle_panel = QVBoxLayout()
-        workspace_box = QGroupBox("Workspace")
-        workspace_box.setLayout(self.workspace)
-        middle_panel.addWidget(workspace_box)
+        middle_panel.addWidget(self.workspace)
         middle_panel.addWidget(self.console)
         return middle_panel
 
