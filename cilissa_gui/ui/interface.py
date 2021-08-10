@@ -103,6 +103,13 @@ class Interface(QWidget):
             statusTip="Open an image folder",
             triggered=self.explorer.open_image_folder_dialog,
         )
+        self.run_action = QAction(
+            QIcon(":play"),
+            "Run",
+            self,
+            statusTip="Run operations from queue on image collection",
+            triggered=lambda: print("Run"),
+        )
         self.documentation_action = QAction(
             "Documentation",
             self,
@@ -127,6 +134,10 @@ class Interface(QWidget):
 
         self.toolbar.addAction(self.open_images_action)
         self.toolbar.addAction(self.open_folder_action)
+
+        self.toolbar.addSeparator()
+
+        self.toolbar.addAction(self.run_action)
 
     def create_statusbar(self) -> None:
         self.statusbar = self.main_window.statusBar()

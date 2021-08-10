@@ -4,6 +4,7 @@
     <file alias="add-folder">icons/add-folder.svg</file>
     <file alias="letter-t">icons/letter-t.svg</file>
     <file alias="letter-m">icons/letter-m.svg</file>
+    <file alias="play">icons/play.svg</file>
 </qresource>
 <qresource>
     <file alias="placeholder-128">placeholder-128.png</file>
