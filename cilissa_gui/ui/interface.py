@@ -8,7 +8,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from cilissa_gui.ui.components import ConsoleBox, Explorer, Properties, Queue, Workspace
+from cilissa_gui.ui.components import (
+    ConsoleBox,
+    Explorer,
+    Properties,
+    QueueBox,
+    Workspace,
+)
 
 
 class Interface(QWidget):
@@ -55,7 +61,7 @@ class Interface(QWidget):
         self.workspace = Workspace()
         self.console = ConsoleBox()
         self.properties = Properties()
-        self.queue = Queue()
+        self.queue = QueueBox()
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QVBoxLayout()
