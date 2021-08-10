@@ -64,4 +64,4 @@ if __name__ == "__main__":
         print(result)
 
     if args.show_end_image:
-        image_pair.A.display()
+        image_pair.A.display_image()

@@ -2,11 +2,11 @@ from pathlib import Path
 from typing import Any, List
 
 from PySide6.QtCore import QDir, Qt
-from PySide6.QtWidgets import QFileDialog, QGridLayout, QLabel, QTabWidget, QWidget
+from PySide6.QtWidgets import QFileDialog, QGridLayout, QTabWidget, QWidget
 
 from cilissa.metrics import all_metrics
 from cilissa.transformations import all_transformations
-from cilissa_gui.widgets.operation import CQOperation
+from cilissa_gui.widgets import CQImage, CQOperation
 
 
 class Explorer(QTabWidget):
@@ -29,17 +29,17 @@ class Explorer(QTabWidget):
             self, "Open images...", "", f"Images ({' '.join([ext for ext in self.IMAGE_EXTENSIONS])})"
         )[0]
         for fn in filenames:
-            # TODO: Open as CILISSA Image, make QWidget of it and show thumbnail
-            self.images_tab.add_item(QLabel(fn))
+            image = CQImage.load(fn)
+            self.images_tab.add_item(image)
 
     def open_image_folder_dialog(self) -> None:
         dirname = QFileDialog.getExistingDirectory(self, "Open images folder...", "", QFileDialog.ShowDirsOnly)
         d = QDir(dirname)
 
         for fn in d.entryList(self.IMAGE_EXTENSIONS):
-            # TODO: Open as CILISSA Image, make QWidget of it and show thumbnail
             path = Path(dirname, fn)
-            self.images_tab.add_item(QLabel(str(path.resolve())))
+            image = CQImage.load(path.resolve())
+            self.images_tab.add_item(image)
 
 
 class ExplorerTab(QWidget):

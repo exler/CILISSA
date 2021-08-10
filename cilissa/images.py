@@ -42,6 +42,10 @@ class Image:
         # 2D array is a grayscale image, 3D array gives the number of channels
         return 1 if self.im.ndim == 2 else self.im.shape[-1]
 
+    def get_thumbnail(self, width: int, height: int) -> np.ndarray:
+        maxsize = (width, height)
+        return cv2.resize(self.im, maxsize, interpolation=cv2.INTER_AREA)
+
     def from_array(self, image_array: np.ndarray) -> None:
         """
         Replaces the underlying image array with given `np.ndarray`
@@ -89,7 +93,7 @@ class Image:
         image.name = self.name
         return image
 
-    def display(self) -> None:
+    def display_image(self) -> None:
         """
         Displays loaded image until user presses ESCAPE or closes window manually
         """
@@ -101,9 +105,9 @@ class Image:
                     cv2.destroyWindow(self.name)
                     break
 
-    def show_histogram(self) -> None:
+    def display_histogram(self) -> None:
         """
-        Shows grayscale histogram of the loaded image
+        Displays grayscale histogram of the loaded image
         """
         plt.figure()
         title = self.name

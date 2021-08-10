@@ -10,7 +10,7 @@ class BackgroundColorMixin:
     def __init__(self) -> None:
         super().__init__()
 
-        palette = self.palette()  # type: ignore
-        palette.setColor(QPalette.Window, Qt.red)  # type: ignore
-        self.setAutoFillBackground(True)  # type: ignore
-        self.setPalette(palette)  # type: ignore
+        palette = self.palette()
+        palette.setColor(QPalette.Window, Qt.red)
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)
