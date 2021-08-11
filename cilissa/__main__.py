@@ -54,8 +54,8 @@ if __name__ == "__main__":
     image2 = Image(args.comp_image)
     image_pair = ImagePair(image1, image2)
 
-    operations = list(args.metric or []) + list(args.transformation or [])
-    instances = get_operation_instances(operations, args.kwargs or [])
+    operations_choices = list(args.metric or []) + list(args.transformation or [])
+    instances = get_operation_instances(operations_choices, args.kwargs or [])
 
     operations = OperationsList(instances["transformations"] + instances["metrics"])
     result = operations.run(image_pair)

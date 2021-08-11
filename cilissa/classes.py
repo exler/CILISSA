@@ -1,4 +1,4 @@
-from typing import Any, Iterable, List, Optional, Tuple
+from typing import Any, Iterator, List, Optional, Tuple
 
 
 class OrderedList:
@@ -20,7 +20,7 @@ class OrderedList:
     def __len__(self) -> int:
         return len(self.items)
 
-    def __iter__(self) -> Iterable:
+    def __iter__(self) -> Iterator[Any]:
         return iter(self.items)
 
     def push(self, item: Any) -> None:
