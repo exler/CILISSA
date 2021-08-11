@@ -59,13 +59,14 @@ class Image:
         """
         Loads the image from given path
 
+        Uses cv2.imdecode instead of cv2.imread to handle unicode characters in path
         Args:
             - image_path (Path/str): Path where the image is located.
         """
         self.path = str(image_path)
         self.name = os.path.basename(self.path)
 
-        self.im = cv2.imread(self.path)
+        self.im = cv2.imdecode(np.fromfile(self.path, dtype=np.uint8), cv2.IMREAD_ANYCOLOR)
         if self.im is None:
             raise IOError(f"Cannot open image path: `{self.path}`")
 
