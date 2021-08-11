@@ -3,12 +3,13 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from queue import Queue
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+
+from cilissa.classes import OrderedList
 
 
 class Image:
@@ -207,15 +208,11 @@ class ImagePair:
         return (self.ref.as_float(), self.A.as_float())
 
 
-class ImageCollection(Queue):
+class ImageCollection(OrderedList):
     """
-    A collection of one or more :class:`cillisa.images.ImagePair`, implemented as a FIFO queue.
+    A collection of one or more :class:`cillisa.images.ImagePair`.
 
     Operations performed on :class:`cillisa.images.ImagePair` can be applied to the whole collection.
     """
 
-    def __init__(self, images: List[Optional[Image]] = [], maxsize: int = 0) -> None:
-        super().__init__(maxsize=maxsize)
-
-        for image in images:
-            self.put(image)
+    pass

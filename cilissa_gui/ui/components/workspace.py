@@ -1,14 +1,22 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QTabWidget, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class Workspace(QTabWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.list_tab = WorkspaceList(self)
-        self.details_tab = WorkspaceDetails(self)
+        self.list_tab = WorkspaceListTab(self)
+        self.details_tab = WorkspaceDetailsTab(self)
 
         self.addTab(self.list_tab, "List")
         self.addTab(self.details_tab, "Details")
@@ -21,7 +29,7 @@ class WorkspaceTab(QWidget):
         self.setMaximumWidth(parent.width())
 
 
-class WorkspaceList(WorkspaceTab):
+class WorkspaceListTab(WorkspaceTab):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
@@ -30,7 +38,12 @@ class WorkspaceList(WorkspaceTab):
         self.setLayout(self.main_layout)
 
 
-class WorkspaceDetails(WorkspaceTab):
+class WorkspaceList(QListWidget):
+    def __init__(self) -> None:
+        super().__init__()
+
+
+class WorkspaceDetailsTab(WorkspaceTab):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
@@ -58,5 +71,5 @@ class WorkspaceDetails(WorkspaceTab):
         self.main_layout.addWidget(image_label)
 
 
-class ImagePairCard(QWidget):
+class ImagePairCard(QListWidgetItem):
     pass

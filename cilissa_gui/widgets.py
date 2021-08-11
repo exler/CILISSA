@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget
 
 from cilissa.images import Image
 from cilissa.operations import ImageOperation
-from cilissa_gui.managers import QueueManager
+from cilissa_gui.managers import OperationsManager
 
 
 class CQOperation(QWidget):
@@ -19,7 +19,7 @@ class CQOperation(QWidget):
         self.main_layout = QVBoxLayout()
 
         self.operation = operation
-        self.queue_manager = QueueManager()
+        self.operations_manager = OperationsManager()
 
         self.create_actions()
 
@@ -38,17 +38,17 @@ class CQOperation(QWidget):
         self.setMaximumHeight(96)
 
     def create_actions(self) -> None:
-        self.add_to_queue_action = QAction(
-            "Add To Queue", self, statusTip="Add operation to queue", triggered=self.add_to_queue
+        self.add_to_operations_action = QAction(
+            "Add To Operations List", self, statusTip="Add operation to list", triggered=self.add_to_operations_list
         )
 
-    def add_to_queue(self) -> None:
-        self.queue_manager.push(self.operation())
-        self.queue_manager.changed.emit()
+    def add_to_operations_list(self) -> None:
+        self.operations_manager.push(self.operation())
+        self.operations_manager.changed.emit()
 
     def contextMenuEvent(self, event: QContextMenuEvent) -> None:
         menu = QMenu(self)
-        menu.addAction(self.add_to_queue_action)
+        menu.addAction(self.add_to_operations_action)
         menu.exec(event.globalPos())
 
 

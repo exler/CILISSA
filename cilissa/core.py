@@ -1,60 +1,22 @@
 import logging
-from typing import Any, Callable, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Type, Union
 
 import numpy as np
 
+from cilissa.classes import OrderedList
 from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import ImageCollection, ImagePair
 from cilissa.operations import ImageOperation, Metric, Transformation
 
 
-class OrderedQueue:
-    """
-    Simple synchronous FIFO queue that can be reordered.
-
-    Implements a subset of :type:`queue.Queue` operations.
-
-    Implements additional `get_order` and `change_order` methods to manage the queue's order.
-    """
-
-    queue: List[Any] = []
-
-    def __init__(self, items: List[Any] = []) -> None:
-        self.clear()
-        for item in items:
-            self.push(item)
-
-    @property
-    def is_empty(self) -> bool:
-        return not self.queue
-
-    def push(self, item: Any) -> None:
-        self.queue.append(item)
-
-    def pop(self, index: Optional[int] = None) -> Any:
-        if index:
-            return self.queue.pop(index)
-
-        return self.queue.pop(0)
-
-    def get_order(self) -> List[Tuple[int, Any]]:
-        return [(index, element) for index, element in enumerate(self.queue)]
-
-    def change_order(self, a: int, b: int) -> None:
-        self.queue[a], self.queue[b] = self.queue[b], self.queue[a]
-
-    def clear(self) -> None:
-        self.queue = []
-
-
-class OperationsQueue(OrderedQueue):
-    def run(self, images: Union[ImagePair, ImageCollection], **kwargs: Any) -> Any:
+class OperationsList(OrderedList):
+    def run(self, images: Union[ImagePair, ImageCollection]) -> Any:
         if isinstance(images, ImagePair):
             return self._use_operations_on_pair(images)
         elif isinstance(images, ImageCollection):
             results = []
-            while not images.empty():
-                res = self._use_operations_on_pair(images.get(block=True))
+            for pair in images:
+                res = self._use_operations_on_pair(pair)
                 results.append(res)
 
             return results
@@ -71,8 +33,7 @@ class OperationsQueue(OrderedQueue):
 
     def _use_operations_on_pair(self, image_pair: ImagePair) -> Any:
         results = []
-        while not self.is_empty:
-            operation = self.pop()
+        for operation in self:
             func = self._get_function_for_operation(operation)
             result = func(operation, image_pair)
             if result is not None:

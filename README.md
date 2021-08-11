@@ -64,7 +64,7 @@ optional arguments:
 ```python
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import SSIM
-from cilissa.core import OperationsQueue
+from cilissa.core import OperationsList
 
 image1 = Image("path/to/original/image")
 image2 = Image("path/to/other/image")
@@ -74,17 +74,17 @@ image_pair = ImagePair(image1, image2)
 ssim = SSIM(channels_num=3)
 result = ssim.analyze(image_pair)
 
-# Or use OperationsQueue
+# Or use OperationsList
 mse = MSE()
-queue = OperationsQueue([mse, ssim])
-results = queue.run(image_pair)
+operations = OperationsList([mse, ssim])
+results = operations.run(image_pair)
 ```
 
 * Example: image transformation
 ```python
 from cilissa.images import Image
 from cilissa.transformations import Blur, Equalization
-from cilissa.core import OperationsQueue
+from cilissa.core import OperationsList
 
 image = Image("path/to/original/image")
 

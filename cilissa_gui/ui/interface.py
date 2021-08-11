@@ -11,8 +11,8 @@ from PySide6.QtWidgets import (
 from cilissa_gui.ui.components import (
     ConsoleBox,
     Explorer,
+    OperationsBox,
     Properties,
-    QueueBox,
     Workspace,
 )
 
@@ -30,7 +30,7 @@ class Interface(QWidget):
 
     Right panel:
         - Properties
-        - Queue
+        - Operations
     """
 
     def __init__(self, window: QMainWindow) -> None:
@@ -61,7 +61,7 @@ class Interface(QWidget):
         self.workspace = Workspace()
         self.console = ConsoleBox()
         self.properties = Properties()
-        self.queue = QueueBox()
+        self.operations = OperationsBox()
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QVBoxLayout()
@@ -82,7 +82,7 @@ class Interface(QWidget):
         properties_box = QGroupBox("Properties")
         properties_box.setLayout(self.properties)
         right_panel.addWidget(properties_box)
-        right_panel.addWidget(self.queue)
+        right_panel.addWidget(self.operations)
         return right_panel
 
     def create_actions(self) -> None:
@@ -105,7 +105,7 @@ class Interface(QWidget):
             QIcon(":play"),
             "Run",
             self,
-            statusTip="Run operations from queue on image collection",
+            statusTip="Run operations from list on image collection",
             triggered=lambda: print("Run"),
         )
         self.documentation_action = QAction(

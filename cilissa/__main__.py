@@ -2,7 +2,7 @@ import argparse
 import logging
 
 from cilissa.cli import get_operation_instances
-from cilissa.core import OperationsQueue
+from cilissa.core import OperationsList
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import all_metrics
 from cilissa.transformations import all_transformations
@@ -57,8 +57,8 @@ if __name__ == "__main__":
     operations = list(args.metric or []) + list(args.transformation or [])
     instances = get_operation_instances(operations, args.kwargs or [])
 
-    queue = OperationsQueue(instances["transformations"] + instances["metrics"])
-    result = queue.run(image_pair)
+    operations = OperationsList(instances["transformations"] + instances["metrics"])
+    result = operations.run(image_pair)
 
     if result:
         print(result)

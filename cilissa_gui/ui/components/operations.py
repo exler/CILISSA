@@ -10,10 +10,10 @@ from PySide6.QtWidgets import (
 )
 
 from cilissa.operations import ImageOperation, Metric, Transformation
-from cilissa_gui.managers import QueueManager
+from cilissa_gui.managers import OperationsManager
 
 
-class QueueBox(QGroupBox):
+class OperationsBox(QGroupBox):
     def __init__(self) -> None:
         super().__init__("Console")
 
@@ -23,24 +23,24 @@ class QueueBox(QGroupBox):
         self.buttons_panel = QVBoxLayout()
         self.buttons_panel.addWidget(QPushButton("&Clear"))
 
-        self.main_layout.addWidget(Queue())
+        self.main_layout.addWidget(Operations())
         self.main_layout.addLayout(self.buttons_panel)
         self.setLayout(self.main_layout)
 
 
-class Queue(QListWidget):
+class Operations(QListWidget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.queue_manager = QueueManager()
-        self.queue_manager.changed.connect(self.refresh)
+        self.operations_manager = OperationsManager()
+        self.operations_manager.changed.connect(self.refresh)
 
         self.setMaximumHeight(168)
 
     @Slot()
     def refresh(self) -> None:
         self.clear()
-        for item in self.queue_manager.get_order():
+        for item in self.operations_manager.get_order():
             item = self.create_item_from_operation(item[1])
             self.addItem(item)
 
