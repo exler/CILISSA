@@ -8,6 +8,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from cilissa.images import ImagePair
+from cilissa_gui.managers import ImageCollectionManager, OperationsManager
 from cilissa_gui.ui.components import (
     ConsoleBox,
     Explorer,
@@ -38,11 +40,16 @@ class Interface(QWidget):
 
         self.main_window = window
 
+        self.operations_manager = OperationsManager()
+        self.collection_manager = ImageCollectionManager()
+
         self.init_components()
         self.create_actions()
         self.create_menubar()
         self.create_toolbar()
         self.create_statusbar()
+
+        self.create_connections()
 
         self.panels = QHBoxLayout()
         left_panel = self.init_left_panel()
@@ -101,12 +108,20 @@ class Interface(QWidget):
             statusTip="Open an image folder",
             triggered=self.explorer.open_image_folder_dialog,
         )
+        self.add_pair_action = QAction(
+            QIcon(":compare"),
+            "Add pair",
+            self,
+            statusTip="Add image pair to collection",
+            triggered=lambda: self.add_selected_pair_to_collection(),
+            enabled=False,
+        )
         self.run_action = QAction(
             QIcon(":play"),
             "Run",
             self,
             statusTip="Run operations from list on image collection",
-            triggered=lambda: print("Run"),
+            triggered=self.run_operations,
         )
         self.documentation_action = QAction(
             "Documentation",
@@ -114,6 +129,28 @@ class Interface(QWidget):
             statusTip="Open documentation website",
             triggered=lambda: QDesktopServices.openUrl("https://github.com/exler/cilissa"),
         )
+        self.debug_action = QAction(
+            "Debug", self, statusTip="Debug only action for testing purposes", triggered=self.debug
+        )
+
+    def debug(self) -> None:
+        print("Operations manager order: ", self.operations_manager.get_order())
+        print("Collections manager order: ", self.collection_manager.get_order())
+
+    def create_connections(self) -> None:
+        self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
+
+    def run_operations(self) -> None:
+        results = self.operations_manager.run(self.collection_manager)
+        self.console.console.add_item(str(results))
+
+    def add_selected_pair_to_collection(self) -> None:
+        indexes = self.explorer.images_tab.selectedIndexes()
+        ref = self.explorer.images_tab.get_item(indexes[0].row(), indexes[0].column()).image
+        A = self.explorer.images_tab.get_item(indexes[1].row(), indexes[1].column()).image
+
+        self.collection_manager.push(ImagePair(ref, A))
+        self.collection_manager.changed.emit()
 
     def create_menubar(self) -> None:
         menubar = self.main_window.menuBar()
@@ -124,6 +161,7 @@ class Interface(QWidget):
 
         help_menu = menubar.addMenu("&Help")
         help_menu.addAction(self.documentation_action)
+        help_menu.addAction(self.debug_action)
 
     def create_toolbar(self) -> None:
         self.toolbar = self.main_window.addToolBar("Main toolbar")
@@ -132,6 +170,10 @@ class Interface(QWidget):
 
         self.toolbar.addAction(self.open_images_action)
         self.toolbar.addAction(self.open_folder_action)
+
+        self.toolbar.addSeparator()
+
+        self.toolbar.addAction(self.add_pair_action)
 
         self.toolbar.addSeparator()
 

@@ -1,8 +1,8 @@
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
-from PySide6.QtCore import QDir, Qt
-from PySide6.QtWidgets import QFileDialog, QGridLayout, QTabWidget, QWidget
+from PySide6.QtCore import QDir, Slot
+from PySide6.QtWidgets import QFileDialog, QFrame, QTableWidget, QTabWidget
 
 from cilissa.metrics import all_metrics
 from cilissa.transformations import all_transformations
@@ -42,32 +42,53 @@ class Explorer(QTabWidget):
             self.images_tab.add_item(image)
 
 
-class ExplorerTab(QWidget):
+class ExplorerTab(QTableWidget):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__()
 
-        self.main_layout = QGridLayout()
-        self.main_layout.setAlignment(Qt.AlignTop)
-        self.setLayout(self.main_layout)
-
+        self.setShowGrid(False)
+        self.setColumnCount(2)
+        self.horizontalHeader().hide()
+        self.horizontalHeader().setDefaultSectionSize(96)
+        self.verticalHeader().hide()
+        self.verticalHeader().setDefaultSectionSize(96)
+        self.verticalHeader()
+        self.setFrameStyle(QFrame.NoFrame)
         self.setMaximumWidth(parent.width())
 
-        self.items: List[Any] = []
+        self.cell_counter = 0
 
     def add_item(self, item: Any) -> None:
-        self.main_layout.addWidget(item, self.get_row(), self.get_column())
-        self.items.append(item)
+        row = self.get_next_row()
+        column = self.get_next_column()
 
-    def get_row(self) -> int:
-        return int((len(self.items) - len(self.items) % 2) / 2)
+        if row >= self.rowCount():
+            self.insertRow(row)
 
-    def get_column(self) -> int:
-        return len(self.items) % 2
+        self.setCellWidget(row, column, item)
+        self.cell_counter += 1
+
+    def get_item(self, row: int, column: int) -> Any:
+        return self.cellWidget(row, column)
+
+    def get_next_row(self) -> int:
+        return int((self.cell_counter - self.cell_counter % 2) / 2)
+
+    def get_next_column(self) -> int:
+        return self.cell_counter % 2
 
 
 class ImagesTab(ExplorerTab):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
+
+    @Slot()
+    def enable_add_pair(self) -> None:
+        interface = self.parent().parent().parent().parent().parent()
+        if len(self.selectedIndexes()) == 2:
+            interface.add_pair_action.setEnabled(True)
+        else:
+            interface.add_pair_action.setEnabled(False)
 
 
 class MetricsTab(ExplorerTab):

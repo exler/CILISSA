@@ -17,9 +17,9 @@ class SingletonMeta(type(QObject), type):
     _instances = {}
     _lock: Lock = Lock()
 
-    def __call__(self, *args: Any, **kwargs: Any) -> None:
-        with self._lock:
-            if self not in self._instances:
+    def __call__(cls, *args: Any, **kwargs: Any) -> None:
+        with cls._lock:
+            if cls not in cls._instances:
                 instance = super().__call__(*args, **kwargs)
-                self._instances[self] = instance
-        return self._instances[self]
+                cls._instances[cls] = instance
+        return cls._instances[cls]

@@ -15,7 +15,7 @@ from cilissa_gui.managers import OperationsManager
 
 class OperationsBox(QGroupBox):
     def __init__(self) -> None:
-        super().__init__("Console")
+        super().__init__("Operations")
 
         self.setMaximumHeight(168)
 
