@@ -24,20 +24,57 @@ class OperationsBox(QGroupBox):
         self.main_layout = QHBoxLayout()
 
         self.clear_button = QPushButton(QIcon(":erase"), "")
-        self.clear_button.pressed.connect(self.clear_operations)
+        self.clear_button.clicked.connect(self.clear_operations)
+
+        self.delete_button = QPushButton(QIcon(":delete"), "", enabled=False)
+        self.delete_button.clicked.connect(self.delete_operations)
+
+        self.move_up_button = QPushButton(QIcon(":double-up"), "", enabled=False)
+        self.move_up_button.clicked.connect(self.move_operation_up)
+
+        self.move_down_button = QPushButton(QIcon(":double-down"), "", enabled=False)
+        self.move_down_button.clicked.connect(self.move_operation_down)
 
         self.buttons_panel = QVBoxLayout()
         self.buttons_panel.setAlignment(Qt.AlignTop)
+        self.buttons_panel.addWidget(self.move_up_button)
+        self.buttons_panel.addWidget(self.move_down_button)
+        self.buttons_panel.addWidget(self.delete_button)
         self.buttons_panel.addWidget(self.clear_button)
 
         self.main_layout.addWidget(self.operations)
         self.main_layout.addLayout(self.buttons_panel)
         self.setLayout(self.main_layout)
 
+        self.operations.itemSelectionChanged.connect(self.enable_buttons)
+
     @Slot()
     def clear_operations(self) -> None:
         self.operations.operations_manager.clear()
         self.operations.refresh()
+
+    @Slot()
+    def delete_operations(self) -> None:
+        rows = [index.row() for index in self.operations.selectedIndexes()]
+        for row in rows:
+            decrement = sum([d_row for d_row in rows if d_row < row])
+            self.operations.operations_manager.pop(row - decrement)
+        self.operations.refresh()
+
+    @Slot()
+    def enable_buttons(self) -> None:
+        if len(self.operations.selectedIndexes()) > 0:
+            self.move_up_button.setEnabled(True)
+            self.move_down_button.setEnabled(True)
+            self.delete_button.setEnabled(True)
+
+    @Slot()
+    def move_operation_up(self) -> None:
+        self.operations.change_selected_order(-1)
+
+    @Slot()
+    def move_operation_down(self) -> None:
+        self.operations.change_selected_order(1)
 
 
 class Operations(QListWidget):
@@ -47,6 +84,8 @@ class Operations(QListWidget):
         self.operations_manager = OperationsManager()
         self.operations_manager.changed.connect(self.refresh)
 
+        self.setSelectionMode(QListWidget.MultiSelection)
+
         self.setMaximumHeight(168)
 
     @Slot()
@@ -55,6 +94,13 @@ class Operations(QListWidget):
         for item in self.operations_manager.get_order():
             item = self.create_item_from_operation(item[1])
             self.addItem(item)
+
+    def change_selected_order(self, move: int) -> None:
+        rows = [index.row() for index in self.selectedIndexes()]
+        for row in rows:
+            if not (row == 0 and move < 0) and not (row == self.count() - 1 and move > 0):
+                self.operations_manager.change_order(row, row + move)
+        self.refresh()
 
     def create_item_from_operation(self, operation: ImageOperation) -> QListWidgetItem:
         if isinstance(operation, Transformation):

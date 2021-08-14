@@ -21,7 +21,7 @@ class ConsoleBox(QGroupBox):
         self.main_layout = QHBoxLayout()
 
         self.clear_button = QPushButton(QIcon(":erase"), "")
-        self.clear_button.pressed.connect(self.clear_console)
+        self.clear_button.clicked.connect(self.clear_console)
 
         self.buttons_panel = QVBoxLayout()
         self.buttons_panel.setAlignment(Qt.AlignTop)
