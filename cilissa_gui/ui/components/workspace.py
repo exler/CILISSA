@@ -46,6 +46,7 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
         self.setFrameStyle(QFrame.NoFrame)
 
         self.setColumnCount(2)
+        self.setColumnWidth(0, 168)
         self.setHeaderLabels(["Reference image", "Compared image"])
 
         self.setMaximumHeight(168)

@@ -7,6 +7,10 @@
 
 * Python >= 3.7
 
+### GUI (Linux)
+
+* libopengl0
+
 ## Installation
 
 ### Build from source
@@ -14,6 +18,9 @@
 ```bash
 # Using poetry
 $ poetry install
+
+# Install optional dependencies for GUI
+$ poetry install -E gui
 ```
 
 ## Usage
