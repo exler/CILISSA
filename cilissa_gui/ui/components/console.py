@@ -1,3 +1,5 @@
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
@@ -17,12 +19,21 @@ class ConsoleBox(QGroupBox):
         self.setMaximumHeight(168)
 
         self.main_layout = QHBoxLayout()
+
+        self.clear_button = QPushButton(QIcon(":erase"), "")
+        self.clear_button.pressed.connect(self.clear_console)
+
         self.buttons_panel = QVBoxLayout()
-        self.buttons_panel.addWidget(QPushButton("&Clear"))
+        self.buttons_panel.setAlignment(Qt.AlignTop)
+        self.buttons_panel.addWidget(self.clear_button)
 
         self.main_layout.addWidget(self.console)
         self.main_layout.addLayout(self.buttons_panel)
         self.setLayout(self.main_layout)
+
+    @Slot()
+    def clear_console(self) -> None:
+        self.console.clear()
 
 
 class Console(QListWidget):

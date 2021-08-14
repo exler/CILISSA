@@ -1,4 +1,4 @@
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QGroupBox,
@@ -19,13 +19,25 @@ class OperationsBox(QGroupBox):
 
         self.setMaximumHeight(168)
 
-        self.main_layout = QHBoxLayout()
-        self.buttons_panel = QVBoxLayout()
-        self.buttons_panel.addWidget(QPushButton("&Clear"))
+        self.operations = Operations()
 
-        self.main_layout.addWidget(Operations())
+        self.main_layout = QHBoxLayout()
+
+        self.clear_button = QPushButton(QIcon(":erase"), "")
+        self.clear_button.pressed.connect(self.clear_operations)
+
+        self.buttons_panel = QVBoxLayout()
+        self.buttons_panel.setAlignment(Qt.AlignTop)
+        self.buttons_panel.addWidget(self.clear_button)
+
+        self.main_layout.addWidget(self.operations)
         self.main_layout.addLayout(self.buttons_panel)
         self.setLayout(self.main_layout)
+
+    @Slot()
+    def clear_operations(self) -> None:
+        self.operations.operations_manager.clear()
+        self.operations.refresh()
 
 
 class Operations(QListWidget):

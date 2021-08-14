@@ -6,6 +6,8 @@
     <file alias="letter-m">icons/letter-m.svg</file>
     <file alias="play">icons/play.svg</file>
     <file alias="compare">icons/compare.svg</file>
+    <file alias="delete">icons/delete.svg</file>
+    <file alias="erase">icons/erase.svg</file>
 </qresource>
 <qresource>
     <file alias="placeholder-128">placeholder-128.png</file>

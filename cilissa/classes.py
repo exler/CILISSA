@@ -23,6 +23,10 @@ class OrderedList:
     def __iter__(self) -> Iterator[Any]:
         return iter(self.items)
 
+    @property
+    def is_empty(self) -> bool:
+        return len(self) == 0
+
     def push(self, item: Any) -> None:
         self.items.append(item)
 

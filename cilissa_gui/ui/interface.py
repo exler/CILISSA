@@ -66,9 +66,9 @@ class Interface(QWidget):
     def init_components(self) -> None:
         self.explorer = Explorer()
         self.workspace = Workspace()
-        self.console = ConsoleBox()
+        self.console_box = ConsoleBox()
         self.properties = Properties()
-        self.operations = OperationsBox()
+        self.operations_box = OperationsBox()
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QVBoxLayout()
@@ -81,7 +81,7 @@ class Interface(QWidget):
     def init_middle_panel(self) -> QVBoxLayout:
         middle_panel = QVBoxLayout()
         middle_panel.addWidget(self.workspace)
-        middle_panel.addWidget(self.console)
+        middle_panel.addWidget(self.console_box)
         return middle_panel
 
     def init_right_panel(self) -> QVBoxLayout:
@@ -89,7 +89,7 @@ class Interface(QWidget):
         properties_box = QGroupBox("Properties")
         properties_box.setLayout(self.properties)
         right_panel.addWidget(properties_box)
-        right_panel.addWidget(self.operations)
+        right_panel.addWidget(self.operations_box)
         return right_panel
 
     def create_actions(self) -> None:
@@ -141,8 +141,14 @@ class Interface(QWidget):
         self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
 
     def run_operations(self) -> None:
-        results = self.operations_manager.run(self.collection_manager)
-        self.console.console.add_item(str(results))
+        if self.operations_manager.is_empty:
+            self.statusbar.showMessage("You have not chosen any operations!", 3000)
+        elif self.collection_manager.is_empty:
+            self.statusbar.showMessage("You have not chosen any images!", 3000)
+        else:
+            self.statusbar.showMessage("CILISSA is running...")
+            results = self.operations_manager.run(self.collection_manager)
+            self.console_box.console.add_item(str(results))
 
     def add_selected_pair_to_collection(self) -> None:
         indexes = self.explorer.images_tab.selectedIndexes()
