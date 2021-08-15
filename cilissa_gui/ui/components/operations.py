@@ -56,8 +56,8 @@ class OperationsBox(QGroupBox):
     @Slot()
     def delete_operations(self) -> None:
         rows = [index.row() for index in self.operations.selectedIndexes()]
-        for row in rows:
-            decrement = sum([d_row for d_row in rows if d_row < row])
+        for idx, row in enumerate(rows):
+            decrement = sum([1 for d_row in rows[:idx] if d_row < row])
             self.operations.operations_manager.pop(row - decrement)
         self.operations.refresh()
 
