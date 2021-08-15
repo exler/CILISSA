@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QGroupBox,
@@ -8,7 +10,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from cilissa.images import ImagePair
+from cilissa.images import Image, ImagePair
+from cilissa.metrics import MSE, PSNR
 from cilissa_gui.managers import ImageCollectionManager, OperationsManager
 from cilissa_gui.ui.components import (
     ConsoleBox,
@@ -134,8 +137,17 @@ class Interface(QWidget):
         )
 
     def debug(self) -> None:
-        print("Operations manager order: ", self.operations_manager.get_order())
-        print("Collections manager order: ", self.collection_manager.get_order())
+        im1 = Image(Path("tests", "data", "ref_images", "monarch.bmp"))
+        im2 = Image(Path("tests", "data", "transformations", "monarch_blur.bmp"))
+        im_pair = ImagePair(im1, im2)
+        self.collection_manager.push(im_pair)
+        self.workspace.list_tab.refresh()
+
+        mse = MSE()
+        psnr = PSNR()
+        self.operations_manager.push(mse)
+        self.operations_manager.push(psnr)
+        self.operations_box.operations.refresh()
 
     def create_connections(self) -> None:
         self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
@@ -148,7 +160,9 @@ class Interface(QWidget):
         else:
             self.statusbar.showMessage("CILISSA is running...")
             results = self.operations_manager.run(self.collection_manager)
-            self.console_box.console.add_item(str(results))
+            for image_results in results:
+                for operation_result in image_results:
+                    self.console_box.console.add_item(operation_result)
 
     def add_selected_pair_to_collection(self) -> None:
         indexes = self.explorer.images_tab.selectedIndexes()

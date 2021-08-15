@@ -5,8 +5,16 @@ from typing import Type, Union
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QContextMenuEvent, QImage, QPixmap
-from PySide6.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QLabel,
+    QListWidgetItem,
+    QMenu,
+    QMessageBox,
+    QVBoxLayout,
+    QWidget,
+)
 
+from cilissa.classes import AnalysisResult
 from cilissa.images import Image
 from cilissa.operations import ImageOperation
 from cilissa_gui.managers import OperationsManager
@@ -80,14 +88,45 @@ class CQImage(QWidget):
         return cqimage
 
     def create_actions(self) -> None:
-        self.add_to_collection_action = QAction(
-            "Add To Collection", self, statusTip="Add image to collection", triggered=self.add_to_collection
-        )
-
-    def add_to_collection(self) -> None:
-        print("Added")
+        pass
 
     def contextMenuEvent(self, event: QContextMenuEvent) -> None:
         menu = QMenu(self)
-        menu.addAction(self.add_to_collection_action)
         menu.exec(event.globalPos())
+
+
+class CQResult(QListWidgetItem):
+    def __init__(self, result: AnalysisResult) -> None:
+        super().__init__(result.pretty())
+
+        self.result = result
+
+
+class CQResultDialog(QMessageBox):
+    def __init__(self, result: AnalysisResult) -> None:
+        super().__init__()
+
+        self.result = result
+
+        self.setIcon(QMessageBox.NoIcon)
+        self.setWindowTitle("Analysis result")
+
+        self.setTextFormat(Qt.RichText)
+        self.setText(self.format_result())
+        self.setStandardButtons(QMessageBox.Close)
+
+        self.layout().setSpacing(0)
+        self.layout().setContentsMargins(0, 16, 24, 8)
+
+    def format_result(self) -> None:
+        return """
+        <strong>Metric name:</strong> {}<br>
+        <strong>Result:</strong> {}<br>
+        <strong>Properties:</strong>
+        <ul>{}</ul>
+        <br>
+        """.format(
+            self.result.name,
+            self.result.value,
+            "".join(["<li>{}: {}</li>".format(k, v) for k, v in self.result.parameters.items()]),
+        )

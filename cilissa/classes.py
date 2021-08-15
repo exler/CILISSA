@@ -22,6 +22,9 @@ class OrderedList:
         for item in items:
             self.push(item)
 
+    def __str__(self) -> str:
+        return f"OrderedList(items=[{', '.join([str(item) for item in self.items])}])"
+
     def __len__(self) -> int:
         return len(self.items)
 
@@ -82,3 +85,6 @@ class AnalysisResult:
 
     def __ge__(self, o: Any) -> bool:
         return self == o or self > o
+
+    def pretty(self) -> str:
+        return f"Analysis - metric: {self.name}, result: {round(self.value, 4)}"

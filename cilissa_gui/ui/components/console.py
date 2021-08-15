@@ -9,6 +9,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from cilissa_gui.widgets import CQResult, CQResultDialog
+
 
 class ConsoleBox(QGroupBox):
     def __init__(self) -> None:
@@ -40,5 +42,12 @@ class Console(QListWidget):
     def __init__(self) -> None:
         super().__init__()
 
+        self.itemDoubleClicked.connect(self.open_result_dialog)
+
+    @Slot(QListWidgetItem)
+    def open_result_dialog(self, item: QListWidgetItem) -> None:
+        dialog = CQResultDialog(item.result)
+        dialog.exec()
+
     def add_item(self, item: str) -> None:
-        self.addItem(QListWidgetItem(item))
+        self.addItem(CQResult(item))
