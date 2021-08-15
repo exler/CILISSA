@@ -1,9 +1,7 @@
 import logging
 from typing import Any, Callable, Type, Union
 
-import numpy as np
-
-from cilissa.classes import OrderedList
+from cilissa.classes import AnalysisResult, OrderedList
 from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import ImageCollection, ImagePair
 from cilissa.operations import ImageOperation, Metric, Transformation
@@ -41,7 +39,7 @@ class OperationsList(OrderedList):
 
         return results
 
-    def _use_metric(self, metric: Metric, image_pair: ImagePair) -> Union[float, np.float64]:
+    def _use_metric(self, metric: Metric, image_pair: ImagePair) -> AnalysisResult:
         if not image_pair.matching_shape:
             raise ShapesNotEqual("Images must be of equal size to analyze")
 

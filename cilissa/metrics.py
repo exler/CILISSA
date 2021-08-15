@@ -41,7 +41,7 @@ class PSNR(Metric):
 
     name = "psnr"
 
-    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
+    def analyze(self, image_pair: ImagePair) -> AnalysisResult:
         # dmax - maximum possible pixel value of the image
         dmax = image_pair.ref.im.max()
 
@@ -144,7 +144,7 @@ class SSIM(Metric):
 
         return crop_array(S, pad).mean()
 
-    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
+    def analyze(self, image_pair: ImagePair) -> AnalysisResult:
         base_image, test_image = image_pair.as_floats()
 
         ch_num = self.channels_num or image_pair.ref.channels_num

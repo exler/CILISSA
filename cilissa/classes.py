@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
@@ -55,17 +57,28 @@ class AnalysisResult:
     parameters: Dict[str, Any]
     value: Union[float, np.float64]
 
-    def __eq__(self, o: object) -> bool:
-        return self.name == o.name and np.isclose(self.value, o.value, rtol=1e-05, atol=1e-08, equal_nan=False)
+    def __eq__(self, o: Any) -> bool:
+        if isinstance(o, AnalysisResult):
+            return self.name == o.name and np.isclose(self.value, o.value, rtol=1e-05, atol=1e-08, equal_nan=False)
+        elif isinstance(o, float):
+            return np.isclose(self.value, o, rtol=1e-05, atol=1e-08, equal_nan=False)
+        else:
+            return self.value == o
 
-    def __lt__(self, o: object) -> bool:
-        return self.name == o.name and self.value < o.value
+    def __lt__(self, o: Any) -> bool:
+        if isinstance(o, AnalysisResult):
+            return self.name == o.name and np.less(self.value, o.value)
+        else:
+            return np.less(self.value, o)
 
-    def __le__(self, o: object) -> bool:
+    def __le__(self, o: Any) -> bool:
         return self == o or self < o
 
-    def __gt__(self, o: object) -> bool:
-        return self.name == o.name and self.value > o.value
+    def __gt__(self, o: Any) -> bool:
+        if isinstance(o, AnalysisResult):
+            return self.name == o.name and np.greater(self.value, o.value)
+        else:
+            return np.greater(self.value, o)
 
-    def __ge__(self, o: object) -> bool:
+    def __ge__(self, o: Any) -> bool:
         return self == o or self > o
