@@ -3,6 +3,7 @@ from typing import Any, Optional, Union
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
+from cilissa.classes import AnalysisResult
 from cilissa.helpers import crop_array
 from cilissa.images import ImagePair
 from cilissa.operations import Metric
@@ -21,9 +22,10 @@ class MSE(Metric):
 
     name = "mse"
 
-    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
+    def analyze(self, image_pair: ImagePair) -> AnalysisResult:
         base_image, test_image = image_pair.as_floats()
-        return np.mean(np.square((base_image - test_image)), dtype=np.float64)
+        result = np.mean(np.square((base_image - test_image)), dtype=np.float64)
+        return self.generate_result(result)
 
 
 class PSNR(Metric):
@@ -43,11 +45,12 @@ class PSNR(Metric):
         # dmax - maximum possible pixel value of the image
         dmax = image_pair.ref.im.max()
 
-        err = MSE().analyze(image_pair)
+        err = MSE().analyze(image_pair).value
         if err == 0:
-            return np.inf
-
-        return 20 * np.log10(dmax) - 10 * np.log10(err)
+            result = np.inf
+        else:
+            result = 20 * np.log10(dmax) - 10 * np.log10(err)
+        return self.generate_result(result)
 
 
 class SSIM(Metric):
@@ -73,27 +76,35 @@ class SSIM(Metric):
 
     name = "ssim"
 
-    def __init__(self, channels_num: Optional[int] = None, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        channels_num: Optional[int] = None,
+        sigma: float = 1.5,
+        truncate: float = 3.5,
+        K1: float = 0.01,
+        K2: float = 0.03,
+        **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
 
         # Number of channels in image
         self.channels_num = channels_num
 
         # Small constants 0 <= K1, K2 <= 1
-        self.K1 = kwargs.pop("K1", 0.01)
-        self.K2 = kwargs.pop("K2", 0.03)
+        self.K1 = K1
+        self.K2 = K2
         if self.K1 < 0:
             raise ValueError("K1 must be positive!")
         if self.K2 < 0:
             raise ValueError("K2 must be positive!")
 
         # Standard deviation for weighting function, 0 < sigma
-        self.sigma = kwargs.pop("sigma", 1.5)
+        self.sigma = sigma
         if self.sigma < 0:
             raise ValueError("Sigma must be positive!")
 
         # Truncate the Gaussian filter at this many standard deviations, 0 < truncate
-        self.truncate = kwargs.pop("truncate", 3.5)
+        self.truncate = truncate
         if self.truncate < 0:
             raise ValueError("Truncate must be positive!")
 
@@ -145,7 +156,7 @@ class SSIM(Metric):
             ssim_results[ch] = ch_result
 
         mssim = ssim_results.mean()
-        return mssim
+        return self.generate_result(mssim)
 
 
 all_metrics = get_operation_subclasses(Metric)

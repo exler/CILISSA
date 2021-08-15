@@ -27,8 +27,8 @@ class TestOperationsList(unittest.TestCase):
         image_pair = ImagePair(self.ref_image, self.A_image)
         result = operations.run(image_pair)
 
-        self.assertEqual(result[0], 0.0)
-        self.assertFalse(isinf(result[1]))
+        self.assertEqual(result[0].value, 0.0)
+        self.assertFalse(isinf(result[1].value))
 
     def test_operations_list_collection(self) -> None:
         mse, psnr = MSE(), PSNR()

@@ -21,15 +21,15 @@ class OperationsList(OrderedList):
 
             return results
         else:
-            raise TypeError("Objects must be of type ImagePair, ImageCollection")
+            raise TypeError("Objects must be of type: ImagePair, ImageCollection")
 
     def _get_function_for_operation(self, operation: Type[ImageOperation]) -> Callable:
         if isinstance(operation, Metric):
-            return self._use_metric_on_pair
+            return self._use_metric
         elif isinstance(operation, Transformation):
-            return self._use_transformation_on_image
+            return self._use_transformation
         else:
-            raise TypeError("Operations must be of type Metric, Transformation")
+            raise TypeError("Operations must be of type: Metric, Transformation")
 
     def _use_operations_on_pair(self, image_pair: ImagePair) -> Any:
         results = []
@@ -41,7 +41,7 @@ class OperationsList(OrderedList):
 
         return results
 
-    def _use_metric_on_pair(self, metric: Metric, image_pair: ImagePair) -> Union[float, np.float64]:
+    def _use_metric(self, metric: Metric, image_pair: ImagePair) -> Union[float, np.float64]:
         if not image_pair.matching_shape:
             raise ShapesNotEqual("Images must be of equal size to analyze")
 
@@ -52,6 +52,6 @@ class OperationsList(OrderedList):
 
         return metric.analyze(image_pair)
 
-    def _use_transformation_on_image(self, transformation: Transformation, image_pair: ImagePair) -> None:
+    def _use_transformation(self, transformation: Transformation, image_pair: ImagePair) -> None:
         new_im = transformation.transform(image_pair.A)
         image_pair.A.from_array(new_im.im)

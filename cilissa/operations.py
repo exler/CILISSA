@@ -1,23 +1,22 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Union
+from typing import Any, Dict, Union
 
 import numpy as np
 
+from cilissa.classes import AnalysisResult
 from cilissa.images import Image, ImagePair
 
 
 class ImageOperation(ABC):
     name: str = ""
 
-    def __init__(self, verbose_name: Optional[str] = None, **kwargs: Any) -> None:
-        self.verbose_name = verbose_name
-
+    def __init__(self, **kwargs: Any) -> None:
         for k in kwargs.keys():
             logging.info(f"Discarding unexpected keyword argument: {k}")
 
     def __str__(self) -> str:
-        return self.verbose_name or self.name
+        return self.get_class_name()
 
     @classmethod
     def get_class_name(cls) -> str:
@@ -44,5 +43,12 @@ class Metric(ImageOperation, ABC):
     """
 
     @abstractmethod
-    def analyze(self, image_pair: ImagePair) -> Union[float, np.float64]:
+    def analyze(self, image_pair: ImagePair) -> AnalysisResult:
         raise NotImplementedError("Metrics must implement the `analyze` method")
+
+    def get_parameters_dict(self) -> Dict[str, Any]:
+        d = vars(self)
+        return d
+
+    def generate_result(self, value: Union[float, np.float64]) -> AnalysisResult:
+        return AnalysisResult(name=str(self), parameters=self.get_parameters_dict(), value=value)

@@ -1,4 +1,7 @@
-from typing import Any, Iterator, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+
+import numpy as np
 
 
 class OrderedList:
@@ -44,3 +47,25 @@ class OrderedList:
 
     def clear(self) -> None:
         self.items = []
+
+
+@dataclass(frozen=True)
+class AnalysisResult:
+    name: str
+    parameters: Dict[str, Any]
+    value: Union[float, np.float64]
+
+    def __eq__(self, o: object) -> bool:
+        return self.name == o.name and np.isclose(self.value, o.value, rtol=1e-05, atol=1e-08, equal_nan=False)
+
+    def __lt__(self, o: object) -> bool:
+        return self.name == o.name and self.value < o.value
+
+    def __le__(self, o: object) -> bool:
+        return self == o or self < o
+
+    def __gt__(self, o: object) -> bool:
+        return self.name == o.name and self.value > o.value
+
+    def __ge__(self, o: object) -> bool:
+        return self == o or self > o
