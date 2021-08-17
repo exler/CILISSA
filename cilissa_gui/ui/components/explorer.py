@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any
 
-from PySide6.QtCore import QDir, Slot
-from PySide6.QtWidgets import QFileDialog, QFrame, QTableWidget, QTabWidget
+from PySide6.QtCore import QDir, Signal, Slot
+from PySide6.QtWidgets import QFileDialog, QFrame, QTableWidget, QTabWidget, QWidget
 
 from cilissa.metrics import all_metrics
 from cilissa.transformations import all_transformations
@@ -11,6 +11,8 @@ from cilissa_gui.widgets import CQImage, CQOperation
 
 class Explorer(QTabWidget):
     IMAGE_EXTENSIONS = ["*.png", "*.jpg", "*.jpeg", "*.bmp"]
+
+    explorerItemSelected = Signal(QWidget)
 
     def __init__(self) -> None:
         super().__init__()
@@ -58,6 +60,8 @@ class ExplorerTab(QTableWidget):
 
         self.cell_counter = 0
 
+        self.cellClicked.connect(self.get_selected_widget)
+
     def add_item(self, item: Any) -> None:
         row = self.get_next_row()
         column = self.get_next_column()
@@ -76,6 +80,11 @@ class ExplorerTab(QTableWidget):
 
     def get_next_column(self) -> int:
         return self.cell_counter % 2
+
+    @Slot()
+    def get_selected_widget(self, row: int, column: int) -> None:
+        widget = self.get_item(row, column)
+        self.parent().parent().explorerItemSelected.emit(widget)
 
 
 class ImagesTab(ExplorerTab):

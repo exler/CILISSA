@@ -2,7 +2,6 @@ from pathlib import Path
 
 from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
-    QGroupBox,
     QHBoxLayout,
     QMainWindow,
     QScrollArea,
@@ -17,7 +16,7 @@ from cilissa_gui.ui.components import (
     ConsoleBox,
     Explorer,
     OperationsBox,
-    Properties,
+    PropertiesBox,
     Workspace,
 )
 
@@ -70,7 +69,7 @@ class Interface(QWidget):
         self.explorer = Explorer()
         self.workspace = Workspace()
         self.console_box = ConsoleBox()
-        self.properties = Properties()
+        self.properties_box = PropertiesBox()
         self.operations_box = OperationsBox()
 
     def init_left_panel(self) -> QVBoxLayout:
@@ -89,9 +88,7 @@ class Interface(QWidget):
 
     def init_right_panel(self) -> QVBoxLayout:
         right_panel = QVBoxLayout()
-        properties_box = QGroupBox("Properties")
-        properties_box.setLayout(self.properties)
-        right_panel.addWidget(properties_box)
+        right_panel.addWidget(self.properties_box)
         right_panel.addWidget(self.operations_box)
         return right_panel
 
@@ -116,7 +113,7 @@ class Interface(QWidget):
             "Add pair",
             self,
             statusTip="Add image pair to collection",
-            triggered=lambda: self.add_selected_pair_to_collection(),
+            triggered=self.add_selected_pair_to_collection,
             enabled=False,
         )
         self.run_action = QAction(
@@ -151,6 +148,7 @@ class Interface(QWidget):
 
     def create_connections(self) -> None:
         self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
+        self.explorer.explorerItemSelected.connect(self.properties_box.properties.open_selection)
 
     def run_operations(self) -> None:
         if self.operations_manager.is_empty:

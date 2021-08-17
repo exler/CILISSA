@@ -46,17 +46,20 @@ class CQOperation(QWidget):
         self.setMaximumHeight(96)
 
     def create_actions(self) -> None:
-        self.add_to_operations_action = QAction(
-            "Add To Operations List", self, statusTip="Add operation to list", triggered=self.add_to_operations_list
+        self.add_with_default_params_action = QAction(
+            "Add With Default Parameters",
+            self,
+            statusTip="Add operation to list",
+            triggered=self.add_with_default_params,
         )
 
-    def add_to_operations_list(self) -> None:
+    def add_with_default_params(self) -> None:
         self.operations_manager.push(self.operation())
         self.operations_manager.changed.emit()
 
     def contextMenuEvent(self, event: QContextMenuEvent) -> None:
         menu = QMenu(self)
-        menu.addAction(self.add_to_operations_action)
+        menu.addAction(self.add_with_default_params_action)
         menu.exec(event.globalPos())
 
 

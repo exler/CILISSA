@@ -22,6 +22,10 @@ class ImageOperation(ABC):
     def get_class_name(cls) -> str:
         return cls.name
 
+    def get_parameters_dict(self) -> Dict[str, Any]:
+        d = vars(self)
+        return d
+
 
 class Transformation(ImageOperation, ABC):
     """
@@ -45,10 +49,6 @@ class Metric(ImageOperation, ABC):
     @abstractmethod
     def analyze(self, image_pair: ImagePair) -> AnalysisResult:
         raise NotImplementedError("Metrics must implement the `analyze` method")
-
-    def get_parameters_dict(self) -> Dict[str, Any]:
-        d = vars(self)
-        return d
 
     def generate_result(self, value: Union[float, np.float64]) -> AnalysisResult:
         return AnalysisResult(name=str(self), parameters=self.get_parameters_dict(), value=value)
