@@ -31,6 +31,12 @@ class OrderedList:
     def __iter__(self) -> Iterator[Any]:
         return iter(self.items)
 
+    def __getitem__(self, index: int) -> Any:
+        return self.items[index]
+
+    def __setitem__(self, index: int, value: Any) -> None:
+        self.items[index] = value
+
     @property
     def is_empty(self) -> bool:
         return len(self) == 0

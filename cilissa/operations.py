@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Union
+from typing import Any, Dict, Type, Union, get_type_hints
 
 import numpy as np
 
@@ -25,6 +25,27 @@ class ImageOperation(ABC):
     def get_parameters_dict(self) -> Dict[str, Any]:
         d = vars(self)
         return d
+
+    def get_parameter_type(self, parameter: str) -> Union[Type, None]:
+        attr = getattr(self, parameter, None)
+        if attr:
+            return type(attr)
+
+        # Try to get the type from type hinting
+        try:
+            t = get_type_hints(self.__init__).get(parameter)
+            t_args = t.__args__
+            for arg in t_args:
+                if not isinstance(None, arg):
+                    return arg
+        except AttributeError:
+            # `t` is a type or None
+            return t
+
+        return None
+
+    def set_parameter(self, parameter: str, value: Any) -> None:
+        setattr(self, parameter, value)
 
 
 class Transformation(ImageOperation, ABC):
