@@ -33,8 +33,8 @@ class ImageOperation(ABC):
 
         # Try to get the type from type hinting
         try:
-            t = get_type_hints(self.__init__).get(parameter)
-            t_args = t.__args__
+            t = get_type_hints(self.__init__).get(parameter)  # type: ignore
+            t_args = t.__args__  # type: ignore
             for arg in t_args:
                 if not isinstance(None, arg):
                     return arg
