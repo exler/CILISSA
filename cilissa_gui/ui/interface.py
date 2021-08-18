@@ -149,6 +149,7 @@ class Interface(QWidget):
     def create_connections(self) -> None:
         self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
         self.explorer.explorerItemSelected.connect(self.properties_box.properties.open_selection)
+        self.operations_box.operations.itemDoubleClicked.connect(self.properties_box.properties.open_selection)
 
     def run_operations(self) -> None:
         if self.operations_manager.is_empty:
