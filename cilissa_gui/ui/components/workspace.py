@@ -1,9 +1,10 @@
-from PySide6.QtCore import Qt, Slot
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import QPoint, Qt, Slot
+from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QMenu,
     QTabWidget,
     QTreeWidget,
     QTreeWidgetItem,
@@ -39,6 +40,10 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
         self.collection_manager = ImageCollectionManager()
         self.collection_manager.changed.connect(self.refresh)
 
+        self.setSelectionMode(QTreeWidget.ExtendedSelection)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+
         self.main_layout = QVBoxLayout()
         self.main_layout.setAlignment(Qt.AlignTop)
         self.setLayout(self.main_layout)
@@ -57,6 +62,18 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
         for item in self.collection_manager.get_order():
             item = item[1]
             self.addTopLevelItem(QTreeWidgetItem([item.ref.name, item.A.name]))
+
+    def show_context_menu(self, pos: QPoint) -> None:
+        menu = QMenu(self)
+        menu.addAction(QAction("Delete", self, statusTip="Delete image pair", triggered=self.delete_selected))
+        menu.exec(self.mapToGlobal(pos))
+
+    def delete_selected(self) -> None:
+        rows = [index.row() for index in self.selectedIndexes()][::2]
+        for idx, row in enumerate(rows):
+            decrement = sum([1 for d_row in rows[:idx] if d_row < row])
+            self.collection_manager.pop(row - decrement)
+        self.collection_manager.changed.emit()
 
 
 class WorkspaceDetailsTab(WorkspaceTab):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Type, Union
+from typing import Optional, Type, Union
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QContextMenuEvent, QImage, QPixmap
@@ -133,3 +133,15 @@ class CQResultDialog(QMessageBox):
             self.result.value,
             "".join(["<li>{}: {}</li>".format(k, v) for k, v in self.result.parameters.items()]),
         )
+
+
+class CQErrorDialog(QMessageBox):
+    def __init__(self, msg: str, title: Optional[str] = None) -> None:
+        super().__init__()
+
+        self.setIcon(QMessageBox.Critical)
+        self.setWindowTitle(title or "An error occurred")
+
+        self.setTextFormat(Qt.PlainText)
+        self.setText(msg)
+        self.setStandardButtons(QMessageBox.Ok)

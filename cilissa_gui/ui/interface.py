@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR
 from cilissa_gui.managers import ImageCollectionManager, OperationsManager
@@ -19,6 +20,7 @@ from cilissa_gui.ui.components import (
     PropertiesBox,
     Workspace,
 )
+from cilissa_gui.widgets import CQErrorDialog
 
 
 class Interface(QWidget):
@@ -158,10 +160,14 @@ class Interface(QWidget):
             self.statusbar.showMessage("You have not chosen any images!", 3000)
         else:
             self.statusbar.showMessage("CILISSA is running...")
-            results = self.operations_manager.run(self.collection_manager)
-            for image_results in results:
-                for operation_result in image_results:
-                    self.console_box.console.add_item(operation_result)
+            try:
+                results = self.operations_manager.run(self.collection_manager)
+                for image_results in results:
+                    for operation_result in image_results:
+                        self.console_box.console.add_item(operation_result)
+            except ShapesNotEqual:
+                err_dialog = CQErrorDialog("Images must be of the same proportions to analyze!")
+                err_dialog.exec()
 
     def add_selected_pair_to_collection(self) -> None:
         indexes = self.explorer.images_tab.selectedIndexes()
