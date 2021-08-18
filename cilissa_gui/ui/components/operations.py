@@ -84,7 +84,7 @@ class Operations(QListWidget):
         self.operations_manager = OperationsManager()
         self.operations_manager.changed.connect(self.refresh)
 
-        self.setSelectionMode(QListWidget.MultiSelection)
+        self.setSelectionMode(QListWidget.ExtendedSelection)
 
         self.setMaximumHeight(168)
 
