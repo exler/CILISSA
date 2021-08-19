@@ -143,6 +143,8 @@ class PropertiesUnselected(QWidget):
 
         self.no_selection_text = QLabel("Select a metric or transformation to configure its properties")
         self.no_selection_text.setStyleSheet("QLabel { color: silver; }")
+        self.no_selection_text.setWordWrap(True)
+        self.no_selection_text.setAlignment(Qt.AlignCenter)
 
         self.main_layout.addWidget(self.no_selection_text)
         self.setLayout(self.main_layout)

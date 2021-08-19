@@ -60,12 +60,12 @@ class Interface(QWidget):
         middle_panel = self.init_middle_panel()
         right_panel = self.init_right_panel()
 
-        self.panels.addLayout(left_panel)
-        self.panels.addLayout(middle_panel)
-        self.panels.addLayout(right_panel)
+        self.panels.addWidget(left_panel)
+        self.panels.addWidget(middle_panel)
+        self.panels.addWidget(right_panel)
         self.setLayout(self.panels)
 
-        self.panels.setStretch(1, 16)
+        self.panels.setStretch(1, 1)
 
     def init_components(self) -> None:
         self.explorer = Explorer()
@@ -75,23 +75,36 @@ class Interface(QWidget):
         self.operations_box = OperationsBox()
 
     def init_left_panel(self) -> QVBoxLayout:
-        left_panel = QVBoxLayout()
+        left_panel = QWidget()
+
+        layout = QVBoxLayout()
         scroll_area = QScrollArea()
         scroll_area.setWidget(self.explorer)
         scroll_area.setWidgetResizable(True)
-        left_panel.addWidget(scroll_area)
+        layout.addWidget(scroll_area)
+
+        left_panel.setLayout(layout)
         return left_panel
 
     def init_middle_panel(self) -> QVBoxLayout:
-        middle_panel = QVBoxLayout()
-        middle_panel.addWidget(self.workspace)
-        middle_panel.addWidget(self.console_box)
+        middle_panel = QWidget()
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.workspace)
+        layout.addWidget(self.console_box)
+
+        middle_panel.setLayout(layout)
         return middle_panel
 
     def init_right_panel(self) -> QVBoxLayout:
-        right_panel = QVBoxLayout()
-        right_panel.addWidget(self.properties_box)
-        right_panel.addWidget(self.operations_box)
+        right_panel = QWidget()
+        right_panel.setMaximumWidth(256)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.properties_box)
+        layout.addWidget(self.operations_box)
+
+        right_panel.setLayout(layout)
         return right_panel
 
     def create_actions(self) -> None:
@@ -137,7 +150,7 @@ class Interface(QWidget):
 
     def debug(self) -> None:
         im1 = Image(Path("tests", "data", "ref_images", "monarch.bmp"))
-        im2 = Image(Path("tests", "data", "transformations", "monarch_blur.bmp"))
+        im2 = Image(Path("tests", "data", "transformations", "monarch_linear.bmp"))
         im_pair = ImagePair(im1, im2)
         self.collection_manager.push(im_pair)
         self.workspace.list_tab.refresh()

@@ -1,5 +1,5 @@
 from PySide6.QtCore import QPoint, Qt, Slot
-from PySide6.QtGui import QAction, QPixmap
+from PySide6.QtGui import QAction, QImage, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from cilissa.images import Image
 from cilissa_gui.managers import ImageCollectionManager
 
 
@@ -44,6 +45,8 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
+        self.itemDoubleClicked.connect(self.open_selected)
+
         self.main_layout = QVBoxLayout()
         self.main_layout.setAlignment(Qt.AlignTop)
         self.setLayout(self.main_layout)
@@ -75,6 +78,15 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
             self.collection_manager.pop(row - decrement)
         self.collection_manager.changed.emit()
 
+    @Slot()
+    def open_selected(self) -> None:
+        row = [index.row() for index in self.selectedIndexes()][-1]
+        image_pair = self.collection_manager[row]
+        self.parent().parent().details_tab.change_base_image(image_pair.ref)
+        self.parent().parent().details_tab.change_comp_image(image_pair.A)
+
+        self.parent().parent().setCurrentWidget(self.parent().parent().details_tab)
+
 
 class WorkspaceDetailsTab(WorkspaceTab):
     def __init__(self, parent: QTabWidget) -> None:
@@ -84,21 +96,30 @@ class WorkspaceDetailsTab(WorkspaceTab):
         self.main_layout.setAlignment(Qt.AlignCenter)
         self.setLayout(self.main_layout)
 
-        self.change_base_image()
-        self.change_comp_image()
+        self.init_images()
 
-    def change_base_image(self) -> None:
-        # TODO: Implement me
+    def init_images(self) -> None:
         image = QPixmap(":placeholder-128")
-        image_label = QLabel()
-        image_label.setAlignment(Qt.AlignCenter)
-        image_label.setPixmap(image)
-        self.main_layout.addWidget(image_label)
+        self.image_label_base = QLabel()
+        self.image_label_base.setAlignment(Qt.AlignCenter)
+        self.image_label_base.setPixmap(image)
+        self.main_layout.addWidget(self.image_label_base)
 
-    def change_comp_image(self) -> None:
-        # TODO: Implement me
+        self.main_layout.addSpacing(64)
+
         image = QPixmap(":placeholder-128")
-        image_label = QLabel()
-        image_label.setAlignment(Qt.AlignCenter)
-        image_label.setPixmap(image)
-        self.main_layout.addWidget(image_label)
+        self.image_label_comp = QLabel()
+        self.image_label_comp.setAlignment(Qt.AlignCenter)
+        self.image_label_comp.setPixmap(image)
+        self.main_layout.addWidget(self.image_label_comp)
+
+    def change_base_image(self, image: Image) -> None:
+        self.replace_label_pixmap(image, self.image_label_base)
+
+    def change_comp_image(self, image: Image) -> None:
+        self.replace_label_pixmap(image, self.image_label_comp)
+
+    def replace_label_pixmap(self, image: Image, label: QLabel) -> None:
+        thumbnail = QImage(image.get_thumbnail(128, 128), 128, 128, 128 * image.channels_num, QImage.Format_BGR888)
+        pixmap = QPixmap.fromImage(thumbnail)
+        label.setPixmap(pixmap)
