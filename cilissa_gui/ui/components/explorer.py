@@ -93,7 +93,7 @@ class ImagesTab(ExplorerTab):
 
     @Slot()
     def enable_add_pair(self) -> None:
-        interface = self.parent().parent().parent().parent().parent()
+        interface = self.parent().parent().parent().parent().parent().parent()
         if len(self.selectedIndexes()) == 2:
             interface.add_pair_action.setEnabled(True)
         else:
