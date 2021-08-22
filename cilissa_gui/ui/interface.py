@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from PySide6.QtCore import Slot
 from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -165,6 +166,13 @@ class Interface(QWidget):
         self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
         self.explorer.explorerItemSelected.connect(self.properties_box.properties.open_selection)
         self.operations_box.operations.itemDoubleClicked.connect(self.properties_box.properties.open_selection)
+        self.console_box.console.itemClicked.connect(
+            lambda: self.show_message_in_statusbar("Double-click the result in console to see detailed information")
+        )
+
+    @Slot(str)
+    def show_message_in_statusbar(self, message: str) -> None:
+        self.statusbar.showMessage(message, 3000)
 
     def run_operations(self) -> None:
         if self.operations_manager.is_empty:

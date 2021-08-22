@@ -122,6 +122,11 @@ class CQResultDialog(QMessageBox):
         self.layout().setContentsMargins(0, 16, 24, 8)
 
     def format_result(self) -> None:
+        if self.result.parameters:
+            properties = "".join(["<li>{}: {}</li>".format(k, v) for k, v in self.result.parameters.items()])
+        else:
+            properties = "No properties"
+
         return """
         <strong>Metric name:</strong> {}<br>
         <strong>Result:</strong> {}<br>
@@ -131,7 +136,7 @@ class CQResultDialog(QMessageBox):
         """.format(
             self.result.name,
             self.result.value,
-            "".join(["<li>{}: {}</li>".format(k, v) for k, v in self.result.parameters.items()]),
+            properties,
         )
 
 
