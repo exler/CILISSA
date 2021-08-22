@@ -1,3 +1,5 @@
+import sys
+
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 import cilissa_gui.resources  # noqa
@@ -18,4 +20,4 @@ if __name__ == "__main__":
     app = QApplication([])
     window = Application()
     window.show()
-    exit(app.exec())
+    sys.exit(app.exec())
