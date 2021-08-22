@@ -89,6 +89,13 @@ class PropertiesSelected(QWidget):
 
     def create_properties_widgets(self) -> None:
         properties = self.instance.get_parameters_dict()
+        if not properties:
+            info = QLabel("Chosen operation has no configurable parameters")
+            info.setWordWrap(True)
+            info.setAlignment(Qt.AlignCenter)
+            self.main_layout.addWidget(info)
+            return
+
         for key, value in properties.items():
             key_type = self.instance.get_parameter_type(key)
             widget_class = get_input_widget_for_type(key_type)
