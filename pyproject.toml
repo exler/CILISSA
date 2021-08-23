@@ -24,6 +24,7 @@ bandit = "^1.7.0"
 mypy = "^0.902"
 pytest = "^6.2.4"
 isort = "^5.8.0"
+pyinstaller = "^4.5.1"
 
 [tool.poetry.extras]
 gui = ["PySide6"]
