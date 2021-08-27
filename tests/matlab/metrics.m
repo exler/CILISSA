@@ -32,3 +32,7 @@ if fid == -1, error("Cannot create JSON file"); end
 fwrite(fid, data, "char");
 fclose(fid);
 
+py_command = "python fix_data_json.py";
+[status, output] = system(py_command);
+disp(output);
+

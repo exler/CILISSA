@@ -28,5 +28,5 @@ if __name__ == "__main__":
             r["measured"] = str(p.relative_to(*p.parts[:1])).replace("\\", "/")
 
     fp = open(path, "w")
-    json.dump(data, fp)
+    json.dump(data, fp, indent=4)
     fp.close()
