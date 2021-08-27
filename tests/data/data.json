@@ -176,6 +176,15 @@
         {
             "measured": "data/gblur/monarch_1.bmp",
             "metrics": {
+                "mse": 0,
+                "psnr": null,
+                "ssim": 1
+            },
+            "reference": "data/ref_images/monarch.bmp"
+        },
+        {
+            "measured": "data/gblur/monarch_2.bmp",
+            "metrics": {
                 "mse": 1060.6854841444228,
                 "psnr": 17.874937354489834,
                 "ssim": 0.8503461123625187
@@ -183,7 +192,7 @@
             "reference": "data/ref_images/monarch.bmp"
         },
         {
-            "measured": "data/gblur/monarch_2.bmp",
+            "measured": "data/gblur/monarch_3.bmp",
             "metrics": {
                 "mse": 315.7284274631076,
                 "psnr": 23.137666743366445,
@@ -192,7 +201,7 @@
             "reference": "data/ref_images/monarch.bmp"
         },
         {
-            "measured": "data/gblur/monarch_3.bmp",
+            "measured": "data/gblur/monarch_4.bmp",
             "metrics": {
                 "mse": 174.56620788574216,
                 "psnr": 25.71120183062557,
@@ -201,20 +210,11 @@
             "reference": "data/ref_images/monarch.bmp"
         },
         {
-            "measured": "data/gblur/monarch_4.bmp",
+            "measured": "data/gblur/monarch_5.bmp",
             "metrics": {
                 "mse": 154.56794738769528,
                 "psnr": 26.239609211942184,
                 "ssim": 0.9593729235366494
-            },
-            "reference": "data/ref_images/monarch.bmp"
-        },
-        {
-            "measured": "data/gblur/monarch_5.bmp",
-            "metrics": {
-                "mse": 51.11032104492188,
-                "psnr": 31.045717519220627,
-                "ssim": 0.9852362314412739
             },
             "reference": "data/ref_images/monarch.bmp"
         },
@@ -340,9 +340,9 @@
         {
             "measured": "data/jpeg/lighthouse_1.bmp",
             "metrics": {
-                "mse": 95.61639371141973,
-                "psnr": 28.325480011438394,
-                "ssim": 0.8856020414098742
+                "mse": 0,
+                "psnr": null,
+                "ssim": 1
             },
             "reference": "data/ref_images/lighthouse.bmp"
         },
@@ -504,18 +504,18 @@
         {
             "measured": "data/wnoise/dancers_1.bmp",
             "metrics": {
-                "mse": 430.183906403671,
-                "psnr": 21.794262018894965,
-                "ssim": 0.6332005897304612
+                "mse": 0,
+                "psnr": null,
+                "ssim": 1
             },
             "reference": "data/ref_images/dancers.bmp"
         },
         {
             "measured": "data/wnoise/dancers_2.bmp",
             "metrics": {
-                "mse": 113.25230335459875,
-                "psnr": 27.590333172998665,
-                "ssim": 0.8125050199449586
+                "mse": 430.183906403671,
+                "psnr": 21.794262018894965,
+                "ssim": 0.6332005897304612
             },
             "reference": "data/ref_images/dancers.bmp"
         },
@@ -612,6 +612,15 @@
         {
             "measured": "data/wnoise/parrots_1.bmp",
             "metrics": {
+                "mse": 0,
+                "psnr": null,
+                "ssim": 1
+            },
+            "reference": "data/ref_images/parrots.bmp"
+        },
+        {
+            "measured": "data/wnoise/parrots_2.bmp",
+            "metrics": {
                 "mse": 13134.99819861518,
                 "psnr": 6.9465034330665425,
                 "ssim": 0.0605642047359454
@@ -619,7 +628,7 @@
             "reference": "data/ref_images/parrots.bmp"
         },
         {
-            "measured": "data/wnoise/parrots_2.bmp",
+            "measured": "data/wnoise/parrots_3.bmp",
             "metrics": {
                 "mse": 996.0467198689777,
                 "psnr": 18.148006512540245,
@@ -628,7 +637,7 @@
             "reference": "data/ref_images/parrots.bmp"
         },
         {
-            "measured": "data/wnoise/parrots_3.bmp",
+            "measured": "data/wnoise/parrots_4.bmp",
             "metrics": {
                 "mse": 247.6910315619574,
                 "psnr": 24.191700790041835,
@@ -637,20 +646,11 @@
             "reference": "data/ref_images/parrots.bmp"
         },
         {
-            "measured": "data/wnoise/parrots_4.bmp",
+            "measured": "data/wnoise/parrots_5.bmp",
             "metrics": {
                 "mse": 62.688683403862846,
                 "psnr": 30.158912120441315,
                 "ssim": 0.8920184732831411
-            },
-            "reference": "data/ref_images/parrots.bmp"
-        },
-        {
-            "measured": "data/wnoise/parrots_5.bmp",
-            "metrics": {
-                "mse": 8.932022942437065,
-                "psnr": 38.62130530955633,
-                "ssim": 0.980877751956525
             },
             "reference": "data/ref_images/parrots.bmp"
         }
