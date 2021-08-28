@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QContextMenuEvent, QImage, QPixmap
@@ -14,9 +14,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from cilissa.classes import AnalysisResult
 from cilissa.images import Image
 from cilissa.operations import ImageOperation
+from cilissa.results import AnalysisResult
 from cilissa_gui.managers import OperationsManager
 
 
@@ -122,22 +122,33 @@ class CQResultDialog(QMessageBox):
         self.layout().setContentsMargins(0, 16, 24, 8)
 
     def format_result(self) -> None:
-        if self.result.parameters:
-            properties = "".join(["<li>{}: {}</li>".format(k, v) for k, v in self.result.parameters.items()])
-        else:
-            properties = "No properties"
+        result_list: List[str] = []
+        d = self.result.get_parameters_dict()
+        for field_name, field_value in d.items():
+            html = self.get_html_for_result_field(field_name, field_value)
+            if html:
+                result_list.append(html)
 
-        return """
-        <strong>Metric name:</strong> {}<br>
-        <strong>Result:</strong> {}<br>
-        <strong>Properties:</strong>
-        <ul>{}</ul>
-        <br>
-        """.format(
-            self.result.name,
-            self.result.value,
-            properties,
-        )
+        return "<br>".join([s for s in result_list]) + "<br>"
+
+    def get_html_for_result_field(self, field_name: str, field_value: Any) -> str:
+        html = f"<strong>{field_name.capitalize()}:</strong> "
+        t = self.result.get_parameter_type(field_name)
+
+        if t == dict:
+            items = field_value.items()
+            if items:
+                html += "<ul>"
+                html += "".join(["<li>{}: {}</li>".format(k, v) for k, v in items])
+                html += "</ul>"
+            else:
+                html += "No parameters"
+        elif t == Image:
+            return ""
+        else:
+            html += str(field_value)
+
+        return html
 
 
 class CQErrorDialog(QMessageBox):

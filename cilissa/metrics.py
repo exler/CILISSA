@@ -1,9 +1,8 @@
-from typing import Any, Optional, Union
+from typing import Any, Optional, Type, Union
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
-from cilissa.classes import AnalysisResult
 from cilissa.helpers import crop_array
 from cilissa.images import ImagePair
 from cilissa.operations import Metric
@@ -22,10 +21,10 @@ class MSE(Metric):
 
     name = "mse"
 
-    def analyze(self, image_pair: ImagePair) -> AnalysisResult:
+    def analyze(self, image_pair: ImagePair) -> Type[np.floating]:
         base_image, test_image = image_pair.as_floats()
         result = np.mean(np.square((base_image - test_image)), dtype=np.float64)
-        return self.generate_result(result)
+        return result
 
 
 class PSNR(Metric):
@@ -41,16 +40,16 @@ class PSNR(Metric):
 
     name = "psnr"
 
-    def analyze(self, image_pair: ImagePair) -> AnalysisResult:
+    def analyze(self, image_pair: ImagePair) -> Type[np.floating]:
         # dmax - maximum possible pixel value of the image
-        dmax = image_pair.ref.im.max()
+        dmax = image_pair[0].im.max()
 
-        err = MSE().analyze(image_pair).value
+        err = MSE().analyze(image_pair)
         if err == 0:
             result = np.inf
         else:
             result = 20 * np.log10(dmax) - 10 * np.log10(err)
-        return self.generate_result(result)
+        return result
 
 
 class SSIM(Metric):
@@ -144,10 +143,10 @@ class SSIM(Metric):
 
         return crop_array(S, pad).mean()
 
-    def analyze(self, image_pair: ImagePair) -> AnalysisResult:
+    def analyze(self, image_pair: ImagePair) -> Type[np.floating]:
         base_image, test_image = image_pair.as_floats()
 
-        ch_num = self.channels_num or image_pair.ref.channels_num
+        ch_num = self.channels_num or image_pair[0].channels_num
 
         # Create an empty array to hold results from each channel
         ssim_results = np.empty(ch_num)
@@ -156,7 +155,7 @@ class SSIM(Metric):
             ssim_results[ch] = ch_result
 
         mssim = ssim_results.mean()
-        return self.generate_result(mssim)
+        return mssim
 
 
 all_metrics = get_operation_subclasses(Metric)

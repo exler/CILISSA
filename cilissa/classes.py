@@ -1,9 +1,45 @@
-from __future__ import annotations
+from abc import ABC
+from typing import (
+    Any,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    get_type_hints,
+)
 
-from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
-import numpy as np
+class Parameterized(ABC):
+    def get_parameters_dict(self) -> Dict[str, Any]:
+        d = vars(self)
+        return d
+
+    def get_parameter_type(self, parameter: str) -> Union[Type, None]:
+        attr = self.get_parameter(parameter, None)
+        if attr is not None:
+            return type(attr)
+
+        # Try to get the type from type hinting
+        try:
+            t = get_type_hints(self.__init__).get(parameter)  # type: ignore
+            t_args = t.__args__  # type: ignore
+            for arg in t_args:
+                if not isinstance(None, arg):
+                    return arg
+        except AttributeError:
+            # `t` is a type or None
+            return t
+
+        return None
+
+    def set_parameter(self, parameter: str, value: Any) -> None:
+        setattr(self, parameter, value)
+
+    def get_parameter(self, parameter: str, default: Optional[Any] = None) -> Any:
+        return getattr(self, parameter, default)
 
 
 class OrderedList:
@@ -58,39 +94,3 @@ class OrderedList:
 
     def clear(self) -> None:
         self.items = []
-
-
-@dataclass(frozen=True)
-class AnalysisResult:
-    name: str
-    parameters: Dict[str, Any]
-    value: Union[float, np.float64]
-
-    def __eq__(self, o: Any) -> bool:
-        if isinstance(o, AnalysisResult):
-            return self.name == o.name and np.isclose(self.value, o.value, rtol=1e-05, atol=1e-08, equal_nan=False)
-        elif isinstance(o, float):
-            return np.isclose(self.value, o, rtol=1e-05, atol=1e-08, equal_nan=False)
-        else:
-            return self.value == o
-
-    def __lt__(self, o: Any) -> bool:
-        if isinstance(o, AnalysisResult):
-            return self.name == o.name and np.less(self.value, o.value)
-        else:
-            return np.less(self.value, o)
-
-    def __le__(self, o: Any) -> bool:
-        return self == o or self < o
-
-    def __gt__(self, o: Any) -> bool:
-        if isinstance(o, AnalysisResult):
-            return self.name == o.name and np.greater(self.value, o.value)
-        else:
-            return np.greater(self.value, o)
-
-    def __ge__(self, o: Any) -> bool:
-        return self == o or self > o
-
-    def pretty(self) -> str:
-        return f"Analysis - metric: {self.name}, result: {round(self.value, 4)}"

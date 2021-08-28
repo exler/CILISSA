@@ -64,7 +64,7 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
         self.clear()
         for item in self.collection_manager.get_order():
             item = item[1]
-            self.addTopLevelItem(QTreeWidgetItem([item.ref.name, item.A.name]))
+            self.addTopLevelItem(QTreeWidgetItem([item[0].name, item[1].name]))
 
     def show_context_menu(self, pos: QPoint) -> None:
         menu = QMenu(self)
@@ -82,8 +82,8 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
     def open_selected(self) -> None:
         row = [index.row() for index in self.selectedIndexes()][-1]
         image_pair = self.collection_manager[row]
-        self.parent().parent().details_tab.change_base_image(image_pair.ref)
-        self.parent().parent().details_tab.change_comp_image(image_pair.A)
+        self.parent().parent().details_tab.change_base_image(image_pair[0])
+        self.parent().parent().details_tab.change_comp_image(image_pair[1])
 
         self.parent().parent().setCurrentWidget(self.parent().parent().details_tab)
 

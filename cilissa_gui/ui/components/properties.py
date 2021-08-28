@@ -91,6 +91,7 @@ class PropertiesSelected(QWidget):
         properties = self.instance.get_parameters_dict()
         if not properties:
             info = QLabel("Chosen operation has no configurable parameters")
+            info.setStyleSheet("QLabel { color: darkgray; }")
             info.setWordWrap(True)
             info.setAlignment(Qt.AlignCenter)
             self.main_layout.addWidget(info)
@@ -149,7 +150,7 @@ class PropertiesUnselected(QWidget):
         self.main_layout = QVBoxLayout()
 
         self.no_selection_text = QLabel("Select a metric or transformation to configure its properties")
-        self.no_selection_text.setStyleSheet("QLabel { color: silver; }")
+        self.no_selection_text.setStyleSheet("QLabel { color: darkgray; }")
         self.no_selection_text.setWordWrap(True)
         self.no_selection_text.setAlignment(Qt.AlignCenter)
 

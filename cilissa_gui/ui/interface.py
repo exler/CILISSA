@@ -182,7 +182,7 @@ class Interface(QWidget):
         else:
             self.statusbar.showMessage("CILISSA is running...")
             try:
-                results = self.operations_manager.run(self.collection_manager)
+                results = self.operations_manager.run_all(self.collection_manager)
                 for image_results in results:
                     for operation_result in image_results:
                         self.console_box.console.add_item(operation_result)

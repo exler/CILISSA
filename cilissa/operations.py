@@ -1,14 +1,16 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Type, Union, get_type_hints
+from typing import Any, List, Type, Union
 
 import numpy as np
 
-from cilissa.classes import AnalysisResult
-from cilissa.images import Image, ImagePair
+from cilissa.classes import OrderedList, Parameterized
+from cilissa.exceptions import ShapesNotEqual
+from cilissa.images import Image, ImageCollection, ImagePair
+from cilissa.results import AnalysisResult, Result, TransformationResult
 
 
-class ImageOperation(ABC):
+class ImageOperation(Parameterized, ABC):
     name: str = ""
 
     def __init__(self, **kwargs: Any) -> None:
@@ -22,54 +24,79 @@ class ImageOperation(ABC):
     def get_class_name(cls) -> str:
         return cls.name
 
-    def get_parameters_dict(self) -> Dict[str, Any]:
-        d = vars(self)
-        return d
+    @abstractmethod
+    def run(self, image_pair: ImagePair) -> Type[Result]:
+        raise NotImplementedError("All ImageOperation subclasses must implement the `run` method")
 
-    def get_parameter_type(self, parameter: str) -> Union[Type, None]:
-        attr = getattr(self, parameter, None)
-        if attr:
-            return type(attr)
+    @abstractmethod
+    def generate_result(self, **kwargs: Any) -> Type[Result]:
+        raise NotImplementedError("All ImageOperation subclasses must implement the `generate_result` method")
 
-        # Try to get the type from type hinting
-        try:
-            t = get_type_hints(self.__init__).get(parameter)  # type: ignore
-            t_args = t.__args__  # type: ignore
-            for arg in t_args:
-                if not isinstance(None, arg):
-                    return arg
-        except AttributeError:
-            # `t` is a type or None
-            return t
 
-        return None
+class OperationsList(OrderedList):
+    def run_all(self, images: Union[ImagePair, ImageCollection]) -> Any:
+        if isinstance(images, ImagePair):
+            return self._use_operations_on_pair(images)
+        elif isinstance(images, ImageCollection):
+            results = []
+            for pair in images:
+                res = self._use_operations_on_pair(pair)
+                results.append(res)
 
-    def set_parameter(self, parameter: str, value: Any) -> None:
-        setattr(self, parameter, value)
+            return results
+        else:
+            raise TypeError("Objects must be of type: ImagePair, ImageCollection")
+
+    def _use_operations_on_pair(self, image_pair: ImagePair) -> List[Type[Result]]:
+        results = []
+        for operation in self:
+            result = operation.run(image_pair)
+            if result is not None:
+                results.append(result)
+
+        return results
 
 
 class Transformation(ImageOperation, ABC):
     """
     Base class for creating new transformations to use in the program.
-
-    All transformations must implement the `transform` method.
     """
 
     @abstractmethod
     def transform(self, image: Image) -> Image:
-        raise NotImplementedError("Transformations must implement the `transform` method")
+        pass
+
+    def run(self, image_pair: ImagePair) -> TransformationResult:
+        image = image_pair[1]
+        transformed_image = self.transform(image)
+        image_pair[1] = transformed_image
+        return self.generate_result(before=image, after=transformed_image)
+
+    def generate_result(self, before: Image, after: Image) -> TransformationResult:
+        return TransformationResult(name=str(self), parameters=self.get_parameters_dict(), before=before, after=after)
 
 
 class Metric(ImageOperation, ABC):
     """
     Base class for creating new metrics to use in the program.
-
-    All metrics must implement the `analyze` method.
     """
 
     @abstractmethod
-    def analyze(self, image_pair: ImagePair) -> AnalysisResult:
-        raise NotImplementedError("Metrics must implement the `analyze` method")
+    def analyze(self, image_pair: ImagePair) -> Type[np.floating]:
+        pass
 
-    def generate_result(self, value: Union[float, np.float64]) -> AnalysisResult:
+    def run(self, image_pair: ImagePair) -> AnalysisResult:
+        result = self.analyze(image_pair)
+        return self.generate_result(result)
+
+    def validate(self, image_pair: ImagePair) -> None:
+        if not image_pair.matching_shape:
+            raise ShapesNotEqual("Images must be of equal size to analyze")
+
+        if not image_pair.matching_dtype:
+            logging.warn(
+                "Input images have mismatched data types. Metrics relying on data range will use original image's type"
+            )
+
+    def generate_result(self, value: Type[np.floating]) -> AnalysisResult:
         return AnalysisResult(name=str(self), parameters=self.get_parameters_dict(), value=value)

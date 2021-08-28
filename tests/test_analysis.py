@@ -28,7 +28,7 @@ class TestImageAnalysis(unittest.TestCase):
 
                 result = mse.analyze(image_pair)
 
-                self.assertAlmostEqual(result.value, m["metrics"]["mse"], delta=0.1)
+                self.assertAlmostEqual(result, m["metrics"]["mse"], delta=0.1)
 
     def test_metric_psnr(self) -> None:
         psnr = PSNR()
@@ -42,9 +42,9 @@ class TestImageAnalysis(unittest.TestCase):
                 result = psnr.analyze(image_pair)
 
                 if m["metrics"]["psnr"] is None:
-                    self.assertTrue(isinf(result.value))
+                    self.assertTrue(isinf(result))
                 else:
-                    self.assertAlmostEqual(result.value, m["metrics"]["psnr"], delta=0.1)
+                    self.assertAlmostEqual(result, m["metrics"]["psnr"], delta=0.1)
 
     def test_metric_ssim(self) -> None:
         ssim = SSIM()
@@ -57,4 +57,4 @@ class TestImageAnalysis(unittest.TestCase):
 
                 result = ssim.analyze(image_pair)
 
-                self.assertAlmostEqual(result.value, m["metrics"]["ssim"], delta=0.5)
+                self.assertAlmostEqual(result, m["metrics"]["ssim"], delta=0.5)

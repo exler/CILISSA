@@ -50,7 +50,7 @@ where `parameter-name` uses hyphens (-) instead of underscores (_)
 ```python
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import SSIM, MSE
-from cilissa.core import OperationsList
+from cilissa.operations import OperationsList
 
 image1 = Image("path/to/original/image")
 image2 = Image("path/to/other/image")
@@ -63,10 +63,11 @@ result = ssim.analyze(image_pair)
 # Or use OperationsList
 mse = MSE()
 operations = OperationsList([mse, ssim])
-results = operations.run(image_pair)
+results = operations.run_all(image_pair)
 ```
 
 * Example: image transformation
+
 ```python
 from cilissa.images import Image
 from cilissa.transformations import Blur

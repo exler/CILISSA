@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Type, Union
 
 import cv2
 import matplotlib.pyplot as plt
@@ -139,21 +139,18 @@ class Image:
         plt.ylabel("Pixel count")
         plt.show()
 
-    def as_int(self) -> np.ndarray:
-        """
-        Converts the image to :data:`np.ndarray` of ints
-        """
-        int_type = np.result_type(self.im, np.uint8)
-        image = np.asarray(self.im, dtype=int_type)
+    def _as(self, data_type: Type) -> np.ndarray:
+        np_type = np.result_type(self.im, data_type)
+        image = np.asarray(self.im, dtype=np_type)
         return image
 
+    def as_int(self) -> np.ndarray:
+        """Converts the image to :data:`np.ndarray` of ints"""
+        return self._as(np.uint8)
+
     def as_float(self) -> np.ndarray:
-        """
-        Converts the image to :data:`np.ndarray` of floats
-        """
-        float_type = np.result_type(self.im, np.float32)
-        image = np.asarray(self.im, dtype=float_type)
-        return image
+        """Converts the image to :data:`np.ndarray` of floats"""
+        return self._as(np.float32)
 
     def __str__(self) -> str:
         return f"Image(name={self.name})"
@@ -167,46 +164,44 @@ class ImagePair:
     will be used if necessary.
 
     Attributes:
-        ref (:class:`cilissa.images.Image`): Reference image against which quality is measured
-        A (:class:`cilissa.images.Image`): Image whose quality is to be measured
+        im1 (:class:`cilissa.images.Image`): Reference image against which quality is measured
+        im2 (:class:`cilissa.images.Image`): Image whose quality is to be measured
     """
 
-    ref: Image
-    A: Image
+    im1: Image
+    im2: Image
 
-    def __init__(self, ref_image: Image, A_image: Image) -> None:
-        self.ref = ref_image
-        self.A = A_image
+    def __init__(self, reference_image: Image, compared_image: Image) -> None:
+        self.im1 = reference_image
+        self.im2 = compared_image
 
     def __getitem__(self, key: int) -> Image:
         if key == 0:
-            return self.ref
+            return self.im1
         elif key == 1:
-            return self.A
+            return self.im2
         else:
             raise IndexError
 
-    def __setitem__(self, key: int, value: Image) -> None:
+    def __setitem__(self, key: int, image: Image) -> None:
         if key == 0:
-            self.ref = value
+            self.im1.from_array(image.im)
         elif key == 1:
-            self.A = value
+            self.im2.from_array(image.im)
         else:
             raise IndexError
 
     @property
     def matching_shape(self) -> bool:
-        return self.ref.im.shape == self.A.im.shape
+        return self.im1.im.shape == self.im2.im.shape
 
     @property
     def matching_dtype(self) -> bool:
-        return self.ref.im.dtype == self.A.im.dtype
+        return self.im1.im.dtype == self.im2.im.dtype
 
     def as_floats(self) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Returns a tuple with both images as :data:`np.ndarray` of floats
-        """
-        return (self.ref.as_float(), self.A.as_float())
+        """Returns a tuple with both images as :data:`np.ndarray` of floats"""
+        return (self.im1.as_float(), self.im2.as_float())
 
 
 class ImageCollection(OrderedList):

@@ -2,8 +2,8 @@ from typing import Any, List
 
 from PySide6.QtCore import QObject, Signal
 
-from cilissa.core import OperationsList
 from cilissa.images import ImageCollection
+from cilissa.operations import OperationsList
 from cilissa_gui.meta import SingletonMeta
 
 

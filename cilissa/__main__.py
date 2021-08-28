@@ -2,9 +2,9 @@ import argparse
 import logging
 
 from cilissa.cli import get_operation_instances
-from cilissa.core import OperationsList
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import all_metrics
+from cilissa.operations import OperationsList
 from cilissa.transformations import all_transformations
 
 help_message = """
@@ -19,9 +19,9 @@ if __name__ == "__main__":
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument("-r", "--ref-image", required=True, help="Reference image against which quality is measured")
-    parser.add_argument("-c", "--comp-image", required=True, help="Modified/distorted image to be analyzed")
+    parser.add_argument("-i", "--input-image", required=True, help="Image to be analyzed and transformed")
     parser.add_argument(
-        "-m",
+        "-M",
         "--metric",
         choices=list(all_metrics.keys()),
         action="extend",
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         help="Which metrics to use for analysis",
     )
     parser.add_argument(
-        "-t",
+        "-T",
         "--transformation",
         choices=list(all_transformations.keys()),
         action="extend",
@@ -51,17 +51,17 @@ if __name__ == "__main__":
         logging.getLogger().setLevel(logging.DEBUG)
 
     image1 = Image(args.ref_image)
-    image2 = Image(args.comp_image)
+    image2 = Image(args.input_image)
     image_pair = ImagePair(image1, image2)
 
     operations_choices = list(args.metric or []) + list(args.transformation or [])
     instances = get_operation_instances(operations_choices, args.kwargs or [])
 
     operations = OperationsList(instances["transformations"] + instances["metrics"])
-    result = operations.run(image_pair)
+    result = operations.run_all(image_pair)
 
     if result:
         print(result)
 
     if args.show_end_image:
-        image_pair.A.display_image()
+        image_pair.im1.display_image()
