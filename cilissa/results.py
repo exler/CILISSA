@@ -8,7 +8,7 @@ from cilissa.classes import Parameterized
 from cilissa.images import Image
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True)  # type: ignore
 class Result(Parameterized, ABC):
     name: str
     parameters: Dict[str, Any]

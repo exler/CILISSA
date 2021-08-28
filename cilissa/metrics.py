@@ -1,4 +1,4 @@
-from typing import Any, Optional, Type, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
@@ -21,7 +21,7 @@ class MSE(Metric):
 
     name = "mse"
 
-    def analyze(self, image_pair: ImagePair) -> Type[np.floating]:
+    def analyze(self, image_pair: ImagePair) -> float:
         base_image, test_image = image_pair.as_floats()
         result = np.mean(np.square((base_image - test_image)), dtype=np.float64)
         return result
@@ -40,7 +40,7 @@ class PSNR(Metric):
 
     name = "psnr"
 
-    def analyze(self, image_pair: ImagePair) -> Type[np.floating]:
+    def analyze(self, image_pair: ImagePair) -> float:
         # dmax - maximum possible pixel value of the image
         dmax = image_pair[0].im.max()
 
@@ -143,7 +143,7 @@ class SSIM(Metric):
 
         return crop_array(S, pad).mean()
 
-    def analyze(self, image_pair: ImagePair) -> Type[np.floating]:
+    def analyze(self, image_pair: ImagePair) -> float:
         base_image, test_image = image_pair.as_floats()
 
         ch_num = self.channels_num or image_pair[0].channels_num
@@ -158,4 +158,4 @@ class SSIM(Metric):
         return mssim
 
 
-all_metrics = get_operation_subclasses(Metric)
+all_metrics = get_operation_subclasses(Metric)  # type: ignore

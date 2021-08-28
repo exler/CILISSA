@@ -2,8 +2,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, Type, Union
 
-import numpy as np
-
 from cilissa.classes import OrderedList, Parameterized
 from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImageCollection, ImagePair
@@ -25,12 +23,16 @@ class ImageOperation(Parameterized, ABC):
         return cls.name
 
     @abstractmethod
-    def run(self, image_pair: ImagePair) -> Type[Result]:
+    def run(self, image_pair: ImagePair) -> Result:
         raise NotImplementedError("All ImageOperation subclasses must implement the `run` method")
 
     @abstractmethod
-    def generate_result(self, **kwargs: Any) -> Type[Result]:
-        raise NotImplementedError("All ImageOperation subclasses must implement the `generate_result` method")
+    def get_result_type(self) -> Type[Result]:
+        raise NotImplementedError("All ImageOperation subclasses must implement the `get_result_type` method")
+
+    def generate_result(self, **kwargs: Any) -> Result:
+        result_type = self.get_result_type()
+        return result_type(name=str(self), parameters=self.get_parameters_dict(), **kwargs)  # type: ignore
 
 
 class OperationsList(OrderedList):
@@ -47,7 +49,7 @@ class OperationsList(OrderedList):
         else:
             raise TypeError("Objects must be of type: ImagePair, ImageCollection")
 
-    def _use_operations_on_pair(self, image_pair: ImagePair) -> List[Type[Result]]:
+    def _use_operations_on_pair(self, image_pair: ImagePair) -> List[Result]:
         results = []
         for operation in self:
             result = operation.run(image_pair)
@@ -62,18 +64,18 @@ class Transformation(ImageOperation, ABC):
     Base class for creating new transformations to use in the program.
     """
 
+    def get_result_type(self) -> Type[Result]:
+        return TransformationResult
+
     @abstractmethod
     def transform(self, image: Image) -> Image:
         pass
 
-    def run(self, image_pair: ImagePair) -> TransformationResult:
+    def run(self, image_pair: ImagePair) -> Result:
         image = image_pair[1]
         transformed_image = self.transform(image)
         image_pair[1] = transformed_image
         return self.generate_result(before=image, after=transformed_image)
-
-    def generate_result(self, before: Image, after: Image) -> TransformationResult:
-        return TransformationResult(name=str(self), parameters=self.get_parameters_dict(), before=before, after=after)
 
 
 class Metric(ImageOperation, ABC):
@@ -81,22 +83,21 @@ class Metric(ImageOperation, ABC):
     Base class for creating new metrics to use in the program.
     """
 
+    def get_result_type(self) -> Type[Result]:
+        return AnalysisResult
+
     @abstractmethod
-    def analyze(self, image_pair: ImagePair) -> Type[np.floating]:
+    def analyze(self, image_pair: ImagePair) -> float:
         pass
 
-    def run(self, image_pair: ImagePair) -> AnalysisResult:
-        result = self.analyze(image_pair)
-        return self.generate_result(result)
+    def run(self, image_pair: ImagePair) -> Result:
+        self.validate(image_pair)
+        value = self.analyze(image_pair)
+        return self.generate_result(value=value)
 
     def validate(self, image_pair: ImagePair) -> None:
         if not image_pair.matching_shape:
             raise ShapesNotEqual("Images must be of equal size to analyze")
 
         if not image_pair.matching_dtype:
-            logging.warn(
-                "Input images have mismatched data types. Metrics relying on data range will use original image's type"
-            )
-
-    def generate_result(self, value: Type[np.floating]) -> AnalysisResult:
-        return AnalysisResult(name=str(self), parameters=self.get_parameters_dict(), value=value)
+            logging.warn("Images have mismatched data types. Metrics will use reference image's type")

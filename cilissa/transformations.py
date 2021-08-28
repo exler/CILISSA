@@ -224,4 +224,4 @@ class Equalization(Transformation):
         return Image(new_im)
 
 
-all_transformations = get_operation_subclasses(Transformation)
+all_transformations = get_operation_subclasses(Transformation)  # type: ignore
