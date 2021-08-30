@@ -1,5 +1,3 @@
-from typing import Any
-
 from PySide6.QtCore import QPoint, Qt, Slot
 from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtWidgets import (
