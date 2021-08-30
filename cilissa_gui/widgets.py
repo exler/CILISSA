@@ -3,8 +3,17 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, List, Optional, Type, Union
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QContextMenuEvent, QImage, QPixmap
+from PySide6.QtCore import QRect, Qt
+from PySide6.QtGui import (
+    QAction,
+    QContextMenuEvent,
+    QImage,
+    QMouseEvent,
+    QPainter,
+    QPaintEvent,
+    QPen,
+    QPixmap,
+)
 from PySide6.QtWidgets import (
     QLabel,
     QListWidgetItem,
@@ -14,6 +23,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from cilissa.helpers import clamp
 from cilissa.images import Image
 from cilissa.operations import ImageOperation
 from cilissa.results import AnalysisResult
@@ -161,3 +171,54 @@ class CQErrorDialog(QMessageBox):
         self.setTextFormat(Qt.PlainText)
         self.setText(msg)
         self.setStandardButtons(QMessageBox.Ok)
+
+
+class CQROIImage(QLabel):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.point1 = None
+        self.point2 = None
+        self.draw_flag = False
+
+    def mousePressEvent(self, ev: QMouseEvent) -> None:
+        self.draw_flag = True
+        self.point1 = ev.localPos().toPoint()
+
+    def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
+        self.draw_flag = False
+
+    def mouseMoveEvent(self, ev: QMouseEvent) -> None:
+        if self.draw_flag:
+            pos = ev.localPos().toPoint()
+            x = pos.x()
+            y = pos.y()
+            width = self.width() - 1
+            height = self.height() - 1
+
+            if x < 0 or x > width:
+                x = clamp(x, 0, width)
+                pos.setX(x)
+
+            if y < 0 or y > height:
+                y = clamp(y, 0, height)
+                pos.setY(y)
+
+            self.point2 = pos
+            self.update()
+
+    def paintEvent(self, ev: QPaintEvent) -> None:
+        super().paintEvent(ev)
+        try:
+            rect = QRect(self.point1, self.point2)
+            painter = QPainter(self)
+            painter.setPen(QPen(Qt.red, 2, Qt.DashDotDotLine))
+            painter.drawRect(rect)
+        except TypeError:
+            # Object was just initialized
+            pass
+
+    def set_image(self, image: Image) -> None:
+        thumbnail = QImage(image.get_thumbnail(128, 128), 128, 128, 128 * image.channels_num, QImage.Format_BGR888)
+        pixmap = QPixmap.fromImage(thumbnail)
+        self.setPixmap(pixmap)

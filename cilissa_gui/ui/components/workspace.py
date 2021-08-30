@@ -1,9 +1,10 @@
+from typing import Any
+
 from PySide6.QtCore import QPoint, Qt, Slot
-from PySide6.QtGui import QAction, QImage, QPixmap
+from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
-    QLabel,
     QMenu,
     QTabWidget,
     QTreeWidget,
@@ -14,6 +15,7 @@ from PySide6.QtWidgets import (
 
 from cilissa.images import Image
 from cilissa_gui.managers import ImageCollectionManager
+from cilissa_gui.widgets import CQROIImage
 
 
 class Workspace(QTabWidget):
@@ -100,7 +102,7 @@ class WorkspaceDetailsTab(WorkspaceTab):
 
     def init_images(self) -> None:
         image = QPixmap(":placeholder-128")
-        self.image_label_base = QLabel()
+        self.image_label_base = CQROIImage()
         self.image_label_base.setAlignment(Qt.AlignCenter)
         self.image_label_base.setPixmap(image)
         self.main_layout.addWidget(self.image_label_base)
@@ -108,18 +110,13 @@ class WorkspaceDetailsTab(WorkspaceTab):
         self.main_layout.addSpacing(64)
 
         image = QPixmap(":placeholder-128")
-        self.image_label_comp = QLabel()
+        self.image_label_comp = CQROIImage()
         self.image_label_comp.setAlignment(Qt.AlignCenter)
         self.image_label_comp.setPixmap(image)
         self.main_layout.addWidget(self.image_label_comp)
 
     def change_base_image(self, image: Image) -> None:
-        self.replace_label_pixmap(image, self.image_label_base)
+        self.image_label_base.replace_label_pixmap(image)
 
     def change_comp_image(self, image: Image) -> None:
-        self.replace_label_pixmap(image, self.image_label_comp)
-
-    def replace_label_pixmap(self, image: Image, label: QLabel) -> None:
-        thumbnail = QImage(image.get_thumbnail(128, 128), 128, 128, 128 * image.channels_num, QImage.Format_BGR888)
-        pixmap = QPixmap.fromImage(thumbnail)
-        label.setPixmap(pixmap)
+        self.image_label_comp.replace_label_pixmap(image)
