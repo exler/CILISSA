@@ -31,7 +31,7 @@ class Explorer(QTabWidget):
             self, "Open images...", "", f"Images ({' '.join([ext for ext in self.IMAGE_EXTENSIONS])})"
         )[0]
         for fn in filenames:
-            image = CQImage.load(fn)
+            image = CQImage.load(fn, width=64, height=64)
             self.images_tab.add_item(image)
 
     def open_image_folder_dialog(self) -> None:
@@ -40,7 +40,7 @@ class Explorer(QTabWidget):
 
         for fn in d.entryList(self.IMAGE_EXTENSIONS):
             path = Path(dirname, fn)
-            image = CQImage.load(path.resolve())
+            image = CQImage.load(path.resolve(), width=64, height=64)
             self.images_tab.add_item(image)
 
 

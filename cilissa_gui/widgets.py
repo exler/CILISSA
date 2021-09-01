@@ -15,10 +15,13 @@ from PySide6.QtGui import (
     QPixmap,
 )
 from PySide6.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
     QLabel,
     QListWidgetItem,
     QMenu,
     QMessageBox,
+    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -27,6 +30,7 @@ from cilissa.helpers import clamp
 from cilissa.images import Image
 from cilissa.operations import ImageOperation
 from cilissa.results import AnalysisResult
+from cilissa.roi import ROI
 from cilissa_gui.managers import OperationsManager
 
 
@@ -74,34 +78,51 @@ class CQOperation(QWidget):
 
 
 class CQImage(QWidget):
-    def __init__(self, image: Image) -> None:
+    def __init__(
+        self, image: Image, roi: Optional[ROI] = None, width: Optional[int] = None, height: Optional[int] = None
+    ) -> None:
         super().__init__()
 
         self.main_layout = QVBoxLayout()
 
-        self.image = image
-
-        self.create_actions()
-
         self.image_label = QLabel()
-        thumbnail = QImage(self.image.get_thumbnail(64, 64), 64, 64, 64 * self.image.channels_num, QImage.Format_BGR888)
-        pixmap = QPixmap.fromImage(thumbnail)
-        self.image_label.setPixmap(pixmap)
         self.image_label.setAlignment(Qt.AlignCenter)
+
+        self.width = width
+        self.height = height
+        self.set_image(image, roi=roi)
 
         self.main_layout.addWidget(self.image_label)
         self.setLayout(self.main_layout)
 
-        self.setMaximumHeight(96)
+    def set_image(self, image: Image, roi: Optional[ROI] = None) -> None:
+        self.image = image
+        self.setMaximumHeight(self.image.height + 32)
+
+        resized_image = self.image.get_resized(width=self.width, height=self.height)
+
+        q_image = QImage(
+            resized_image.im,
+            resized_image.width,
+            resized_image.height,
+            resized_image.width * resized_image.channels_num,
+            QImage.Format_BGR888,
+        )
+
+        pixmap = QPixmap.fromImage(q_image)
+        if roi:
+            painter = QPainter(pixmap)
+            painter.setPen(QPen(Qt.red, 2, Qt.DashDotDotLine))
+            painter.drawRect(roi.x0, roi.y0, roi.x1 - roi.x0, roi.y1 - roi.y0)
+            painter.end()
+
+        self.image_label.setPixmap(pixmap)
 
     @staticmethod
-    def load(image_path: Union[Path, str]) -> CQImage:
+    def load(image_path: Union[Path, str], **kwargs: Any) -> CQImage:
         im = Image(image_path)
-        cqimage = CQImage(im)
+        cqimage = CQImage(im, **kwargs)
         return cqimage
-
-    def create_actions(self) -> None:
-        pass
 
     def contextMenuEvent(self, event: QContextMenuEvent) -> None:
         menu = QMenu(self)
@@ -173,9 +194,34 @@ class CQErrorDialog(QMessageBox):
         self.setStandardButtons(QMessageBox.Ok)
 
 
-class CQROIImage(QLabel):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+class CQROIDialog(QDialog):
+    def __init__(self, image: Image, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+        self.main_layout = QVBoxLayout()
+
+        self.image = CQROIImage(image)
+
+        self.buttons_panel = QHBoxLayout()
+        self.confirm_button = QPushButton("Confirm")
+        self.confirm_button.clicked.connect(self.confirm)
+        self.buttons_panel.addWidget(self.confirm_button)
+
+        self.main_layout.addWidget(self.image)
+        self.main_layout.addLayout(self.buttons_panel)
+        self.setLayout(self.main_layout)
+
+    def confirm(self) -> None:
+        roi = self.image.get_roi()
+        print(roi)
+        self.close()
+
+
+class CQROIImage(QLabel):
+    def __init__(self, image: Image, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.set_image(image)
 
         self.point1 = None
         self.point2 = None
@@ -219,6 +265,19 @@ class CQROIImage(QLabel):
             pass
 
     def set_image(self, image: Image) -> None:
-        thumbnail = QImage(image.get_thumbnail(128, 128), 128, 128, 128 * image.channels_num, QImage.Format_BGR888)
+        resized_image = image.get_resized()
+
+        thumbnail = QImage(
+            resized_image.im,
+            resized_image.width,
+            resized_image.height,
+            resized_image.width * resized_image.channels_num,
+            QImage.Format_BGR888,
+        )
         pixmap = QPixmap.fromImage(thumbnail)
         self.setPixmap(pixmap)
+
+    def get_roi(self) -> ROI:
+        if self.point1 and self.point2:
+            return ROI(self.point1.x(), self.point1.y(), self.point2.x(), self.point2.y())
+        return ROI()

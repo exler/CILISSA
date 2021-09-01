@@ -153,6 +153,7 @@ class Interface(QWidget):
         im1 = Image(Path("tests", "data", "ref_images", "monarch.bmp"))
         im2 = Image(Path("tests", "data", "transformations", "monarch_linear.bmp"))
         im_pair = ImagePair(im1, im2)
+        im_pair.set_roi(32, 32, 128, 128)
         self.collection_manager.push(im_pair)
         self.workspace.list_tab.refresh()
 
