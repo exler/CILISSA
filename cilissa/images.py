@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from cilissa.classes import OrderedList
-from cilissa.exceptions import WrongROIDimensions
+from cilissa.exceptions import NotOnImageError
 from cilissa.roi import ROI
 
 
@@ -23,7 +23,7 @@ class Image:
     name: str = ""
     im: np.ndarray
 
-    def __init__(self, image: Optional[Union[Path, str, np.ndarray]], name: Optional[str] = None) -> None:
+    def __init__(self, image: Union[Path, str, np.ndarray], name: Optional[str] = None) -> None:
         if name:
             self.name = name
 
@@ -44,7 +44,7 @@ class Image:
 
         return comparison.all()
 
-    def crop(self, sl: Optional[Tuple[slice, slice]]) -> Image:
+    def crop(self, sl: Tuple[slice, slice]) -> Image:
         im = self.im[sl] if sl else self.im
         return Image(np.ascontiguousarray(im), name=self.name)
 
@@ -215,11 +215,17 @@ class ImagePair:
 
     def __getitem__(self, key: int) -> Image:
         if key == 0:
-            return self.im1.crop(self._get_roi_slices())
+            im = self.im1
         elif key == 1:
-            return self.im2.crop(self._get_roi_slices())
+            im = self.im2
         else:
             raise IndexError
+
+        slices = self._get_roi_slices()
+        if slices:
+            return im.crop(slices)
+
+        return im
 
     def __setitem__(self, key: int, image: Image) -> None:
         if key == 0:
@@ -237,7 +243,7 @@ class ImagePair:
 
     def set_roi(self, roi: ROI) -> None:
         if not self.im1.check_if_on_image(roi.x0, roi.y0) or not self.im1.check_if_on_image(roi.x1, roi.y1):
-            raise WrongROIDimensions
+            raise NotOnImageError
         self.roi = roi
 
     def _get_roi_slices(self) -> Optional[Tuple[slice, slice]]:

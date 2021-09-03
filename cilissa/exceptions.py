@@ -1,10 +1,10 @@
 class ShapesNotEqual(Exception):
-    """Two images must be of equal size to compare."""
+    """Two images must be of equal size to compare"""
 
     pass
 
 
-class WrongROIDimensions(Exception):
-    """ROI dimensions must be between 0 and width/height of the image"""
+class NotOnImageError(Exception):
+    """Points of interest are outside image's boundary"""
 
     pass

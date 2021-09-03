@@ -11,6 +11,5 @@ High-resolution 24-bits/pixel RGB color images distorted with:
 
 ## ROI
 
-Images in the `roi/` folder were distorted on the following region:
-* start point - `(0, 0)`
-* end point - `(396, 512)`
+Images in the `roi/` folder were split in the middle.  
+The distorted part is on the left and the right part is left unchanged.
