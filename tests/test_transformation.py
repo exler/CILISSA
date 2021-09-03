@@ -1,5 +1,3 @@
-import os
-import unittest
 from pathlib import Path
 
 from cilissa.images import Image
@@ -11,12 +9,13 @@ from cilissa.transformations import (
     Transformation,
     Translation,
 )
+from tests.base import BaseTest
 
 
-class TestImageTransformation(unittest.TestCase):
+class TestImageTransformation(BaseTest):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.data_path = Path(os.path.dirname(__file__), "data")
+        super().setUpClass()
 
         cls.ref_image = Image(Path(cls.data_path, "ref_images", "monarch.bmp"))
 

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Tuple
 
 
 @dataclass
@@ -8,5 +9,6 @@ class ROI:
     x1: int = None
     y1: int = None
 
-    def get_slices(self) -> slice:
+    @property
+    def slices(self) -> Tuple[slice, slice]:
         return (slice(self.y0, self.y1), slice(self.x0, self.x1))

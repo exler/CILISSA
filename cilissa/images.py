@@ -44,16 +44,17 @@ class Image:
 
         return comparison.all()
 
-    def at(self, sl: Union[slice, None]) -> np.ndarray:
-        return Image(np.ascontiguousarray(self.im[sl]), name=self.name)
+    def crop(self, sl: Union[slice, None]) -> np.ndarray:
+        im = self.im[sl] if sl else self.im
+        return Image(np.ascontiguousarray(im), name=self.name)
 
     @property
     def width(self) -> int:
-        return self.im.shape[0]
+        return self.im.shape[1]
 
     @property
     def height(self) -> int:
-        return self.im.shape[1]
+        return self.im.shape[0]
 
     @property
     def channels_num(self) -> int:
@@ -119,9 +120,7 @@ class Image:
         """
         Copies and returns the image
         """
-        image = Image(self.im)
-        image.name = self.name
-        return image
+        return Image(self.im, name=self.name)
 
     def display_image(self) -> None:
         """
@@ -168,10 +167,10 @@ class Image:
         plt.show()
 
     def check_if_on_image(self, x: Optional[int] = None, y: Optional[int] = None) -> bool:
-        if x and (x < 0 or x >= self.width):
+        if x and (x < 0 or x > self.width):
             return False
 
-        if y and (y < 0 or y >= self.height):
+        if y and (y < 0 or y > self.height):
             return False
 
         return True
@@ -208,7 +207,7 @@ class ImagePair:
     im1: Image
     im2: Image
 
-    roi: ROI = ROI()
+    roi: ROI = None
 
     def __init__(self, reference_image: Image, compared_image: Image) -> None:
         self.im1 = reference_image
@@ -216,17 +215,17 @@ class ImagePair:
 
     def __getitem__(self, key: int) -> Image:
         if key == 0:
-            return self.im1.at(self.roi.get_slices())
+            return self.im1.crop(self._get_roi_slices())
         elif key == 1:
-            return self.im2.at(self.roi.get_slices())
+            return self.im2.crop(self._get_roi_slices())
         else:
             raise IndexError
 
     def __setitem__(self, key: int, image: Image) -> None:
         if key == 0:
-            self.im1.from_array(image.im, at=self.roi.get_slices())
+            self.im1.from_array(image.im, at=self._get_roi_slices())
         elif key == 1:
-            self.im2.from_array(image.im, at=self.roi.get_slices())
+            self.im2.from_array(image.im, at=self._get_roi_slices())
         else:
             raise IndexError
 
@@ -236,13 +235,13 @@ class ImagePair:
             return im
         raise IndexError
 
-    def set_roi(self, x0: int, y0: int, x1: int, y1: int) -> None:
-        if not self.im1.check_if_on_image(x0, y0) or not self.im1.check_if_on_image(x1, y1):
+    def set_roi(self, roi: ROI) -> None:
+        if not self.im1.check_if_on_image(roi.x0, roi.y0) or not self.im1.check_if_on_image(roi.x1, roi.y1):
             raise WrongROIDimensions
-        self.roi = ROI(x0, y0, x1, y1)
+        self.roi = roi
 
     def _get_roi_slices(self) -> Union[slice, None]:
-        return self.roi.get_slices() if self.roi else None
+        return self.roi.slices if self.roi else None
 
     @property
     def matching_shape(self) -> bool:
