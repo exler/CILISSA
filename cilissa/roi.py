@@ -1,13 +1,13 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Union
 
 
 @dataclass
 class ROI:
-    x0: int = None
-    y0: int = None
-    x1: int = None
-    y1: int = None
+    x0: Union[int, None] = None
+    y0: Union[int, None] = None
+    x1: Union[int, None] = None
+    y1: Union[int, None] = None
 
     @property
     def slices(self) -> Tuple[slice, slice]:

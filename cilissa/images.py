@@ -19,8 +19,8 @@ class Image:
     `np.ndarray` wrapper, a core structure in CILISSA
     """
 
-    path: str = None
-    name: str = None
+    path: str = ""
+    name: str = ""
     im: np.ndarray
 
     def __init__(self, image: Optional[Union[Path, str, np.ndarray]], name: Optional[str] = None) -> None:
@@ -44,7 +44,7 @@ class Image:
 
         return comparison.all()
 
-    def crop(self, sl: Union[slice, None]) -> np.ndarray:
+    def crop(self, sl: Optional[Tuple[slice, slice]]) -> Image:
         im = self.im[sl] if sl else self.im
         return Image(np.ascontiguousarray(im), name=self.name)
 
@@ -72,7 +72,7 @@ class Image:
             return self
         return Image(cv2.resize(self.im, maxsize, interpolation=cv2.INTER_AREA), name=self.name)
 
-    def from_array(self, image_array: np.ndarray, at: Optional[slice] = None) -> None:
+    def from_array(self, image_array: np.ndarray, at: Optional[Tuple[slice, slice]] = None) -> None:
         """
         Replaces the underlying image array with given `np.ndarray`
         """
@@ -207,7 +207,7 @@ class ImagePair:
     im1: Image
     im2: Image
 
-    roi: ROI = None
+    roi: Union[ROI, None] = None
 
     def __init__(self, reference_image: Image, compared_image: Image) -> None:
         self.im1 = reference_image
@@ -240,7 +240,7 @@ class ImagePair:
             raise WrongROIDimensions
         self.roi = roi
 
-    def _get_roi_slices(self) -> Union[slice, None]:
+    def _get_roi_slices(self) -> Optional[Tuple[slice, slice]]:
         return self.roi.slices if self.roi else None
 
     @property
