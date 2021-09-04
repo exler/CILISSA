@@ -3,6 +3,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
+    QLabel,
     QMenu,
     QPushButton,
     QTabWidget,
@@ -56,7 +57,7 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
 
         self.setColumnCount(2)
         self.setColumnWidth(0, 168)
-        self.setHeaderLabels(["Reference image", "Compared image"])
+        self.setHeaderLabels(["Reference image", "Input image"])
 
         self.setMaximumHeight(168)
 
@@ -105,16 +106,22 @@ class WorkspaceDetailsTab(WorkspaceTab):
         dialog.exec()
 
     def init_images(self) -> None:
-        self.images_panel = QHBoxLayout()
+        self.images_panel = QVBoxLayout()
         self.images_panel.setAlignment(Qt.AlignCenter)
 
-        self.image_base = CQImage.load("cilissa_gui/resources/placeholder-128.png", width=128, height=128)
-        self.images_panel.addWidget(self.image_base)
+        self.ref_image_label = QLabel("Reference image")
+        self.ref_image_label.setAlignment(Qt.AlignCenter)
+        self.ref_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=128)
+        self.images_panel.addWidget(self.ref_image_label)
+        self.images_panel.addWidget(self.ref_image)
 
-        self.images_panel.addSpacing(64)
+        self.images_panel.addSpacing(32)
 
-        self.image_comp = CQImage.load("cilissa_gui/resources/placeholder-128.png", width=128, height=128)
-        self.images_panel.addWidget(self.image_comp)
+        self.input_image_label = QLabel("Input image")
+        self.input_image_label.setAlignment(Qt.AlignCenter)
+        self.input_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=128)
+        self.images_panel.addWidget(self.input_image_label)
+        self.images_panel.addWidget(self.input_image)
 
         self.main_layout.addLayout(self.images_panel)
 
@@ -129,8 +136,8 @@ class WorkspaceDetailsTab(WorkspaceTab):
 
     def change_images(self, image_pair: ImagePair) -> None:
         self.image_pair = image_pair
-        self.image_base.set_image(image_pair[0], roi=image_pair.roi)
-        self.image_comp.set_image(image_pair[1], roi=image_pair.roi)
+        self.ref_image.set_image(image_pair.get_full_image(0), roi=image_pair.roi)
+        self.input_image.set_image(image_pair.get_full_image(1), roi=image_pair.roi)
 
         if self.image_pair:
             self.roi_button.setDisabled(False)

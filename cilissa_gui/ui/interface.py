@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR
+from cilissa.roi import ROI
 from cilissa_gui.managers import ImageCollectionManager, OperationsManager
 from cilissa_gui.ui.components import (
     ConsoleBox,
@@ -153,7 +154,7 @@ class Interface(QWidget):
         im1 = Image(Path("tests", "data", "ref_images", "monarch.bmp"))
         im2 = Image(Path("tests", "data", "transformations", "monarch_linear.bmp"))
         im_pair = ImagePair(im1, im2)
-        im_pair.set_roi(32, 32, 128, 128)
+        im_pair.set_roi(ROI(0, 0, 384, 512))
         self.collection_manager.push(im_pair)
         self.workspace.list_tab.refresh()
 

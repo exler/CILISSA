@@ -65,12 +65,20 @@ class Image:
         if width and height:
             maxsize = (width, height)
         elif width:
-            maxsize = (width, int((self.width / width) * self.height))
+            maxsize = (width, int(self.get_scale_factor(width=width) * self.height))
         elif height:
-            maxsize = (int((self.height / height) * self.width), height)
+            maxsize = (int(self.get_scale_factor(height=height) * self.width), height)
         else:
             return self
         return Image(cv2.resize(self.im, maxsize, interpolation=cv2.INTER_AREA), name=self.name)
+
+    def get_scale_factor(self, width: Optional[int] = None, height: Optional[int] = None) -> float:
+        if width:
+            return width / self.width
+        elif height:
+            return height / self.height
+        else:
+            return 1.0
 
     def from_array(self, image_array: np.ndarray, at: Optional[Tuple[slice, slice]] = None) -> None:
         """

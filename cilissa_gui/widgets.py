@@ -97,7 +97,6 @@ class CQImage(QWidget):
 
     def set_image(self, image: Image, roi: Optional[ROI] = None) -> None:
         self.image = image
-        self.setMaximumHeight(self.image.height + 32)
 
         resized_image = self.image.get_resized(width=self.width, height=self.height)
 
@@ -111,12 +110,19 @@ class CQImage(QWidget):
 
         pixmap = QPixmap.fromImage(q_image)
         if roi:
+            scale_factor = self.image.get_scale_factor(width=self.width, height=self.height)
             painter = QPainter(pixmap)
             painter.setPen(QPen(Qt.red, 2, Qt.DashDotDotLine))
-            painter.drawRect(roi.x0, roi.y0, roi.x1 - roi.x0, roi.y1 - roi.y0)
+            painter.drawRect(
+                roi.x0 * scale_factor,
+                roi.y0 * scale_factor,
+                (roi.x1 - roi.x0) * scale_factor,
+                (roi.y1 - roi.y0) * scale_factor,
+            )
             painter.end()
 
         self.image_label.setPixmap(pixmap)
+        self.setMaximumHeight(resized_image.height + 32)
 
     @staticmethod
     def load(image_path: Union[Path, str], **kwargs: Any) -> CQImage:
