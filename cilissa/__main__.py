@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-from cilissa.cli import get_operation_instances, parse_roi
+from cilissa.cli import parse_operation_instances, parse_roi
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import all_metrics
 from cilissa.operations import OperationsList
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         image_pair.set_roi(roi)
 
     operations_choices = list(args.metric or []) + list(args.transformation or [])
-    instances = get_operation_instances(operations_choices, args.kwargs or [])
+    instances = parse_operation_instances(operations_choices, args.kwargs or [])
 
     operations = OperationsList(instances["transformations"] + instances["metrics"])
     result = operations.run_all(image_pair)

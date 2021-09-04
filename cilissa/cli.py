@@ -8,7 +8,7 @@ from cilissa.roi import ROI
 from cilissa.transformations import Transformation, all_transformations
 
 
-def get_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[str, List[ImageOperation]]:
+def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[str, List[ImageOperation]]:
     all_operations = {**all_metrics, **all_transformations}
 
     instances: Dict[str, List[ImageOperation]] = {"metrics": [], "transformations": []}
@@ -53,8 +53,8 @@ def get_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[st
     return instances
 
 
-def parse_roi(points: str) -> ROI:
-    points = points.split(",")
+def parse_roi(string: str) -> ROI:
+    points = string.split(",")
 
     start_point = points[0].split("x")
     end_point = points[1].split("x")
