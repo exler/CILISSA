@@ -9,7 +9,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from cilissa.operations import ImageOperation, Metric, Transformation
+from cilissa.operations import ImageOperation
+from cilissa_gui.helpers import get_operation_icon_name
 from cilissa_gui.managers import OperationsManager
 
 
@@ -103,11 +104,7 @@ class Operations(QListWidget):
         self.refresh()
 
     def create_item_from_operation(self, operation: ImageOperation) -> QListWidgetItem:
-        if isinstance(operation, Transformation):
-            icon = QIcon(":letter-t")
-        elif isinstance(operation, Metric):
-            icon = QIcon(":letter-m")
-        else:
-            icon = None
+        icon_name = get_operation_icon_name(operation)
+        icon = QIcon(icon_name)
         item = QListWidgetItem(icon, operation.get_class_name(), self)
         return item

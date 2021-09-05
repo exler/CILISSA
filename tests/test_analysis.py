@@ -1,22 +1,13 @@
-import json
-import os
-import unittest
 from pathlib import Path
 
 from numpy import isinf
 
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR, SSIM
+from tests.base import BaseTest
 
 
-class TestImageAnalysis(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.base_path = os.path.dirname(__file__)
-
-        fp = open(Path(cls.base_path, "data", "data.json"))
-        cls.images_data = json.load(fp)
-
+class TestImageAnalysis(BaseTest):
     def test_metric_mse(self) -> None:
         mse = MSE()
 

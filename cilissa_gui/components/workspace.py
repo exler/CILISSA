@@ -1,9 +1,11 @@
 from PySide6.QtCore import QPoint, Qt, Slot
-from PySide6.QtGui import QAction, QPixmap
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
+    QLabel,
     QMenu,
+    QPushButton,
     QTabWidget,
     QTreeWidget,
     QTreeWidgetItem,
@@ -11,9 +13,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from cilissa.images import Image
+from cilissa.images import ImagePair
 from cilissa_gui.managers import ImageCollectionManager
-from cilissa_gui.widgets import CQROIImage
+from cilissa_gui.widgets import CQImage, CQROIDialog
 
 
 class Workspace(QTabWidget):
@@ -29,9 +31,7 @@ class Workspace(QTabWidget):
 
 class WorkspaceTab(QWidget):
     def __init__(self, parent: QTabWidget) -> None:
-        super().__init__()
-
-        self.setMaximumWidth(parent.width())
+        super().__init__(parent)
 
 
 class WorkspaceListTab(QTreeWidget, WorkspaceTab):
@@ -55,7 +55,7 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
 
         self.setColumnCount(2)
         self.setColumnWidth(0, 168)
-        self.setHeaderLabels(["Reference image", "Compared image"])
+        self.setHeaderLabels(["Reference image", "Input image"])
 
         self.setMaximumHeight(168)
 
@@ -82,9 +82,7 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
     def open_selected(self) -> None:
         row = [index.row() for index in self.selectedIndexes()][-1]
         image_pair = self.collection_manager[row]
-        self.parent().parent().details_tab.change_base_image(image_pair[0])
-        self.parent().parent().details_tab.change_comp_image(image_pair[1])
-
+        self.parent().parent().details_tab.change_images(image_pair)
         self.parent().parent().setCurrentWidget(self.parent().parent().details_tab)
 
 
@@ -92,29 +90,60 @@ class WorkspaceDetailsTab(WorkspaceTab):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
-        self.main_layout = QHBoxLayout()
-        self.main_layout.setAlignment(Qt.AlignCenter)
-        self.setLayout(self.main_layout)
+        self.main_layout = QVBoxLayout()
+
+        self.image_pair = None
 
         self.init_images()
+        self.init_buttons()
+
+        self.setLayout(self.main_layout)
+
+    def select_roi(self) -> None:
+        dialog = CQROIDialog(self.image_pair)
+        dialog.exec()
+        self.refresh()
 
     def init_images(self) -> None:
-        image = QPixmap(":placeholder-128")
-        self.image_label_base = CQROIImage()
-        self.image_label_base.setAlignment(Qt.AlignCenter)
-        self.image_label_base.setPixmap(image)
-        self.main_layout.addWidget(self.image_label_base)
+        self.images_panel = QHBoxLayout()
+        self.images_panel.setAlignment(Qt.AlignCenter)
 
-        self.main_layout.addSpacing(64)
+        self.ref_image_layout = QVBoxLayout()
+        self.ref_image_label = QLabel("Reference image")
+        self.ref_image_label.setAlignment(Qt.AlignCenter)
+        self.ref_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=192)
+        self.ref_image_layout.addWidget(self.ref_image_label)
+        self.ref_image_layout.addWidget(self.ref_image)
+        self.images_panel.addLayout(self.ref_image_layout)
 
-        image = QPixmap(":placeholder-128")
-        self.image_label_comp = CQROIImage()
-        self.image_label_comp.setAlignment(Qt.AlignCenter)
-        self.image_label_comp.setPixmap(image)
-        self.main_layout.addWidget(self.image_label_comp)
+        self.images_panel.addSpacing(32)
 
-    def change_base_image(self, image: Image) -> None:
-        self.image_label_base.replace_label_pixmap(image)
+        self.input_image_layout = QVBoxLayout()
+        self.input_image_label = QLabel("Input image")
+        self.input_image_label.setAlignment(Qt.AlignCenter)
+        self.input_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=192)
+        self.input_image_layout.addWidget(self.input_image_label)
+        self.input_image_layout.addWidget(self.input_image)
+        self.images_panel.addLayout(self.input_image_layout)
 
-    def change_comp_image(self, image: Image) -> None:
-        self.image_label_comp.replace_label_pixmap(image)
+        self.main_layout.addLayout(self.images_panel)
+
+    def init_buttons(self) -> None:
+        self.buttons_panel = QHBoxLayout()
+
+        self.roi_button = QPushButton("Select ROI", disabled=True)
+        self.roi_button.clicked.connect(self.select_roi)
+        self.buttons_panel.addWidget(self.roi_button)
+
+        self.main_layout.addLayout(self.buttons_panel)
+
+    def change_images(self, image_pair: ImagePair) -> None:
+        self.image_pair = image_pair
+        self.refresh()
+
+        if self.image_pair:
+            self.roi_button.setDisabled(False)
+
+    def refresh(self) -> None:
+        self.ref_image.set_image(self.image_pair.get_full_image(0), roi=self.image_pair.roi)
+        self.input_image.set_image(self.image_pair.get_full_image(1), roi=self.image_pair.roi)

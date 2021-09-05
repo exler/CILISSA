@@ -13,14 +13,15 @@ from PySide6.QtWidgets import (
 from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR
-from cilissa_gui.managers import ImageCollectionManager, OperationsManager
-from cilissa_gui.ui.components import (
+from cilissa.roi import ROI
+from cilissa_gui.components import (
     ConsoleBox,
     Explorer,
     OperationsBox,
     PropertiesBox,
     Workspace,
 )
+from cilissa_gui.managers import ImageCollectionManager, OperationsManager
 from cilissa_gui.widgets import CQErrorDialog
 
 
@@ -66,8 +67,6 @@ class Interface(QWidget):
         self.panels.addWidget(right_panel)
         self.setLayout(self.panels)
 
-        self.panels.setStretch(1, 1)
-
     def init_components(self) -> None:
         self.explorer = Explorer()
         self.workspace = Workspace()
@@ -77,6 +76,7 @@ class Interface(QWidget):
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QWidget()
+        left_panel.setFixedWidth(324)
 
         layout = QVBoxLayout()
         scroll_area = QScrollArea()
@@ -99,7 +99,7 @@ class Interface(QWidget):
 
     def init_right_panel(self) -> QVBoxLayout:
         right_panel = QWidget()
-        right_panel.setMaximumWidth(256)
+        right_panel.setFixedWidth(256)
 
         layout = QVBoxLayout()
         layout.addWidget(self.properties_box)
@@ -153,6 +153,7 @@ class Interface(QWidget):
         im1 = Image(Path("tests", "data", "ref_images", "monarch.bmp"))
         im2 = Image(Path("tests", "data", "transformations", "monarch_linear.bmp"))
         im_pair = ImagePair(im1, im2)
+        im_pair.set_roi(ROI(0, 0, 384, 512))
         self.collection_manager.push(im_pair)
         self.workspace.list_tab.refresh()
 

@@ -1,12 +1,14 @@
 import ast
+import logging
 from typing import Any, Dict, List
 
 from cilissa.metrics import Metric, all_metrics
 from cilissa.operations import ImageOperation
+from cilissa.roi import ROI
 from cilissa.transformations import Transformation, all_transformations
 
 
-def get_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[str, List[ImageOperation]]:
+def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[str, List[ImageOperation]]:
     all_operations = {**all_metrics, **all_transformations}
 
     instances: Dict[str, List[ImageOperation]] = {"metrics": [], "transformations": []}
@@ -49,3 +51,20 @@ def get_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[st
         instances[key].append(instance)
 
     return instances
+
+
+def parse_roi(string: str) -> ROI:
+    points = string.split(",")
+
+    start_point = points[0].split("x")
+    end_point = points[1].split("x")
+
+    try:
+        x0 = int(start_point[0])
+        y0 = int(start_point[1])
+        x1 = int(end_point[0])
+        y1 = int(end_point[1])
+    except TypeError:
+        logging.error("ROI points must be integers")
+
+    return ROI(x0, y0, x1, y1)

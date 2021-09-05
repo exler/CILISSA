@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from cilissa.classes import OrderedList
+from cilissa.exceptions import NotOnImageError
+from cilissa.roi import ROI
 
 
 class Image:
@@ -17,10 +19,14 @@ class Image:
     `np.ndarray` wrapper, a core structure in CILISSA
     """
 
-    path: str
-    name: str
+    path: str = ""
+    name: str = ""
+    im: np.ndarray
 
-    def __init__(self, image: Optional[Union[Path, str, np.ndarray]]) -> None:
+    def __init__(self, image: Union[Path, str, np.ndarray], name: Optional[str] = None) -> None:
+        if name:
+            self.name = name
+
         if isinstance(image, Path) or isinstance(image, str):
             self.load(image)
         elif isinstance(image, np.ndarray):
@@ -38,22 +44,53 @@ class Image:
 
         return comparison.all()
 
+    def crop(self, sl: Tuple[slice, slice]) -> Image:
+        im = self.im[sl] if sl else self.im
+        return Image(np.ascontiguousarray(im), name=self.name)
+
+    @property
+    def width(self) -> int:
+        return self.im.shape[1]
+
+    @property
+    def height(self) -> int:
+        return self.im.shape[0]
+
     @property
     def channels_num(self) -> int:
         # 2D array is a grayscale image, 3D array gives the number of channels
         return 1 if self.im.ndim == 2 else self.im.shape[-1]
 
-    def get_thumbnail(self, width: int, height: int) -> np.ndarray:
-        maxsize = (width, height)
-        return cv2.resize(self.im, maxsize, interpolation=cv2.INTER_AREA)
+    def get_resized(self, width: Optional[int] = None, height: Optional[int] = None) -> Image:
+        if width and height:
+            maxsize = (width, height)
+        elif width:
+            maxsize = (width, int(self.get_scale_factor(width=width) * self.height))
+        elif height:
+            maxsize = (int(self.get_scale_factor(height=height) * self.width), height)
+        else:
+            return self
+        return Image(cv2.resize(self.im, maxsize, interpolation=cv2.INTER_AREA), name=self.name)
 
-    def from_array(self, image_array: np.ndarray) -> None:
+    def get_scale_factor(self, width: Optional[int] = None, height: Optional[int] = None) -> float:
+        if width:
+            return width / self.width
+        elif height:
+            return height / self.height
+        else:
+            return 1.0
+
+    def from_array(self, image_array: np.ndarray, at: Optional[Tuple[slice, slice]] = None) -> None:
         """
         Replaces the underlying image array with given `np.ndarray`
         """
-        self.path = ""
-        self.name = "Image loaded from array"
-        self.im = image_array
+        self.path = self.path or ""
+        self.name = self.name or "Image loaded from array"
+
+        if at:
+            self.im[at] = image_array
+        else:
+            self.im = image_array
 
     def load(self, image_path: Union[Path, str]) -> None:
         """
@@ -91,9 +128,7 @@ class Image:
         """
         Copies and returns the image
         """
-        image = Image(self.im)
-        image.name = self.name
-        return image
+        return Image(self.im, name=self.name)
 
     def display_image(self) -> None:
         """
@@ -139,6 +174,15 @@ class Image:
         plt.ylabel("Pixel count")
         plt.show()
 
+    def check_if_on_image(self, x: Optional[int] = None, y: Optional[int] = None) -> bool:
+        if x and (x < 0 or x > self.width):
+            return False
+
+        if y and (y < 0 or y > self.height):
+            return False
+
+        return True
+
     def _as(self, data_type: Type) -> np.ndarray:
         np_type = np.result_type(self.im, data_type)
         image = np.asarray(self.im, dtype=np_type)
@@ -171,25 +215,47 @@ class ImagePair:
     im1: Image
     im2: Image
 
+    roi: Union[ROI, None] = None
+
     def __init__(self, reference_image: Image, compared_image: Image) -> None:
         self.im1 = reference_image
         self.im2 = compared_image
 
     def __getitem__(self, key: int) -> Image:
         if key == 0:
-            return self.im1
+            im = self.im1
         elif key == 1:
-            return self.im2
+            im = self.im2
         else:
             raise IndexError
 
+        slices = self._get_roi_slices()
+        if slices:
+            return im.crop(slices)
+
+        return im
+
     def __setitem__(self, key: int, image: Image) -> None:
         if key == 0:
-            self.im1.from_array(image.im)
+            self.im1.from_array(image.im, at=self._get_roi_slices())
         elif key == 1:
-            self.im2.from_array(image.im)
+            self.im2.from_array(image.im, at=self._get_roi_slices())
         else:
             raise IndexError
+
+    def get_full_image(self, key: int) -> np.ndarray:
+        im = getattr(self, f"im{key + 1}", None)
+        if im:
+            return im
+        raise IndexError
+
+    def set_roi(self, roi: ROI) -> None:
+        if not self.im1.check_if_on_image(roi.x0, roi.y0) or not self.im1.check_if_on_image(roi.x1, roi.y1):
+            raise NotOnImageError
+        self.roi = roi
+
+    def _get_roi_slices(self) -> Optional[Tuple[slice, slice]]:
+        return self.roi.slices if self.roi else None
 
     @property
     def matching_shape(self) -> bool:
@@ -201,7 +267,7 @@ class ImagePair:
 
     def as_floats(self) -> Tuple[np.ndarray, np.ndarray]:
         """Returns a tuple with both images as :data:`np.ndarray` of floats"""
-        return (self.im1.as_float(), self.im2.as_float())
+        return (self[0].as_float(), self[1].as_float())
 
 
 class ImageCollection(OrderedList):

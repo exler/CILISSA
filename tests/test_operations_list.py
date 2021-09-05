@@ -1,5 +1,3 @@
-import os
-import unittest
 from pathlib import Path
 
 from numpy import isinf
@@ -8,13 +6,10 @@ from cilissa.images import Image, ImageCollection, ImagePair
 from cilissa.metrics import MSE, PSNR
 from cilissa.operations import OperationsList
 from cilissa.transformations import Blur, Equalization
+from tests.base import BaseTest
 
 
-class TestOperationsList(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.data_path = Path(os.path.dirname(__file__), "data")
-
+class TestOperationsList(BaseTest):
     def setUp(self) -> None:
         self.im1 = Image(Path(self.data_path, "ref_images", "monarch.bmp"))
         self.im2 = self.im1.copy()
