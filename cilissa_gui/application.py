@@ -3,7 +3,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 import cilissa_gui.resources  # noqa
-from cilissa_gui.ui.interface import Interface
+from cilissa_gui.interface import Interface
 
 
 class Application(QMainWindow):

@@ -14,14 +14,14 @@ from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR
 from cilissa.roi import ROI
-from cilissa_gui.managers import ImageCollectionManager, OperationsManager
-from cilissa_gui.ui.components import (
+from cilissa_gui.components import (
     ConsoleBox,
     Explorer,
     OperationsBox,
     PropertiesBox,
     Workspace,
 )
+from cilissa_gui.managers import ImageCollectionManager, OperationsManager
 from cilissa_gui.widgets import CQErrorDialog
 
 

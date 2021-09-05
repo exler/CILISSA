@@ -11,9 +11,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from cilissa_gui.inputs import get_input_widget_for_type
 from cilissa_gui.managers import OperationsManager
 from cilissa_gui.widgets import CQImage, CQOperation
+from cilissa_gui.widgets.inputs import get_input_widget_for_type
 
 
 class PropertiesBox(QGroupBox):
