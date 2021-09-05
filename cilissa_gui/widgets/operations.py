@@ -5,6 +5,7 @@ from PySide6.QtGui import QAction, QContextMenuEvent, QPixmap
 from PySide6.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget
 
 from cilissa.operations import ImageOperation
+from cilissa_gui.helpers import get_operation_icon_name
 from cilissa_gui.managers import OperationsManager
 
 
@@ -20,7 +21,8 @@ class CQOperation(QWidget):
         self.create_actions()
 
         self.image_label = QLabel()
-        pixmap = QPixmap(":placeholder-64")
+        pixmap_name = get_operation_icon_name(self.operation)
+        pixmap = QPixmap(pixmap_name)
         self.image_label.setPixmap(pixmap)
         self.image_label.setAlignment(Qt.AlignCenter)
 

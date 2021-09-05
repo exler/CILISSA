@@ -26,12 +26,13 @@ class Explorer(QTabWidget):
         self.addTab(self.transformations_tab, "Transformations")
 
     def open_image_dialog(self) -> None:
-        # This return a tuple ([filenames], "filter"), we are interested only in the filenames
+        # This returns a tuple ([filenames], "filter"), we are interested only in the filenames
         filenames = QFileDialog.getOpenFileNames(
             self, "Open images...", "", f"Images ({' '.join([ext for ext in self.IMAGE_EXTENSIONS])})"
         )[0]
+
         for fn in filenames:
-            image = CQImage.load(fn, width=64, height=64)
+            image = CQImage.load(fn, width=96, height=96)
             self.images_tab.add_item(image)
 
     def open_image_folder_dialog(self) -> None:
@@ -40,7 +41,7 @@ class Explorer(QTabWidget):
 
         for fn in d.entryList(self.IMAGE_EXTENSIONS):
             path = Path(dirname, fn)
-            image = CQImage.load(path.resolve(), width=64, height=64)
+            image = CQImage.load(path.resolve(), width=96, height=96)
             self.images_tab.add_item(image)
 
 
@@ -49,7 +50,7 @@ class ExplorerTab(QTableWidget):
         super().__init__()
 
         self.setShowGrid(False)
-        self.setColumnCount(2)
+        self.setColumnCount(3)
         self.horizontalHeader().hide()
         self.horizontalHeader().setDefaultSectionSize(96)
         self.verticalHeader().hide()
@@ -76,10 +77,10 @@ class ExplorerTab(QTableWidget):
         return self.cellWidget(row, column)
 
     def get_next_row(self) -> int:
-        return int((self.cell_counter - self.cell_counter % 2) / 2)
+        return int((self.cell_counter - self.cell_counter % 3) / 3)
 
     def get_next_column(self) -> int:
-        return self.cell_counter % 2
+        return self.cell_counter % 3
 
     @Slot()
     def get_selected_widget(self, row: int, column: int) -> None:

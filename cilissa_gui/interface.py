@@ -67,8 +67,6 @@ class Interface(QWidget):
         self.panels.addWidget(right_panel)
         self.setLayout(self.panels)
 
-        self.panels.setStretch(1, 1)
-
     def init_components(self) -> None:
         self.explorer = Explorer()
         self.workspace = Workspace()
@@ -78,6 +76,7 @@ class Interface(QWidget):
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QWidget()
+        left_panel.setFixedWidth(324)
 
         layout = QVBoxLayout()
         scroll_area = QScrollArea()
@@ -100,7 +99,7 @@ class Interface(QWidget):
 
     def init_right_panel(self) -> QVBoxLayout:
         right_panel = QWidget()
-        right_panel.setMaximumWidth(256)
+        right_panel.setFixedWidth(256)
 
         layout = QVBoxLayout()
         layout.addWidget(self.properties_box)

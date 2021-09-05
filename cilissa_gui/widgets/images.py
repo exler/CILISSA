@@ -47,6 +47,7 @@ class CQImage(QWidget):
             )
             painter.end()
 
+        self.setToolTip(self.image.name)
         self.image_label.setPixmap(pixmap)
         self.setMaximumHeight(pixmap.height() + 32)
 

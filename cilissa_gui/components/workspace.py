@@ -31,9 +31,7 @@ class Workspace(QTabWidget):
 
 class WorkspaceTab(QWidget):
     def __init__(self, parent: QTabWidget) -> None:
-        super().__init__()
-
-        self.setMaximumWidth(parent.width())
+        super().__init__(parent)
 
 
 class WorkspaceListTab(QTreeWidget, WorkspaceTab):
@@ -107,22 +105,26 @@ class WorkspaceDetailsTab(WorkspaceTab):
         self.refresh()
 
     def init_images(self) -> None:
-        self.images_panel = QVBoxLayout()
+        self.images_panel = QHBoxLayout()
         self.images_panel.setAlignment(Qt.AlignCenter)
 
+        self.ref_image_layout = QVBoxLayout()
         self.ref_image_label = QLabel("Reference image")
         self.ref_image_label.setAlignment(Qt.AlignCenter)
-        self.ref_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=128)
-        self.images_panel.addWidget(self.ref_image_label)
-        self.images_panel.addWidget(self.ref_image)
+        self.ref_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=192)
+        self.ref_image_layout.addWidget(self.ref_image_label)
+        self.ref_image_layout.addWidget(self.ref_image)
+        self.images_panel.addLayout(self.ref_image_layout)
 
         self.images_panel.addSpacing(32)
 
+        self.input_image_layout = QVBoxLayout()
         self.input_image_label = QLabel("Input image")
         self.input_image_label.setAlignment(Qt.AlignCenter)
-        self.input_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=128)
-        self.images_panel.addWidget(self.input_image_label)
-        self.images_panel.addWidget(self.input_image)
+        self.input_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=192)
+        self.input_image_layout.addWidget(self.input_image_label)
+        self.input_image_layout.addWidget(self.input_image)
+        self.images_panel.addLayout(self.input_image_layout)
 
         self.main_layout.addLayout(self.images_panel)
 

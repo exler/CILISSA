@@ -10,7 +10,7 @@ class Application(QMainWindow):
     def __init__(self) -> None:
         QMainWindow.__init__(self)
         self.setWindowTitle("CILISSA")
-        self.resize(1024, 768)
+        self.resize(1366, 768)
 
         self.interface = Interface(self)
         self.setCentralWidget(self.interface)
