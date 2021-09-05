@@ -102,8 +102,9 @@ class WorkspaceDetailsTab(WorkspaceTab):
         self.setLayout(self.main_layout)
 
     def select_roi(self) -> None:
-        dialog = CQROIDialog(self.image_pair.get_full_image(0))
+        dialog = CQROIDialog(self.image_pair)
         dialog.exec()
+        self.refresh()
 
     def init_images(self) -> None:
         self.images_panel = QVBoxLayout()
@@ -136,8 +137,11 @@ class WorkspaceDetailsTab(WorkspaceTab):
 
     def change_images(self, image_pair: ImagePair) -> None:
         self.image_pair = image_pair
-        self.ref_image.set_image(image_pair.get_full_image(0), roi=image_pair.roi)
-        self.input_image.set_image(image_pair.get_full_image(1), roi=image_pair.roi)
+        self.refresh()
 
         if self.image_pair:
             self.roi_button.setDisabled(False)
+
+    def refresh(self) -> None:
+        self.ref_image.set_image(self.image_pair.get_full_image(0), roi=self.image_pair.roi)
+        self.input_image.set_image(self.image_pair.get_full_image(1), roi=self.image_pair.roi)

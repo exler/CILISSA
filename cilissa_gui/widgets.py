@@ -7,7 +7,6 @@ from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import (
     QAction,
     QContextMenuEvent,
-    QImage,
     QMouseEvent,
     QPainter,
     QPaintEvent,
@@ -27,10 +26,11 @@ from PySide6.QtWidgets import (
 )
 
 from cilissa.helpers import clamp
-from cilissa.images import Image
+from cilissa.images import Image, ImagePair
 from cilissa.operations import ImageOperation
 from cilissa.results import AnalysisResult
 from cilissa.roi import ROI
+from cilissa_gui.helpers import get_pixmap_from_image
 from cilissa_gui.managers import OperationsManager
 
 
@@ -98,17 +98,8 @@ class CQImage(QWidget):
     def set_image(self, image: Image, roi: Optional[ROI] = None) -> None:
         self.image = image
 
-        resized_image = self.image.get_resized(width=self.width, height=self.height)
+        pixmap = get_pixmap_from_image(self.image, width=self.width, height=self.height)
 
-        q_image = QImage(
-            resized_image.im,
-            resized_image.width,
-            resized_image.height,
-            resized_image.width * resized_image.channels_num,
-            QImage.Format_BGR888,
-        )
-
-        pixmap = QPixmap.fromImage(q_image)
         if roi:
             scale_factor = self.image.get_scale_factor(width=self.width, height=self.height)
             painter = QPainter(pixmap)
@@ -122,7 +113,7 @@ class CQImage(QWidget):
             painter.end()
 
         self.image_label.setPixmap(pixmap)
-        self.setMaximumHeight(resized_image.height + 32)
+        self.setMaximumHeight(pixmap.height() + 32)
 
     @staticmethod
     def load(image_path: Union[Path, str], **kwargs: Any) -> CQImage:
@@ -201,12 +192,13 @@ class CQErrorDialog(QMessageBox):
 
 
 class CQROIDialog(QDialog):
-    def __init__(self, image: Image, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, image_pair: ImagePair, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self.main_layout = QVBoxLayout()
 
-        self.image = CQROIImage(image)
+        self.image_pair = image_pair
+        self.image = CQROIImage(image_pair.get_full_image(0))
 
         self.buttons_panel = QHBoxLayout()
         self.confirm_button = QPushButton("Confirm")
@@ -219,7 +211,7 @@ class CQROIDialog(QDialog):
 
     def confirm(self) -> None:
         roi = self.image.get_roi()
-        print(roi)
+        self.image_pair.set_roi(roi)
         self.close()
 
 
@@ -271,16 +263,7 @@ class CQROIImage(QLabel):
             pass
 
     def set_image(self, image: Image) -> None:
-        resized_image = image.get_resized()
-
-        thumbnail = QImage(
-            resized_image.im,
-            resized_image.width,
-            resized_image.height,
-            resized_image.width * resized_image.channels_num,
-            QImage.Format_BGR888,
-        )
-        pixmap = QPixmap.fromImage(thumbnail)
+        pixmap = get_pixmap_from_image(image)
         self.setPixmap(pixmap)
 
     def get_roi(self) -> ROI:
