@@ -11,10 +11,6 @@ from cilissa.results import AnalysisResult, Result, TransformationResult
 class ImageOperation(Parameterized, ABC):
     name: str = ""
 
-    def __init__(self, **kwargs: Any) -> None:
-        for k in kwargs.keys():
-            logging.info(f"Discarding unexpected keyword argument: {k}")
-
     def __str__(self) -> str:
         return self.get_class_name()
 

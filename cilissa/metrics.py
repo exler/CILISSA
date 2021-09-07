@@ -1,9 +1,9 @@
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
-from cilissa.helpers import crop_array
+from cilissa.helpers import crop_array, sliding_window
 from cilissa.images import ImagePair
 from cilissa.operations import Metric
 from cilissa.utils import get_operation_subclasses
@@ -22,8 +22,8 @@ class MSE(Metric):
     name = "mse"
 
     def analyze(self, image_pair: ImagePair) -> float:
-        base_image, test_image = image_pair.as_floats()
-        result = np.mean(np.square((base_image - test_image)), dtype=np.float64)
+        im1, im2 = image_pair.as_floats()
+        result = np.mean(np.square((im1 - im2)), dtype=np.float64)
         return result
 
 
@@ -82,10 +82,7 @@ class SSIM(Metric):
         truncate: float = 3.5,
         K1: float = 0.01,
         K2: float = 0.03,
-        **kwargs: Any
     ) -> None:
-        super().__init__(**kwargs)
-
         # Number of channels in image
         self.channels_num = channels_num
 
@@ -144,18 +141,66 @@ class SSIM(Metric):
         return crop_array(S, pad).mean()
 
     def analyze(self, image_pair: ImagePair) -> float:
-        base_image, test_image = image_pair.as_floats()
+        im1, im2 = image_pair.as_floats()
 
         ch_num = self.channels_num or image_pair[0].channels_num
 
         # Create an empty array to hold results from each channel
         ssim_results = np.empty(ch_num)
         for ch in range(ch_num):
-            ch_result = self.mssim_single_channel(base_image[:, :, ch], test_image[:, :, ch])
+            ch_result = self.mssim_single_channel(im1[:, :, ch], im2[:, :, ch])
             ssim_results[ch] = ch_result
 
         mssim = ssim_results.mean()
         return mssim
+
+
+class UIQI(Metric):
+    """
+    Universal Image Quality Index (UIQI)
+
+    Combines loss of correlation, luminance distortion and contrast distortion.
+    Predecessor of SSIM metric.
+
+    References:
+        - https://ece.uwaterloo.ca/~z70wang/publications/quality_2c.pdf
+    """
+
+    name = "uiqi"
+
+    def __init__(self, block_size: int = 8) -> None:
+        self.block_size = block_size
+
+    def analyze(self, image_pair: ImagePair) -> float:
+        im1, im2 = image_pair.as_floats()
+
+        quality_map = []
+        for window_im1, window_im2 in zip(
+            sliding_window(im1, window_size=(8, 8)), sliding_window(im2, window_size=(8, 8))
+        ):
+            if window_im1.shape[0] != self.block_size or window_im1.shape[1] != self.block_size:
+                continue
+
+            for i in range(image_pair[0].channels_num):
+                im1_band = window_im1[:, :, i]
+                im2_band = window_im2[:, :, i]
+                im1_band_mean = np.mean(im1_band)
+                im2_band_mean = np.mean(im2_band)
+                im1_band_variance = np.var(im1_band)
+                im2_band_variance = np.var(im2_band)
+                im12_band_variance = np.mean((im1_band - im1_band_mean) * (im2_band - im2_band_mean))
+
+                numerator = 4 * im12_band_variance * im1_band_mean * im2_band_mean
+                denominator = (im1_band_variance + im2_band_variance) * (im1_band_mean ** 2 + im2_band_mean ** 2)
+
+                if denominator != 0.0:
+                    quality = numerator / denominator
+                    quality_map.append(quality)
+
+        if not np.any(quality_map):
+            raise ValueError(f"Block size {self.block_size} is too big for image with shape {window_im1.shape[0:2]}")
+
+        return np.mean(quality_map)
 
 
 all_metrics = get_operation_subclasses(Metric)  # type: ignore
