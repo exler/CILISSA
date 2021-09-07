@@ -50,7 +50,7 @@ class TestImageTransformation(BaseTest):
         self.assertEqual(result, comp)
 
     def test_linear_transformation(self) -> None:
-        linear = Linear(constrast=2, brightness=50)
+        linear = Linear(brightness=50)
 
         result = self.use_transformation(linear)
         comp = self.get_image_for_comparison("linear")

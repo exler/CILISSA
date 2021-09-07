@@ -30,14 +30,7 @@ class Blur(Transformation):
 
     name = "blur"
 
-    def __init__(
-        self,
-        gaussian: bool = True,
-        kernel_size: Tuple[int, int] = (5, 5),
-        sigma: float = 1.0,
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, gaussian: bool = True, kernel_size: Tuple[int, int] = (5, 5), sigma: float = 1.0) -> None:
 
         self.gaussian = gaussian
 
@@ -75,14 +68,7 @@ class Sharpen(Transformation):
 
     name = "sharpen"
 
-    def __init__(
-        self,
-        amount: float = 1.5,
-        threshold: int = 10,
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(**kwargs)
-
+    def __init__(self, amount: float = 1.5, threshold: int = 10, **kwargs: Any) -> None:
         # Parameters for blur
         self.blur_params = {}
 
@@ -142,13 +128,8 @@ class Linear(Transformation):
     name = "linear"
 
     def __init__(
-        self,
-        contrast: Optional[Union[int, float]] = None,
-        brightness: Optional[Union[int, float]] = None,
-        **kwargs: Any,
+        self, contrast: Optional[Union[int, float]] = None, brightness: Optional[Union[int, float]] = None
     ) -> None:
-        super().__init__(**kwargs)
-
         self.contrast = contrast
         self.brightness = brightness
 
@@ -179,9 +160,7 @@ class Translation(Transformation):
 
     name = "translation"
 
-    def __init__(self, x: int = 0, y: int = 0, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
+    def __init__(self, x: int = 0, y: int = 0) -> None:
         self.x = x
         self.y = y
 
