@@ -9,14 +9,21 @@ from cilissa.results import AnalysisResult, Result, TransformationResult
 
 
 class ImageOperation(Parameterized, ABC):
-    name: str = ""
+    """
+    Base class for all operations that can be performed on an image.
 
-    def __str__(self) -> str:
-        return self.get_class_name()
+    Parameter `name` is required and can only consist of alphanumerical characters and underscores.
+    """
+
+    name: str = ""
 
     @classmethod
     def get_class_name(cls) -> str:
         return cls.name
+
+    @classmethod
+    def get_display_name(cls) -> str:
+        return cls.get_class_name().upper()
 
     @abstractmethod
     def run(self, image_pair: ImagePair) -> Result:
@@ -59,6 +66,10 @@ class Transformation(ImageOperation, ABC):
     """
     Base class for creating new transformations to use in the program.
     """
+
+    @classmethod
+    def get_display_name(cls) -> str:
+        return cls.get_class_name().capitalize()
 
     def get_result_type(self) -> Type[Result]:
         return TransformationResult
