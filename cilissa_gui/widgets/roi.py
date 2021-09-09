@@ -1,10 +1,10 @@
 from typing import Any
 
+import numpy as np
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QMouseEvent, QPainter, QPaintEvent, QPen
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
-from cilissa.helpers import clamp
 from cilissa.images import Image, ImagePair
 from cilissa.roi import ROI
 from cilissa_gui.helpers import get_pixmap_from_image
@@ -61,11 +61,11 @@ class CQROIImage(QLabel):
             height = self.height() - 1
 
             if x < 0 or x > width:
-                x = clamp(x, 0, width)
+                x = np.clip(x, 0, width)
                 pos.setX(x)
 
             if y < 0 or y > height:
-                y = clamp(y, 0, height)
+                y = np.clip(y, 0, height)
                 pos.setY(y)
 
             self.point2 = pos

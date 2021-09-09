@@ -19,8 +19,6 @@ class MSE(Metric):
         - https://en.wikipedia.org/wiki/Mean_squared_error
     """
 
-    name = "mse"
-
     def analyze(self, image_pair: ImagePair) -> float:
         im1, im2 = image_pair.as_floats()
         result = np.mean(np.square((im1 - im2)), dtype=np.float64)
@@ -37,8 +35,6 @@ class PSNR(Metric):
     References:
         - https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio
     """
-
-    name = "psnr"
 
     def analyze(self, image_pair: ImagePair) -> float:
         # dmax - maximum possible pixel value of the image
@@ -72,8 +68,6 @@ class SSIM(Metric):
         - https://en.wikipedia.org/wiki/Structural_similarity
         - https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf
     """
-
-    name = "ssim"
 
     def __init__(
         self,
@@ -166,8 +160,6 @@ class UIQI(Metric):
         - https://ece.uwaterloo.ca/~z70wang/publications/quality_2c.pdf
     """
 
-    name = "uiqi"
-
     def __init__(self, block_size: int = 8) -> None:
         self.block_size = block_size
 
@@ -217,8 +209,6 @@ class VIFP(Metric):
         - http://live.ece.utexas.edu/publications/2004/hrs_ieeetip_2004_imginfo.pdf
         - https://github.com/utlive/vif_pixel
     """
-
-    name = "vifp"
 
     def __init__(self, channels_num: Optional[int] = None, sigma: float = 2.0) -> None:
         self.channels_num = channels_num
@@ -282,7 +272,37 @@ class VIFP(Metric):
             ch_result = self.vifp_single_channel(im1[:, :, ch], im2[:, :, ch])
             vifp_results[ch] = ch_result
 
-        return np.mean(vifp_results)
+        return np.mean(np.nan_to_num(vifp_results))
+
+
+class SAM(Metric):
+    """
+    Spectral Angle Mapper (SAM)
+
+    Physically-based spectral classification that uses an n-D angle to match pixels to reference spectra.
+
+    This technique is relatively insensitive to illumination and albedo effects.
+
+    References:
+        - https://ntrs.nasa.gov/citations/19940012238
+    """
+
+    def __init__(self, to_degrees: bool = True) -> None:
+        self.convert_to_degrees = to_degrees
+
+    def analyze(self, image_pair: ImagePair) -> float:
+        im1, im2 = image_pair.as_floats()
+
+        # Spectral angles are first computed for each pair of pixels
+        numerator = np.sum(im1 * im2, axis=2)
+        denominator = np.linalg.norm(im1, axis=2) * np.linalg.norm(im2, axis=2)
+        val = np.clip(numerator / denominator, -1, 1)
+        sam_angles = np.arccos(val)
+
+        if self.convert_to_degrees:
+            sam_angles *= 180 / np.pi
+
+        return np.mean(np.nan_to_num(sam_angles))
 
 
 all_metrics = get_operation_subclasses(Metric)  # type: ignore

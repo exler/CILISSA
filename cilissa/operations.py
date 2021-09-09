@@ -12,14 +12,12 @@ class ImageOperation(Parameterized, ABC):
     """
     Base class for all operations that can be performed on an image.
 
-    Parameter `name` is required and can only consist of alphanumerical characters and underscores.
+    Display name and name used in various dicts is deduced from the class name.
     """
-
-    name: str = ""
 
     @classmethod
     def get_class_name(cls) -> str:
-        return cls.name
+        return cls.__name__.lower()
 
     @classmethod
     def get_display_name(cls) -> str:
@@ -35,7 +33,11 @@ class ImageOperation(Parameterized, ABC):
 
     def generate_result(self, **kwargs: Any) -> Result:
         result_type = self.get_result_type()
-        return result_type(name=str(self), parameters=self.get_parameters_dict(), **kwargs)  # type: ignore
+        return result_type(
+            name=self.get_display_name(),
+            parameters=self.get_parameters_dict(),
+            **kwargs,
+        )  # type: ignore
 
 
 class OperationsList(OrderedList):

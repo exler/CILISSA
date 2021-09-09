@@ -1,14 +1,6 @@
-from typing import Tuple, Union
+from typing import Tuple
 
 import numpy as np
-
-
-def clamp(
-    value: Union[int, float, np.number],
-    smallest: Union[int, float, np.number],
-    largest: Union[int, float, np.number],
-) -> Union[int, float, np.number]:
-    return np.maximum(smallest, np.minimum(value, largest))
 
 
 def crop_array(array: np.ndarray, crop_width: int) -> np.ndarray:

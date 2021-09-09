@@ -28,8 +28,6 @@ class Blur(Transformation):
 
     """
 
-    name = "blur"
-
     def __init__(self, gaussian: bool = True, kernel_size: Tuple[int, int] = (5, 5), sigma: float = 1.0) -> None:
 
         self.gaussian = gaussian
@@ -65,8 +63,6 @@ class Sharpen(Transformation):
     References:
         - https://en.wikipedia.org/wiki/Unsharp_masking
     """
-
-    name = "sharpen"
 
     def __init__(self, amount: float = 1.5, threshold: int = 10, **kwargs: Any) -> None:
         # Parameters for blur
@@ -125,8 +121,6 @@ class Linear(Transformation):
         - https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
     """
 
-    name = "linear"
-
     def __init__(
         self, contrast: Optional[Union[int, float]] = None, brightness: Optional[Union[int, float]] = None
     ) -> None:
@@ -158,8 +152,6 @@ class Translation(Transformation):
         - https://en.wikipedia.org/wiki/Affine_transformation
     """
 
-    name = "translation"
-
     def __init__(self, x: int = 0, y: int = 0) -> None:
         self.x = x
         self.y = y
@@ -185,8 +177,6 @@ class Equalization(Transformation):
         - https://en.wikipedia.org/wiki/YCbCr
         - https://www.programmersought.com/article/55274250088/
     """
-
-    name = "equalization"
 
     def transform(self, image: Image) -> Image:
         im = image.as_int()
