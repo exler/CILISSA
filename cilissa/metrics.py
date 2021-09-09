@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
@@ -104,7 +104,7 @@ class SSIM(Metric):
         if self.truncate < 0:
             raise ValueError("Truncate must be positive!")
 
-    def mssim_single_channel(self, im1: np.ndarray, im2: np.ndarray) -> Union[float, np.float64]:
+    def mssim_single_channel(self, im1: np.ndarray, im2: np.ndarray) -> float:
         dmax = im1.max()
         dmin = im1.min()
         drange = dmax - dmin
@@ -201,6 +201,88 @@ class UIQI(Metric):
             raise ValueError(f"Block size {self.block_size} is too big for image with shape {window_im1.shape[0:2]}")
 
         return np.mean(quality_map)
+
+
+class VIFP(Metric):
+    """
+    Pixel Based Visual Information Fidelity (VIF-P)
+
+    Employs natural scene statistical (NSS) models in conjunction with a distortion (channel) model to quantify
+    the information shared between the test and the reference images.
+
+    The pixel domain algorithm is not described in the paper below. This is a computationally simpler
+    derivative of the algorithm presented in the paper, based on the original Matlab implementation.
+
+    References:
+        - http://live.ece.utexas.edu/publications/2004/hrs_ieeetip_2004_imginfo.pdf
+        - https://github.com/utlive/vif_pixel
+    """
+
+    name = "vifp"
+
+    def __init__(self, channels_num: Optional[int] = None, sigma: float = 2.0) -> None:
+        self.channels_num = channels_num
+
+        # Variance of the visual noise
+        self.sigma = sigma
+
+    def vifp_single_channel(self, im1: np.ndarray, im2: np.ndarray) -> float:
+        eps = 1e-10
+        numerator = 0
+        denominator = 0
+
+        for scale in range(1, 5):
+            N = 2 ** (4 - scale + 1) + 1
+            sd = N / 5.0
+
+            if scale > 1:
+                im1 = gaussian_filter(im1, sd)
+                im2 = gaussian_filter(im2, sd)
+
+            mu1 = gaussian_filter(im1, sd)
+            mu2 = gaussian_filter(im2, sd)
+            mu1_sq = mu1 ** 2
+            mu2_sq = mu2 ** 2
+            mu12 = mu1 * mu2
+
+            sigma1_sq = gaussian_filter(im1 ** 2, sd) - mu1_sq
+            sigma2_sq = gaussian_filter(im2 ** 2, sd) - mu2_sq
+            sigma12 = gaussian_filter(im1 * im2, sd) - mu12
+
+            sigma1_sq[sigma1_sq < 0] = 0
+            sigma2_sq[sigma2_sq < 0] = 0
+
+            g = sigma12 / (sigma1_sq + eps)
+            sv_sq = sigma2_sq - (g * sigma12)
+
+            g[sigma1_sq < eps] = 0
+            sv_sq[sigma1_sq < eps] = sigma2_sq[sigma1_sq < eps]
+            sigma1_sq[sigma1_sq < eps] = 0
+
+            g[sigma2_sq < eps] = 0
+            sv_sq[sigma2_sq < eps] = 0
+
+            sv_sq[g < 0] = sigma2_sq[g < 0]
+            g[g < 0] = 0
+            sv_sq[sv_sq <= eps] = eps
+
+            numerator += np.sum(np.log10(1 + g ** 2 * (sigma1_sq / (sv_sq + self.sigma))))
+            denominator += np.sum(np.log10(1 + (sigma1_sq / self.sigma)))
+
+        return numerator / denominator
+
+    def analyze(self, image_pair: ImagePair) -> float:
+        im1, im2 = image_pair.as_floats()
+
+        ch_num = self.channels_num or image_pair[0].channels_num
+
+        # Create an empty array to hold results from each channel
+        vifp_results = np.empty(ch_num)
+        for ch in range(ch_num):
+            ch_result = self.vifp_single_channel(im1[:, :, ch], im2[:, :, ch])
+            vifp_results[ch] = ch_result
+
+        return np.mean(vifp_results)
 
 
 all_metrics = get_operation_subclasses(Metric)  # type: ignore
