@@ -12,10 +12,10 @@ class TestCLI(BaseTest):
         parsed_metrics = parsed_operations["metrics"]
         parsed_transformations = parsed_operations["transformations"]
 
-        self.assertEqual(parsed_metrics[0].name, "ssim")
+        self.assertEqual(parsed_metrics[0].get_class_name(), "ssim")
         self.assertEqual(parsed_metrics[0].channels_num, 3)
 
-        self.assertEqual(parsed_transformations[0].name, "linear")
+        self.assertEqual(parsed_transformations[0].get_class_name(), "linear")
         self.assertEqual(parsed_transformations[0].contrast, 2)
         self.assertEqual(parsed_transformations[0].brightness, 10)
 
