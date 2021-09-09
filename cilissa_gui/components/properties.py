@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from cilissa_gui.helpers import get_parameter_display_name
 from cilissa_gui.managers import OperationsManager
 from cilissa_gui.widgets import CQImage, CQOperation
 from cilissa_gui.widgets.inputs import get_input_widget_for_type
@@ -101,7 +102,7 @@ class PropertiesSelected(QWidget):
             key_type = self.instance.get_parameter_type(key)
             widget_class = get_input_widget_for_type(key_type)
             if widget_class:
-                widget = widget_class(parameter=key, default=value)
+                widget = widget_class(parameter=key, default=value, label=get_parameter_display_name(key))
                 self.widgets.append(widget)
                 self.main_layout.addWidget(widget)
 
