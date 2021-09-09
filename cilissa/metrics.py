@@ -2,8 +2,9 @@ from typing import Optional
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
+from scipy.ndimage.filters import uniform_filter
 
-from cilissa.helpers import crop_array, sliding_window
+from cilissa.helpers import crop_array
 from cilissa.images import ImagePair
 from cilissa.operations import Metric
 from cilissa.utils import get_operation_subclasses
@@ -160,39 +161,52 @@ class UIQI(Metric):
         - https://ece.uwaterloo.ca/~z70wang/publications/quality_2c.pdf
     """
 
-    def __init__(self, block_size: int = 8) -> None:
+    def __init__(self, channels_num: Optional[int] = None, block_size: int = 8) -> None:
+        self.channels_num = channels_num
+
+        # Sliding window size
         self.block_size = block_size
+
+    def uiqi_single_channel(self, im1: np.ndarray, im2: np.ndarray) -> float:
+        N = self.block_size ** 2
+
+        im1_sq = im1 ** 2
+        im2_sq = im2 ** 2
+        im12 = im1 * im2
+
+        im1_sum = uniform_filter(im1, self.block_size)
+        im2_sum = uniform_filter(im2, self.block_size)
+        im1_sq_sum = uniform_filter(im1_sq, self.block_size)
+        im2_sq_sum = uniform_filter(im2_sq, self.block_size)
+        im12_sum = uniform_filter(im12, self.block_size)
+
+        im12_sum_mul = im1_sum * im2_sum
+        im12_sq_sum_mul = im1_sum ** 2 + im2_sum ** 2
+        numerator = 4 * (N * im12_sum - im12_sum_mul) * im12_sum_mul
+        denominator1 = N * (im1_sq_sum + im2_sq_sum) - im12_sq_sum_mul
+        denominator = denominator1 * im12_sq_sum_mul
+
+        q_map = np.ones(denominator.shape)
+        index = np.logical_and((denominator1 == 0), (im12_sq_sum_mul != 0))
+        q_map[index] = (2 * im12_sum_mul[index]) / (im12_sq_sum_mul[index])
+        index = denominator != 0
+        q_map[index] = numerator[index] / denominator[index]
+
+        s = int(self.block_size / 2)
+        return np.mean(q_map[s:-s, s:-s])
 
     def analyze(self, image_pair: ImagePair) -> float:
         im1, im2 = image_pair.as_floats()
 
-        quality_map = []
-        for window_im1, window_im2 in zip(
-            sliding_window(im1, window_size=(8, 8)), sliding_window(im2, window_size=(8, 8))
-        ):
-            if window_im1.shape[0] != self.block_size or window_im1.shape[1] != self.block_size:
-                continue
+        ch_num = self.channels_num or image_pair[0].channels_num
 
-            for i in range(image_pair[0].channels_num):
-                im1_band = window_im1[:, :, i]
-                im2_band = window_im2[:, :, i]
-                im1_band_mean = np.mean(im1_band)
-                im2_band_mean = np.mean(im2_band)
-                im1_band_variance = np.var(im1_band)
-                im2_band_variance = np.var(im2_band)
-                im12_band_variance = np.mean((im1_band - im1_band_mean) * (im2_band - im2_band_mean))
+        # Create an empty array to hold results from each channel
+        uiqi_results = np.empty(ch_num)
+        for ch in range(ch_num):
+            ch_result = self.uiqi_single_channel(im1[:, :, ch], im2[:, :, ch])
+            uiqi_results[ch] = ch_result
 
-                numerator = 4 * im12_band_variance * im1_band_mean * im2_band_mean
-                denominator = (im1_band_variance + im2_band_variance) * (im1_band_mean ** 2 + im2_band_mean ** 2)
-
-                if denominator != 0.0:
-                    quality = numerator / denominator
-                    quality_map.append(quality)
-
-        if not np.any(quality_map):
-            raise ValueError(f"Block size {self.block_size} is too big for image with shape {window_im1.shape[0:2]}")
-
-        return np.mean(quality_map)
+        return np.mean(uiqi_results)
 
 
 class VIFP(Metric):

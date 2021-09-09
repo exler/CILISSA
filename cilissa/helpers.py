@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import numpy as np
 
 
@@ -14,9 +12,3 @@ def crop_array(array: np.ndarray, crop_width: int) -> np.ndarray:
     cropped = array[slices]
 
     return cropped
-
-
-def sliding_window(array: np.ndarray, window_size: Tuple[int, int]) -> np.ndarray:
-    for y in range(0, array.shape[0]):
-        for x in range(0, array.shape[1]):
-            yield (array[y : y + window_size[1], x : x + window_size[0]])
