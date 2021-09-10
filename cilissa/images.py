@@ -103,7 +103,7 @@ class Image:
         self.path = str(image_path)
         self.name = os.path.basename(self.path)
 
-        self.im = cv2.imdecode(np.fromfile(self.path, dtype=np.uint8), cv2.IMREAD_ANYCOLOR)
+        self.im = cv2.imdecode(np.fromfile(self.path, dtype=np.uint8), cv2.IMREAD_COLOR)
         if self.im is None:
             raise IOError(f"Cannot open image path: `{self.path}`")
 
@@ -195,6 +195,14 @@ class Image:
     def as_float(self) -> np.ndarray:
         """Converts the image to :data:`np.ndarray` of floats"""
         return self._as(np.float32)
+
+    def to_grayscale(self) -> None:
+        if self.channels_num != 3:
+            logging.error(f"Cannot convert image with {self.channels_num} channels")
+            return
+
+        bgr = self.as_float()
+        self.from_array(cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY))
 
     def __str__(self) -> str:
         return f"Image(name={self.name})"
