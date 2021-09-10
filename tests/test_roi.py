@@ -13,7 +13,7 @@ class TestROI(BaseTest):
         super().setUpClass()
 
         cls.base_image = Image(Path(cls.data_path, "ref_images", "parrots.bmp"))
-        cls.transformed_image = Image(Path(cls.data_path, "roi", "roi_transformed.bmp"))
+        cls.transformed_image = Image(Path(cls.data_path, "other", "parrots_roi.bmp"))
 
         cls.transformed_roi = ROI(0, 0, 384, 512)
         cls.unchanged_roi = ROI(384, 0, 768, 512)
