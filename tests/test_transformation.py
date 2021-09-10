@@ -74,3 +74,19 @@ class TestImageTransformation(BaseTest):
                 transformation().transform(grayscale_image)
             except Exception:
                 self.fail(f"Transformation {transformation.get_display_name()} failed grayscale image transformation")
+
+    def test_transform_any_depth(self) -> None:
+        image_16bit = Image(Path(self.data_path, "other", "monarch_16bit.tiff"))
+        image_16bit_float = Image(Path(self.data_path, "other", "monarch_16bit_float.tiff"))
+        image_32bit = Image(Path(self.data_path, "other", "monarch_32bit.tiff"))
+        image_32bit_float = Image(Path(self.data_path, "other", "monarch_32bit_float.tiff"))
+        images = [image_16bit, image_32bit, image_16bit_float, image_32bit_float]
+
+        for transformation in all_transformations.values():
+            for image in images:
+                try:
+                    transformation().transform(image)
+                except Exception:
+                    self.fail(
+                        f"Transformation {transformation.get_display_name()} failed on color depth transformation"
+                    )

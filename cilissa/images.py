@@ -103,7 +103,7 @@ class Image:
         self.path = str(image_path)
         self.name = os.path.basename(self.path)
 
-        self.im = cv2.imdecode(np.fromfile(self.path, dtype=np.uint8), cv2.IMREAD_COLOR)
+        self.im = cv2.imdecode(np.fromfile(self.path, dtype=np.uint8), cv2.IMREAD_COLOR | cv2.IMREAD_ANYDEPTH)
         if self.im is None:
             raise IOError(f"Cannot open image path: `{self.path}`")
 
