@@ -57,6 +57,10 @@ class Image:
         return self.im.shape[0]
 
     @property
+    def dtype(self) -> np.dtype:
+        return self.im.dtype
+
+    @property
     def channels_num(self) -> int:
         # 2D array is a grayscale image, 3D array gives the number of channels
         return 1 if self.im.ndim == 2 else self.im.shape[-1]

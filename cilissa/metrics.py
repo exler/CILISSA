@@ -4,7 +4,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 from scipy.ndimage.filters import uniform_filter
 
-from cilissa.helpers import crop_array
+from cilissa.helpers import apply_to_channels, crop_array, get_max_pixel_value
 from cilissa.images import ImagePair
 from cilissa.operations import Metric
 from cilissa.utils import get_operation_subclasses
@@ -37,9 +37,12 @@ class PSNR(Metric):
         - https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio
     """
 
+    def __init__(self, max_pixel_value: Optional[int] = None) -> None:
+        # Maximum possible pixel value of the image
+        self.max_pixel_value = max_pixel_value
+
     def analyze(self, image_pair: ImagePair) -> float:
-        # dmax - maximum possible pixel value of the image
-        dmax = image_pair[0].im.max()
+        dmax = self.max_pixel_value or get_max_pixel_value(image_pair[0].dtype)
 
         err = MSE().analyze(image_pair)
         if err == 0:
@@ -140,14 +143,8 @@ class SSIM(Metric):
 
         ch_num = self.channels_num or image_pair[0].channels_num
 
-        # Create an empty array to hold results from each channel
-        ssim_results = np.empty(ch_num)
-        for ch in range(ch_num):
-            ch_result = self.mssim_single_channel(im1[:, :, ch], im2[:, :, ch])
-            ssim_results[ch] = ch_result
-
-        mssim = ssim_results.mean()
-        return mssim
+        result = apply_to_channels(im1, im2, self.mssim_single_channel, ch_num)
+        return result
 
 
 class UIQI(Metric):
@@ -200,13 +197,8 @@ class UIQI(Metric):
 
         ch_num = self.channels_num or image_pair[0].channels_num
 
-        # Create an empty array to hold results from each channel
-        uiqi_results = np.empty(ch_num)
-        for ch in range(ch_num):
-            ch_result = self.uiqi_single_channel(im1[:, :, ch], im2[:, :, ch])
-            uiqi_results[ch] = ch_result
-
-        return np.mean(uiqi_results)
+        result = apply_to_channels(im1, im2, self.uiqi_single_channel, ch_num)
+        return result
 
 
 class VIFP(Metric):
@@ -280,13 +272,8 @@ class VIFP(Metric):
 
         ch_num = self.channels_num or image_pair[0].channels_num
 
-        # Create an empty array to hold results from each channel
-        vifp_results = np.empty(ch_num)
-        for ch in range(ch_num):
-            ch_result = self.vifp_single_channel(im1[:, :, ch], im2[:, :, ch])
-            vifp_results[ch] = ch_result
-
-        return np.mean(np.nan_to_num(vifp_results))
+        result = apply_to_channels(im1, im2, self.vifp_single_channel, ch_num)
+        return result
 
 
 class SAM(Metric):
