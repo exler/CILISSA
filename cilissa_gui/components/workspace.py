@@ -104,6 +104,10 @@ class WorkspaceDetailsTab(WorkspaceTab):
         dialog.exec()
         self.refresh()
 
+    def clear_roi(self) -> None:
+        self.image_pair.clear_roi()
+        self.refresh()
+
     def init_images(self) -> None:
         self.images_panel = QHBoxLayout()
         self.images_panel.setAlignment(Qt.AlignCenter)
@@ -131,9 +135,12 @@ class WorkspaceDetailsTab(WorkspaceTab):
     def init_buttons(self) -> None:
         self.buttons_panel = QHBoxLayout()
 
-        self.roi_button = QPushButton("Select ROI", disabled=True)
-        self.roi_button.clicked.connect(self.select_roi)
-        self.buttons_panel.addWidget(self.roi_button)
+        self.select_roi_button = QPushButton("Select ROI", disabled=True)
+        self.select_roi_button.clicked.connect(self.select_roi)
+        self.clear_roi_button = QPushButton("Clear ROI", disabled=True)
+        self.clear_roi_button.clicked.connect(self.clear_roi)
+        self.buttons_panel.addWidget(self.select_roi_button)
+        self.buttons_panel.addWidget(self.clear_roi_button)
 
         self.main_layout.addLayout(self.buttons_panel)
 
@@ -141,9 +148,11 @@ class WorkspaceDetailsTab(WorkspaceTab):
         self.image_pair = image_pair
         self.refresh()
 
-        if self.image_pair:
-            self.roi_button.setDisabled(False)
+        buttons_disabled = False if self.image_pair else True
+        self.select_roi_button.setDisabled(buttons_disabled)
+        self.clear_roi_button.setDisabled(buttons_disabled)
 
     def refresh(self) -> None:
-        self.ref_image.set_image(self.image_pair.get_full_image(0), roi=self.image_pair.roi)
-        self.input_image.set_image(self.image_pair.get_full_image(1), roi=self.image_pair.roi)
+        if self.image_pair:
+            self.ref_image.set_image(self.image_pair.get_full_image(0), roi=self.image_pair.roi)
+            self.input_image.set_image(self.image_pair.get_full_image(1), roi=self.image_pair.roi)

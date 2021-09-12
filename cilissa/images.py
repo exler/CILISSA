@@ -227,7 +227,7 @@ class ImagePair:
     im1: Image
     im2: Image
 
-    roi: Union[ROI, None] = None
+    roi: Optional[ROI] = None
 
     def __init__(self, reference_image: Image, compared_image: Image) -> None:
         self.im1 = reference_image
@@ -265,6 +265,9 @@ class ImagePair:
         if not self.im1.check_if_on_image(roi.x0, roi.y0) or not self.im1.check_if_on_image(roi.x1, roi.y1):
             raise NotOnImageError
         self.roi = roi
+
+    def clear_roi(self) -> None:
+        self.roi = None
 
     def _get_roi_slices(self) -> Optional[Tuple[slice, slice]]:
         return self.roi.slices if self.roi else None
