@@ -166,7 +166,7 @@ class Interface(QWidget):
     def create_connections(self) -> None:
         self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
         self.explorer.explorerItemSelected.connect(self.properties_box.properties.open_selection)
-        self.operations_box.operations.itemDoubleClicked.connect(self.properties_box.properties.open_selection)
+        self.operations_box.operations.itemClicked.connect(self.properties_box.properties.open_selection)
         self.console_box.console.itemClicked.connect(
             lambda: self.show_message_in_statusbar("Double-click the result in console to see detailed information")
         )
