@@ -43,12 +43,12 @@ class Properties(QStackedWidget):
     def open_selection(self, item: QWidget) -> None:
         self.properties_selected.remove_all_widgets_from_layout(self.properties_selected.inputs_layout)
         self.properties_selected.remove_all_widgets_from_layout(self.properties_selected.buttons_layout)
-        self.properties_selected.determine_instance(item)
+        self.properties_selected.clear_instance()
+        self.properties_selected.create_instance_widgets(item)
         self.setCurrentWidget(self.properties_selected)
 
     @Slot()
     def hide_selection(self) -> None:
-        self.properties_selected.clear_instance()
         self.setCurrentWidget(self.properties_unselected)
 
 
@@ -72,7 +72,7 @@ class PropertiesSelected(QWidget):
         self.main_layout.addLayout(self.buttons_layout)
         self.setLayout(self.main_layout)
 
-    def determine_instance(self, item: QWidget) -> None:
+    def create_instance_widgets(self, item: QWidget) -> None:
         add = False
         if isinstance(item, CQImage):
             # There is no functionality planned for image properties right now
