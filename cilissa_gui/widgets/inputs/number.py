@@ -2,7 +2,11 @@ from typing import Any, Optional, Union
 
 from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSpinBox
 
-from cilissa_gui.widgets.inputs.base import CQInputWidget
+from cilissa_gui.widgets.inputs.base import (
+    MAX_NEG_INTEGER,
+    MAX_POS_INTEGER,
+    CQInputWidget,
+)
 
 
 class CQIntInputWidget(CQInputWidget):
@@ -13,6 +17,7 @@ class CQIntInputWidget(CQInputWidget):
         layout.addWidget(QLabel(label or parameter))
 
         self.sb = QSpinBox()
+        self.sb.setRange(MAX_NEG_INTEGER, MAX_POS_INTEGER)
         self.sb.setSingleStep(1)
         if default:
             self.sb.setValue(default)
@@ -32,6 +37,7 @@ class CQFloatInputWidget(CQInputWidget):
         layout.addWidget(QLabel(label or parameter))
 
         self.sb = QDoubleSpinBox()
+        self.sb.setRange(MAX_NEG_INTEGER, MAX_POS_INTEGER)
         self.sb.setSingleStep(1)
         if default:
             self.sb.setValue(default)
