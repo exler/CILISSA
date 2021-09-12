@@ -41,7 +41,7 @@ class Properties(QStackedWidget):
 
     @Slot(QWidget)
     def open_selection(self, item: QWidget) -> None:
-        self.properties_selected.remove_all_widgets_from_layout(self.properties_selected.main_layout)
+        self.properties_selected.remove_all_widgets_from_layout(self.properties_selected.inputs_layout)
         self.properties_selected.remove_all_widgets_from_layout(self.properties_selected.buttons_layout)
         self.properties_selected.determine_instance(item)
         self.setCurrentWidget(self.properties_selected)
@@ -62,9 +62,13 @@ class PropertiesSelected(QWidget):
 
         self.clear_instance()
 
+        self.inputs_layout = QVBoxLayout()
+        self.inputs_layout.setAlignment(Qt.AlignTop)
+
         self.buttons_layout = QHBoxLayout()
         self.buttons_layout.setAlignment(Qt.AlignBottom)
 
+        self.main_layout.addLayout(self.inputs_layout)
         self.main_layout.addLayout(self.buttons_layout)
         self.setLayout(self.main_layout)
 
@@ -95,7 +99,7 @@ class PropertiesSelected(QWidget):
             info.setStyleSheet("QLabel { color: darkgray; }")
             info.setWordWrap(True)
             info.setAlignment(Qt.AlignCenter)
-            self.main_layout.addWidget(info)
+            self.inputs_layout.addWidget(info)
             return
 
         for key, value in properties.items():
@@ -104,7 +108,7 @@ class PropertiesSelected(QWidget):
             if widget_class:
                 widget = widget_class(parameter=key, default=value, label=get_parameter_display_name(key))
                 self.widgets.append(widget)
-                self.main_layout.addWidget(widget)
+                self.inputs_layout.addWidget(widget)
 
     def remove_all_widgets_from_layout(self, layout: QLayout) -> None:
         for i in reversed(range(layout.count())):
@@ -118,10 +122,10 @@ class PropertiesSelected(QWidget):
     def create_buttons(self, add: bool) -> None:
         if add:
             apply_button = QPushButton("Add")
-            apply_button.clicked.connect(lambda: self.set_instance_values(True))
+            apply_button.clicked.connect(lambda: self.set_instance_values(add=True))
         else:
             apply_button = QPushButton("Apply")
-            apply_button.clicked.connect(lambda: self.set_instance_values(False))
+            apply_button.clicked.connect(lambda: self.set_instance_values(add=False))
 
         cancel_button = QPushButton("Cancel")
         cancel_button.clicked.connect(self.parent().hide_selection)
