@@ -3,11 +3,18 @@ from typing import Any
 import numpy as np
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QMouseEvent, QPainter, QPaintEvent, QPen
-from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
+from PySide6.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QPushButton,
+    QVBoxLayout,
+)
 
 from cilissa.images import Image, ImagePair
 from cilissa.roi import ROI
-from cilissa_gui.helpers import get_pixmap_from_image
+from cilissa_gui.helpers import get_pixmap_from_image, get_screen_size
 
 
 class CQROIDialog(QDialog):
@@ -16,6 +23,8 @@ class CQROIDialog(QDialog):
 
         self.main_layout = QVBoxLayout()
         self.setWindowTitle("Select ROI")
+
+        self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
 
         self.image_pair = image_pair
         self.image = CQROIImage(image_pair.get_full_image(0))
@@ -38,6 +47,11 @@ class CQROIDialog(QDialog):
 class CQROIImage(QLabel):
     def __init__(self, image: Image, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+        screen_size = get_screen_size()
+        self.max_width = screen_size.width() - 192
+        self.max_height = screen_size.height() - 192
+        self.set_dimensions(image)
 
         self.set_image(image)
 
@@ -82,11 +96,34 @@ class CQROIImage(QLabel):
             # Object was just initialized
             pass
 
+    def set_dimensions(self, image: Image) -> None:
+        self.image_width = image.width
+        self.image_height = image.height
+        self.scale_factor = 1.0
+
+        if self.max_width < self.image_width or self.max_height < self.image_height:
+            width_factor = image.get_scale_factor(width=self.max_width)
+            height_factor = image.get_scale_factor(height=self.max_height)
+
+            if width_factor > height_factor:
+                self.image_width = None
+                self.image_height = self.max_height
+                self.scale_factor = height_factor
+            else:
+                self.image_width = self.max_width
+                self.image_height = None
+                self.scale_factor = width_factor
+
     def set_image(self, image: Image) -> None:
-        pixmap = get_pixmap_from_image(image)
+        pixmap = get_pixmap_from_image(image, width=self.image_width, height=self.image_height)
         self.setPixmap(pixmap)
 
     def get_roi(self) -> ROI:
         if self.point1 and self.point2:
-            return ROI(self.point1.x(), self.point1.y(), self.point2.x(), self.point2.y())
+            x0 = int(self.point1.x() / self.scale_factor)
+            y0 = int(self.point1.y() / self.scale_factor)
+            x1 = int(self.point2.x() / self.scale_factor)
+            y1 = int(self.point2.y() / self.scale_factor)
+
+            return ROI(x0, y0, x1, y1)
         return ROI()

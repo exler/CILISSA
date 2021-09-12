@@ -40,10 +40,10 @@ class CQImage(QWidget):
             painter = QPainter(pixmap)
             painter.setPen(QPen(Qt.red, 2, Qt.DashDotDotLine))
             painter.drawRect(
-                roi.x0 * scale_factor,
-                roi.y0 * scale_factor,
-                (roi.x1 - roi.x0) * scale_factor,
-                (roi.y1 - roi.y0) * scale_factor,
+                int(roi.x0 * scale_factor),
+                int(roi.y0 * scale_factor),
+                int((roi.x1 - roi.x0) * scale_factor),
+                int((roi.y1 - roi.y0) * scale_factor),
             )
             painter.end()
 
