@@ -1,9 +1,7 @@
-import logging
 from abc import ABC, abstractmethod
 from typing import Any, List, Type, Union
 
 from cilissa.classes import OrderedList, Parameterized
-from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImageCollection, ImagePair
 from cilissa.results import AnalysisResult, Result, TransformationResult
 
@@ -41,12 +39,12 @@ class ImageOperation(Parameterized, ABC):
 
 
 class OperationsList(OrderedList):
-    def run_all(self, images: Union[ImagePair, ImageCollection], keep_transformations: bool = False) -> Any:
+    def run_all(self, images: Union[ImagePair, ImageCollection], keep_changes: bool = False) -> Any:
         if isinstance(images, ImagePair):
             pair_copy = images.copy()
             res = self._use_operations_on_pair(pair_copy)
 
-            if keep_transformations:
+            if keep_changes:
                 images = pair_copy
 
             return res
@@ -58,7 +56,7 @@ class OperationsList(OrderedList):
                 res = self._use_operations_on_pair(pair_copy)
                 results.append(res)
 
-                if keep_transformations:
+                if keep_changes:
                     images[index] = pair_copy
 
             return results
@@ -111,13 +109,5 @@ class Metric(ImageOperation, ABC):
         pass
 
     def run(self, image_pair: ImagePair) -> Result:
-        self.validate(image_pair)
         value = self.analyze(image_pair)
         return self.generate_result(value=value)
-
-    def validate(self, image_pair: ImagePair) -> None:
-        if not image_pair.matching_shape:
-            raise ShapesNotEqual("Images must be of equal size to analyze")
-
-        if not image_pair.matching_dtype:
-            logging.warn("Images have mismatched data types. Metrics will use reference image's type")

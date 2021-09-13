@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from cilissa.classes import OrderedList
-from cilissa.exceptions import NotOnImageError
+from cilissa.exceptions import NotOnImageError, ShapesNotEqual
 from cilissa.roi import ROI
 
 
@@ -227,11 +227,21 @@ class ImagePair:
     im1: Image
     im2: Image
 
-    roi: Optional[ROI] = None
+    roi: Optional[ROI]
+    use_roi: bool
 
-    def __init__(self, reference_image: Image, compared_image: Image) -> None:
-        self.im1 = reference_image
-        self.im2 = compared_image
+    def __init__(self, im1: Image, im2: Image, roi: Optional[ROI] = None, use_roi: bool = True) -> None:
+        self.im1 = im1
+        self.im2 = im2
+
+        if not self.matching_shape:
+            raise ShapesNotEqual("Images must be of equal size to analyze")
+
+        if not self.matching_dtype:
+            logging.warn("Images have mismatched data types. Metrics will use reference image's type")
+
+        self.use_roi = use_roi
+        self.set_roi(roi)
 
     def __getitem__(self, key: int) -> Image:
         if key == 0:
@@ -256,19 +266,11 @@ class ImagePair:
             raise IndexError
 
     def copy(self) -> ImagePair:
-        pair_copy = ImagePair(self.im1.copy(), self.im2.copy())
-        if self.roi:
-            pair_copy.set_roi(self.roi)
+        pair_copy = ImagePair(self.im1.copy(), self.im2.copy(), roi=self.roi, use_roi=self.use_roi)
         return pair_copy
 
-    def get_full_image(self, key: int) -> np.ndarray:
-        im = getattr(self, f"im{key + 1}", None)
-        if im:
-            return im
-        raise IndexError
-
-    def set_roi(self, roi: ROI) -> None:
-        if not self.im1.check_if_on_image(roi.x0, roi.y0) or not self.im1.check_if_on_image(roi.x1, roi.y1):
+    def set_roi(self, roi: Optional[ROI]) -> None:
+        if roi and (not self.im1.check_if_on_image(roi.x0, roi.y0) or not self.im1.check_if_on_image(roi.x1, roi.y1)):
             raise NotOnImageError
         self.roi = roi
 
@@ -276,7 +278,9 @@ class ImagePair:
         self.roi = None
 
     def _get_roi_slices(self) -> Optional[Tuple[slice, slice]]:
-        return self.roi.slices if self.roi else None
+        if self.use_roi:
+            return self.roi.slices if self.roi else None
+        return None
 
     @property
     def matching_shape(self) -> bool:
@@ -298,4 +302,9 @@ class ImageCollection(OrderedList):
     Operations performed on :class:`cillisa.images.ImagePair` can be applied to the whole collection.
     """
 
-    pass
+    use_roi: bool = True
+
+    def set_use_roi(self, value: bool) -> None:
+        self.use_roi = value
+        for pair in self:
+            pair.use_roi = self.use_roi

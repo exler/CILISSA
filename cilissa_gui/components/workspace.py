@@ -154,5 +154,5 @@ class WorkspaceDetailsTab(WorkspaceTab):
 
     def refresh(self) -> None:
         if self.image_pair:
-            self.ref_image.set_image(self.image_pair.get_full_image(0), roi=self.image_pair.roi)
-            self.input_image.set_image(self.image_pair.get_full_image(1), roi=self.image_pair.roi)
+            self.ref_image.set_image(self.image_pair.im1, roi=self.image_pair.roi)
+            self.input_image.set_image(self.image_pair.im2, roi=self.image_pair.roi)

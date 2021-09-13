@@ -27,7 +27,7 @@ class CQROIDialog(QDialog):
         self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
 
         self.image_pair = image_pair
-        self.image = CQROIImage(image_pair.get_full_image(0))
+        self.image = CQROIImage(image_pair.im1)
 
         self.buttons_panel = QHBoxLayout()
         self.confirm_button = QPushButton("Confirm")
