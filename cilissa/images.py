@@ -132,7 +132,7 @@ class Image:
         """
         Copies and returns the image
         """
-        return Image(self.im, name=self.name)
+        return Image(np.copy(self.im), name=self.name)
 
     def display_image(self) -> None:
         """
@@ -254,6 +254,12 @@ class ImagePair:
             self.im2.from_array(image.im, at=self._get_roi_slices())
         else:
             raise IndexError
+
+    def copy(self) -> ImagePair:
+        pair_copy = ImagePair(self.im1.copy(), self.im2.copy())
+        if self.roi:
+            pair_copy.set_roi(self.roi)
+        return pair_copy
 
     def get_full_image(self, key: int) -> np.ndarray:
         im = getattr(self, f"im{key + 1}", None)
