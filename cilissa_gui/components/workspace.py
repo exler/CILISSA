@@ -28,13 +28,20 @@ class Workspace(QTabWidget):
         self.addTab(self.list_tab, "List")
         self.addTab(self.details_tab, "Details")
 
+        self.set_details_tab_enabled(False)  # Disable Details on start
 
-class WorkspaceTab(QWidget):
+    def set_details_tab_enabled(self, enabled: bool) -> None:
+        self.setTabEnabled(1, enabled)
+
+
+class WorkspaceTabMixin:
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
+        self.tab_widget = parent
 
-class WorkspaceListTab(QTreeWidget, WorkspaceTab):
+
+class WorkspaceListTab(WorkspaceTabMixin, QTreeWidget):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
@@ -82,11 +89,11 @@ class WorkspaceListTab(QTreeWidget, WorkspaceTab):
     def open_selected(self) -> None:
         row = [index.row() for index in self.selectedIndexes()][-1]
         image_pair = self.collection_manager[row]
-        self.parent().parent().details_tab.change_images(image_pair)
-        self.parent().parent().setCurrentWidget(self.parent().parent().details_tab)
+        self.tab_widget.details_tab.change_images(image_pair)
+        self.tab_widget.setCurrentWidget(self.tab_widget.details_tab)
 
 
-class WorkspaceDetailsTab(WorkspaceTab):
+class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
@@ -115,7 +122,7 @@ class WorkspaceDetailsTab(WorkspaceTab):
         self.ref_image_layout = QVBoxLayout()
         self.ref_image_label = QLabel("Reference image")
         self.ref_image_label.setAlignment(Qt.AlignCenter)
-        self.ref_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=192)
+        self.ref_image = CQImage.placeholder(placeholder_size=192, height=192)
         self.ref_image_layout.addWidget(self.ref_image_label)
         self.ref_image_layout.addWidget(self.ref_image)
         self.images_panel.addLayout(self.ref_image_layout)
@@ -125,7 +132,7 @@ class WorkspaceDetailsTab(WorkspaceTab):
         self.input_image_layout = QVBoxLayout()
         self.input_image_label = QLabel("Input image")
         self.input_image_label.setAlignment(Qt.AlignCenter)
-        self.input_image = CQImage.load("cilissa_gui/resources/placeholder-128.png", height=192)
+        self.input_image = CQImage.placeholder(placeholder_size=192, height=192)
         self.input_image_layout.addWidget(self.input_image_label)
         self.input_image_layout.addWidget(self.input_image)
         self.images_panel.addLayout(self.input_image_layout)
@@ -154,5 +161,6 @@ class WorkspaceDetailsTab(WorkspaceTab):
 
     def refresh(self) -> None:
         if self.image_pair:
+            self.tab_widget.set_details_tab_enabled(True)
             self.ref_image.set_image(self.image_pair.im1, roi=self.image_pair.roi)
             self.input_image.set_image(self.image_pair.im2, roi=self.image_pair.roi)

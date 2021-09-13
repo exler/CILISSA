@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Optional, Union
 
+import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QContextMenuEvent, QPainter, QPen
 from PySide6.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget
@@ -54,6 +55,12 @@ class CQImage(QWidget):
     @staticmethod
     def load(image_path: Union[Path, str], **kwargs: Any) -> CQImage:
         im = Image(image_path)
+        cqimage = CQImage(im, **kwargs)
+        return cqimage
+
+    @staticmethod
+    def placeholder(placeholder_size: int = 512, **kwargs: Any) -> CQImage:
+        im = Image(np.zeros((placeholder_size, placeholder_size)))
         cqimage = CQImage(im, **kwargs)
         return cqimage
 
