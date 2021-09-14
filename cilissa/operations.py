@@ -93,7 +93,7 @@ class Transformation(ImageOperation, ABC):
         image = image_pair[1]
         transformed_image = self.transform(image)
         image_pair[1] = transformed_image
-        return self.generate_result(before=image, after=transformed_image)
+        return self.generate_result(value=transformed_image)
 
 
 class Metric(ImageOperation, ABC):

@@ -54,8 +54,7 @@ class AnalysisResult(Result):
 
 @dataclass(frozen=True, eq=False, order=False)
 class TransformationResult(Result):
-    before: Image
-    after: Image
+    value: Image
 
     def pretty(self) -> str:
         return f"Transformation - name: {self.name}"
