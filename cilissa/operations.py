@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, List, Union
+from typing import Any, Dict, List, Type, Union
 
 from cilissa.classes import OrderedList, Parameterized
 from cilissa.images import Image, ImageCollection, ImagePair
@@ -12,6 +14,15 @@ class ImageOperation(Parameterized, ABC):
 
     Display name and name used in various dicts is deduced from the class name.
     """
+
+    @classmethod
+    def get_operation_subclasses(cls) -> Dict[str, Type[ImageOperation]]:
+        subclasses = cls.__subclasses__()
+        operations = {}
+        for subcls in subclasses:
+            operations[subcls.get_class_name()] = subcls
+
+        return operations
 
     @classmethod
     def get_class_name(cls) -> str:

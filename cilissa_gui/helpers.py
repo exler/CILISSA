@@ -24,10 +24,6 @@ def get_operation_icon_name(operation: ImageOperation) -> str:
     return ""
 
 
-def get_parameter_display_name(parameter: str) -> str:
-    return parameter.replace("_", " ").capitalize()
-
-
 def get_pixmap_from_image(image: Image, width: Optional[int] = None, height: Optional[int] = None) -> QPixmap:
     resized_image = image.get_resized(width=width, height=height)
     q_im = QImage(

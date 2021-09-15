@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from cilissa_gui.helpers import get_parameter_display_name
+from cilissa.utils import get_parameter_display_name
 from cilissa_gui.managers import OperationsManager
 from cilissa_gui.widgets import CQImage, CQOperation
 from cilissa_gui.widgets.inputs import get_input_widget_for_type

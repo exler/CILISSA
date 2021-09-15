@@ -10,6 +10,7 @@ import numpy as np
 
 from cilissa.classes import Parameterized
 from cilissa.images import Image
+from cilissa.utils import get_parameter_display_name
 
 if TYPE_CHECKING:
     from cilissa.operations import ImageOperation
@@ -63,15 +64,21 @@ class ResultGenerator:
 
         def get_table_cell(value: Any) -> str:
             def format_parameters(parameters: Dict[str, Any]) -> str:
-                html = "<ul>"
-                html += "".join(["<li>{}: {}</li>".format(k, v) for k, v in parameters.items()])
-                html += "</ul>"
+                if parameters:
+                    html = "<ul>"
+                    html += "".join(
+                        ["<li>{}: {}</li>".format(get_parameter_display_name(k), v) for k, v in parameters.items()]
+                    )
+                    html += "</ul>"
+                else:
+                    html = "No parameters"
                 return html
 
             html = "<td>"
 
             if isinstance(value, Image):
-                html += ""
+                data_uri = value.as_data_uri(height=64)
+                html += f"<img src='{data_uri}'>"
             elif isinstance(value, dict):
                 html += format_parameters(value)
             elif isinstance(value, float) or isinstance(value, np.floating):

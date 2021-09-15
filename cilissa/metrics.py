@@ -7,7 +7,6 @@ from scipy.ndimage.filters import uniform_filter
 from cilissa.helpers import apply_to_channels, crop_array, get_max_pixel_value
 from cilissa.images import ImagePair
 from cilissa.operations import Metric
-from cilissa.utils import get_operation_subclasses
 
 
 class MSE(Metric):
@@ -306,4 +305,4 @@ class SAM(Metric):
         return np.mean(np.nan_to_num(sam_angles))
 
 
-all_metrics = get_operation_subclasses(Metric)  # type: ignore
+all_metrics = Metric.get_operation_subclasses()

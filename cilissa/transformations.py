@@ -5,7 +5,6 @@ import numpy as np
 
 from cilissa.images import Image
 from cilissa.operations import Transformation
-from cilissa.utils import get_operation_subclasses
 
 
 class Blur(Transformation):
@@ -198,4 +197,4 @@ class Equalization(Transformation):
         return Image(new_im)
 
 
-all_transformations = get_operation_subclasses(Transformation)  # type: ignore
+all_transformations = Transformation.get_operation_subclasses()
