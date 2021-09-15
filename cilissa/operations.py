@@ -1,49 +1,65 @@
-import logging
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, List, Type, Union
+from typing import Any, Dict, List, Type, Union
 
 from cilissa.classes import OrderedList, Parameterized
-from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImageCollection, ImagePair
-from cilissa.results import AnalysisResult, Result, TransformationResult
+from cilissa.results import Result
 
 
 class ImageOperation(Parameterized, ABC):
-    name: str = ""
+    """
+    Base class for all operations that can be performed on an image.
 
-    def __init__(self, **kwargs: Any) -> None:
-        for k in kwargs.keys():
-            logging.info(f"Discarding unexpected keyword argument: {k}")
+    Display name and name used in various dicts is deduced from the class name.
+    """
 
-    def __str__(self) -> str:
-        return self.get_class_name()
+    @classmethod
+    def get_operation_subclasses(cls) -> Dict[str, Type[ImageOperation]]:
+        subclasses = cls.__subclasses__()
+        operations = {}
+        for subcls in subclasses:
+            operations[subcls.get_class_name()] = subcls
+
+        return operations
 
     @classmethod
     def get_class_name(cls) -> str:
-        return cls.name
+        return cls.__name__.lower()
+
+    @classmethod
+    def get_display_name(cls) -> str:
+        return cls.get_class_name().upper()
 
     @abstractmethod
     def run(self, image_pair: ImagePair) -> Result:
         raise NotImplementedError("All ImageOperation subclasses must implement the `run` method")
 
-    @abstractmethod
-    def get_result_type(self) -> Type[Result]:
-        raise NotImplementedError("All ImageOperation subclasses must implement the `get_result_type` method")
-
     def generate_result(self, **kwargs: Any) -> Result:
-        result_type = self.get_result_type()
-        return result_type(name=str(self), parameters=self.get_parameters_dict(), **kwargs)  # type: ignore
+        return Result(name=self.get_display_name(), parameters=self.get_parameters_dict(), **kwargs)  # type: ignore
 
 
 class OperationsList(OrderedList):
-    def run_all(self, images: Union[ImagePair, ImageCollection]) -> Any:
+    def run_all(self, images: Union[ImagePair, ImageCollection], keep_changes: bool = False) -> Any:
         if isinstance(images, ImagePair):
-            return self._use_operations_on_pair(images)
+            pair_copy = images.copy()
+            res = self._use_operations_on_pair(pair_copy)
+
+            if keep_changes:
+                images = pair_copy
+
+            return res
+
         elif isinstance(images, ImageCollection):
             results = []
-            for pair in images:
-                res = self._use_operations_on_pair(pair)
+            for index, pair in enumerate(images):
+                pair_copy = pair.copy()
+                res = self._use_operations_on_pair(pair_copy)
                 results.append(res)
+
+                if keep_changes:
+                    images[index] = pair_copy
 
             return results
         else:
@@ -64,8 +80,9 @@ class Transformation(ImageOperation, ABC):
     Base class for creating new transformations to use in the program.
     """
 
-    def get_result_type(self) -> Type[Result]:
-        return TransformationResult
+    @classmethod
+    def get_display_name(cls) -> str:
+        return cls.get_class_name().capitalize()
 
     @abstractmethod
     def transform(self, image: Image) -> Image:
@@ -75,7 +92,7 @@ class Transformation(ImageOperation, ABC):
         image = image_pair[1]
         transformed_image = self.transform(image)
         image_pair[1] = transformed_image
-        return self.generate_result(before=image, after=transformed_image)
+        return self.generate_result(type=Transformation, value=transformed_image)
 
 
 class Metric(ImageOperation, ABC):
@@ -83,21 +100,10 @@ class Metric(ImageOperation, ABC):
     Base class for creating new metrics to use in the program.
     """
 
-    def get_result_type(self) -> Type[Result]:
-        return AnalysisResult
-
     @abstractmethod
     def analyze(self, image_pair: ImagePair) -> float:
         pass
 
     def run(self, image_pair: ImagePair) -> Result:
-        self.validate(image_pair)
         value = self.analyze(image_pair)
-        return self.generate_result(value=value)
-
-    def validate(self, image_pair: ImagePair) -> None:
-        if not image_pair.matching_shape:
-            raise ShapesNotEqual("Images must be of equal size to analyze")
-
-        if not image_pair.matching_dtype:
-            logging.warn("Images have mismatched data types. Metrics will use reference image's type")
+        return self.generate_result(type=Metric, value=value)

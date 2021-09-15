@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from cilissa.utils import get_parameter_display_name
 from cilissa_gui.managers import OperationsManager
 from cilissa_gui.widgets import CQImage, CQOperation
 from cilissa_gui.widgets.inputs import get_input_widget_for_type
@@ -40,14 +41,14 @@ class Properties(QStackedWidget):
 
     @Slot(QWidget)
     def open_selection(self, item: QWidget) -> None:
-        self.properties_selected.remove_all_widgets_from_layout(self.properties_selected.main_layout)
+        self.properties_selected.remove_all_widgets_from_layout(self.properties_selected.inputs_layout)
         self.properties_selected.remove_all_widgets_from_layout(self.properties_selected.buttons_layout)
-        self.properties_selected.determine_instance(item)
+        self.properties_selected.clear_instance()
+        self.properties_selected.create_instance_widgets(item)
         self.setCurrentWidget(self.properties_selected)
 
     @Slot()
     def hide_selection(self) -> None:
-        self.properties_selected.clear_instance()
         self.setCurrentWidget(self.properties_unselected)
 
 
@@ -61,13 +62,17 @@ class PropertiesSelected(QWidget):
 
         self.clear_instance()
 
+        self.inputs_layout = QVBoxLayout()
+        self.inputs_layout.setAlignment(Qt.AlignTop)
+
         self.buttons_layout = QHBoxLayout()
         self.buttons_layout.setAlignment(Qt.AlignBottom)
 
+        self.main_layout.addLayout(self.inputs_layout)
         self.main_layout.addLayout(self.buttons_layout)
         self.setLayout(self.main_layout)
 
-    def determine_instance(self, item: QWidget) -> None:
+    def create_instance_widgets(self, item: QWidget) -> None:
         add = False
         if isinstance(item, CQImage):
             # There is no functionality planned for image properties right now
@@ -94,16 +99,16 @@ class PropertiesSelected(QWidget):
             info.setStyleSheet("QLabel { color: darkgray; }")
             info.setWordWrap(True)
             info.setAlignment(Qt.AlignCenter)
-            self.main_layout.addWidget(info)
+            self.inputs_layout.addWidget(info)
             return
 
         for key, value in properties.items():
             key_type = self.instance.get_parameter_type(key)
             widget_class = get_input_widget_for_type(key_type)
             if widget_class:
-                widget = widget_class(parameter=key, default=value)
+                widget = widget_class(parameter=key, default=value, label=get_parameter_display_name(key))
                 self.widgets.append(widget)
-                self.main_layout.addWidget(widget)
+                self.inputs_layout.addWidget(widget)
 
     def remove_all_widgets_from_layout(self, layout: QLayout) -> None:
         for i in reversed(range(layout.count())):
@@ -117,10 +122,10 @@ class PropertiesSelected(QWidget):
     def create_buttons(self, add: bool) -> None:
         if add:
             apply_button = QPushButton("Add")
-            apply_button.clicked.connect(lambda: self.set_instance_values(True))
+            apply_button.clicked.connect(lambda: self.set_instance_values(add=True))
         else:
             apply_button = QPushButton("Apply")
-            apply_button.clicked.connect(lambda: self.set_instance_values(False))
+            apply_button.clicked.connect(lambda: self.set_instance_values(add=False))
 
         cancel_button = QPushButton("Cancel")
         cancel_button.clicked.connect(self.parent().hide_selection)

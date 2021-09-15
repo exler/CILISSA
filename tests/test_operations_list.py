@@ -31,7 +31,7 @@ class TestOperationsList(BaseTest):
         operations = OperationsList([mse, blur, eq, psnr])
 
         image_pair1 = ImagePair(self.im1, self.im2)
-        image_pair2 = ImagePair(self.im1.copy(), self.im2.copy())
+        image_pair2 = image_pair1.copy()
         image_collection = ImageCollection([image_pair1, image_pair2])
 
         result = operations.run_all(image_collection)

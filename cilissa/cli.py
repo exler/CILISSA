@@ -41,7 +41,7 @@ def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[
 
             parsed_kwargs[key] = value
 
-        instance = operation(**parsed_kwargs)
+        instance = operation(**parsed_kwargs)  # type: ignore
 
         if issubclass(operation, Metric):
             key = "metrics"

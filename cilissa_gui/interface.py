@@ -12,8 +12,6 @@ from PySide6.QtWidgets import (
 
 from cilissa.exceptions import ShapesNotEqual
 from cilissa.images import Image, ImagePair
-from cilissa.metrics import MSE, PSNR
-from cilissa.roi import ROI
 from cilissa_gui.components import (
     ConsoleBox,
     Explorer,
@@ -22,7 +20,7 @@ from cilissa_gui.components import (
     Workspace,
 )
 from cilissa_gui.managers import ImageCollectionManager, OperationsManager
-from cilissa_gui.widgets import CQErrorDialog
+from cilissa_gui.widgets.errors import CQErrorDialog
 
 
 class Interface(QWidget):
@@ -124,6 +122,13 @@ class Interface(QWidget):
             statusTip="Open an image folder",
             triggered=self.explorer.open_image_folder_dialog,
         )
+        self.skip_roi_action = QAction(
+            "Skip ROI",
+            self,
+            statusTip="Skip region of interests in operations",
+            triggered=self.set_use_roi_on_collection,
+            checkable=True,
+        )
         self.add_pair_action = QAction(
             QIcon(":compare"),
             "Add pair",
@@ -150,15 +155,26 @@ class Interface(QWidget):
         )
 
     def debug(self) -> None:
+        from cilissa.metrics import MSE, PSNR
+
+        # from cilissa.roi import ROI
+        from cilissa.transformations import Equalization, Translation
+
         im1 = Image(Path("tests", "data", "ref_images", "monarch.bmp"))
         im2 = Image(Path("tests", "data", "transformations", "monarch_linear.bmp"))
         im_pair = ImagePair(im1, im2)
-        im_pair.set_roi(ROI(0, 0, 384, 512))
+        # im_pair.set_roi(ROI(0, 0, 384, 512))
         self.collection_manager.push(im_pair)
         self.workspace.list_tab.refresh()
 
         mse = MSE()
         psnr = PSNR()
+        eq = Equalization()
+        trans = Translation(x=64, y=16)
+        self.operations_manager.push(mse)
+        self.operations_manager.push(psnr)
+        self.operations_manager.push(eq)
+        self.operations_manager.push(trans)
         self.operations_manager.push(mse)
         self.operations_manager.push(psnr)
         self.operations_box.operations.refresh()
@@ -166,7 +182,7 @@ class Interface(QWidget):
     def create_connections(self) -> None:
         self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
         self.explorer.explorerItemSelected.connect(self.properties_box.properties.open_selection)
-        self.operations_box.operations.itemDoubleClicked.connect(self.properties_box.properties.open_selection)
+        self.operations_box.operations.itemClicked.connect(self.properties_box.properties.open_selection)
         self.console_box.console.itemClicked.connect(
             lambda: self.show_message_in_statusbar("Double-click the result in console to see detailed information")
         )
@@ -182,22 +198,27 @@ class Interface(QWidget):
             self.statusbar.showMessage("You have not chosen any images!", 3000)
         else:
             self.statusbar.showMessage("CILISSA is running...")
-            try:
-                results = self.operations_manager.run_all(self.collection_manager)
-                for image_results in results:
-                    for operation_result in image_results:
-                        self.console_box.console.add_item(operation_result)
-            except ShapesNotEqual:
-                err_dialog = CQErrorDialog("Images must be of the same proportions to analyze!")
-                err_dialog.exec()
+            results = self.operations_manager.run_all(self.collection_manager)
+            for index, image_results in enumerate(results):
+                image_pair = self.collection_manager[index]
+                self.console_box.console.add_item(index, image_pair, image_results)
 
     def add_selected_pair_to_collection(self) -> None:
         indexes = self.explorer.images_tab.selectedIndexes()
         ref = self.explorer.images_tab.get_item(indexes[0].row(), indexes[0].column()).image
         A = self.explorer.images_tab.get_item(indexes[1].row(), indexes[1].column()).image
 
-        self.collection_manager.push(ImagePair(ref, A))
-        self.collection_manager.changed.emit()
+        try:
+            image_pair = ImagePair(ref, A)
+            self.collection_manager.push(image_pair)
+            self.collection_manager.changed.emit()
+        except ShapesNotEqual:
+            err_dialog = CQErrorDialog("Images must be of the same proportions to analyze!")
+            err_dialog.exec()
+
+    def set_use_roi_on_collection(self) -> None:
+        use_roi = not self.skip_roi_action.isChecked()
+        self.collection_manager.set_use_roi(use_roi)
 
     def create_menubar(self) -> None:
         menubar = self.main_window.menuBar()
@@ -205,6 +226,9 @@ class Interface(QWidget):
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(self.open_images_action)
         file_menu.addAction(self.open_folder_action)
+
+        configuration_menu = menubar.addMenu("&Configuration")
+        configuration_menu.addAction(self.skip_roi_action)
 
         help_menu = menubar.addMenu("&Help")
         help_menu.addAction(self.documentation_action)

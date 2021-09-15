@@ -5,7 +5,6 @@ import numpy as np
 
 from cilissa.images import Image
 from cilissa.operations import Transformation
-from cilissa.utils import get_operation_subclasses
 
 
 class Blur(Transformation):
@@ -28,16 +27,7 @@ class Blur(Transformation):
 
     """
 
-    name = "blur"
-
-    def __init__(
-        self,
-        gaussian: bool = True,
-        kernel_size: Tuple[int, int] = (5, 5),
-        sigma: float = 1.0,
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, gaussian: bool = True, kernel_size: Tuple[int, int] = (5, 5), sigma: float = 1.0) -> None:
 
         self.gaussian = gaussian
 
@@ -73,16 +63,7 @@ class Sharpen(Transformation):
         - https://en.wikipedia.org/wiki/Unsharp_masking
     """
 
-    name = "sharpen"
-
-    def __init__(
-        self,
-        amount: float = 1.5,
-        threshold: int = 10,
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(**kwargs)
-
+    def __init__(self, amount: float = 1.5, threshold: int = 10, **kwargs: Any) -> None:
         # Parameters for blur
         self.blur_params = {}
 
@@ -107,7 +88,9 @@ class Sharpen(Transformation):
         new_im = im * (1 + self.amount) + blurred * (-self.amount)
         new_im = np.maximum(new_im, np.zeros(new_im.shape))
         new_im = np.minimum(new_im, 255 * np.ones(new_im.shape))
-        new_im = new_im.round().astype(np.uint8)
+        new_im = new_im.round()
+        np_type = np.result_type(new_im, np.uint8)
+        new_im = new_im.round().astype(np_type)
         if self.threshold > 0:
             low_contrast_mask = np.absolute(im - blurred) < self.threshold
             np.copyto(new_im, im, where=low_contrast_mask)
@@ -139,16 +122,9 @@ class Linear(Transformation):
         - https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
     """
 
-    name = "linear"
-
     def __init__(
-        self,
-        contrast: Optional[Union[int, float]] = None,
-        brightness: Optional[Union[int, float]] = None,
-        **kwargs: Any,
+        self, contrast: Optional[Union[int, float]] = None, brightness: Optional[Union[int, float]] = None
     ) -> None:
-        super().__init__(**kwargs)
-
         self.contrast = contrast
         self.brightness = brightness
 
@@ -177,11 +153,7 @@ class Translation(Transformation):
         - https://en.wikipedia.org/wiki/Affine_transformation
     """
 
-    name = "translation"
-
-    def __init__(self, x: int = 0, y: int = 0, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-
+    def __init__(self, x: int = 0, y: int = 0) -> None:
         self.x = x
         self.y = y
 
@@ -199,29 +171,30 @@ class Equalization(Transformation):
     """
     Constrast adjustment using histogram equalization.
 
-    Transforms the image into YCbCr color space and then performs equalization.
+    CV2 equalization is limited to 8-bit images so we use the NumPy CDF function.
 
     References:
         - https://en.wikipedia.org/wiki/Histogram_equalization
-        - https://en.wikipedia.org/wiki/YCbCr
-        - https://www.programmersought.com/article/55274250088/
+        - https://web.archive.org/web/20151219221513/http://www.janeriksolem.net/2009/06/histogram-equalization-with-python-and.html # noqa
     """
 
-    name = "equalization"
+    def __init__(self, nbins: int = 256) -> None:
+        # Number of bins for image histogram
+        self.number_of_bins = nbins
 
     def transform(self, image: Image) -> Image:
         im = image.as_int()
 
-        # Transform to YCbCr color space
-        new_im = cv2.cvtColor(im, cv2.COLOR_RGB2YCrCb)
+        # Get normalized histogram - probability density function of each gray level
+        image_histogram, bins = np.histogram(im.flatten(), self.number_of_bins, density=True)
+        cdf = image_histogram.cumsum()
+        cdf = 255 * cdf / cdf[-1]
 
-        # Equalize histogram
-        new_im[:, :, 0] = cv2.equalizeHist(new_im[:, :, 0])
-
-        # Transform back to RGB color space
-        new_im = cv2.cvtColor(new_im, cv2.COLOR_YCrCb2RGB)
+        # Use linear interpolation of cdf to find new pixel values
+        image_equalized = np.interp(im.flatten(), bins[:-1], cdf)
+        new_im = image_equalized.reshape(im.shape).astype(np.uint8, casting="unsafe")
 
         return Image(new_im)
 
 
-all_transformations = get_operation_subclasses(Transformation)  # type: ignore
+all_transformations = Transformation.get_operation_subclasses()

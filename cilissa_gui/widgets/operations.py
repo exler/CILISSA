@@ -26,7 +26,7 @@ class CQOperation(QWidget):
         self.image_label.setPixmap(pixmap)
         self.image_label.setAlignment(Qt.AlignCenter)
 
-        self.text_label = QLabel(operation.get_class_name())
+        self.text_label = QLabel(operation.get_display_name())
         self.text_label.setAlignment(Qt.AlignCenter)
 
         self.main_layout.addWidget(self.image_label)

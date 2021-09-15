@@ -106,5 +106,5 @@ class Operations(QListWidget):
     def create_item_from_operation(self, operation: ImageOperation) -> QListWidgetItem:
         icon_name = get_operation_icon_name(operation)
         icon = QIcon(icon_name)
-        item = QListWidgetItem(icon, operation.get_class_name(), self)
+        item = QListWidgetItem(icon, operation.get_display_name(), self)
         return item

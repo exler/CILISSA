@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Optional, Union
 
+import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QContextMenuEvent, QPainter, QPen
 from PySide6.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget
@@ -40,10 +41,10 @@ class CQImage(QWidget):
             painter = QPainter(pixmap)
             painter.setPen(QPen(Qt.red, 2, Qt.DashDotDotLine))
             painter.drawRect(
-                roi.x0 * scale_factor,
-                roi.y0 * scale_factor,
-                (roi.x1 - roi.x0) * scale_factor,
-                (roi.y1 - roi.y0) * scale_factor,
+                int(roi.x0 * scale_factor),
+                int(roi.y0 * scale_factor),
+                int((roi.x1 - roi.x0) * scale_factor),
+                int((roi.y1 - roi.y0) * scale_factor),
             )
             painter.end()
 
@@ -54,6 +55,12 @@ class CQImage(QWidget):
     @staticmethod
     def load(image_path: Union[Path, str], **kwargs: Any) -> CQImage:
         im = Image(image_path)
+        cqimage = CQImage(im, **kwargs)
+        return cqimage
+
+    @staticmethod
+    def placeholder(placeholder_size: int = 512, **kwargs: Any) -> CQImage:
+        im = Image(np.zeros((placeholder_size, placeholder_size)))
         cqimage = CQImage(im, **kwargs)
         return cqimage
 

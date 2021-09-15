@@ -51,15 +51,11 @@ class OrderedList:
     Implements `get_order` and `change_order` methods to manage the list's order.
     """
 
-    items: List[Any] = []
-
     def __init__(self, items: List[Any] = []) -> None:
-        self.clear()
-        for item in items:
-            self.push(item)
+        self.items = list(items)
 
     def __str__(self) -> str:
-        return f"OrderedList(items=[{', '.join([str(item) for item in self.items])}])"
+        return f"OrderedList(items=[{', '.join([item.get_display_name() for item in self.items])}])"
 
     def __len__(self) -> int:
         return len(self.items)
@@ -80,11 +76,8 @@ class OrderedList:
     def push(self, item: Any) -> None:
         self.items.append(item)
 
-    def pop(self, index: Optional[int] = None) -> Any:
-        if index:
-            return self.items.pop(index)
-
-        return self.items.pop(0)
+    def pop(self, index: int = -1) -> Any:
+        return self.items.pop(index)
 
     def get_order(self) -> List[Tuple[int, Any]]:
         return [(index, element) for index, element in enumerate(self.items)]

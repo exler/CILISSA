@@ -2,6 +2,8 @@ function [map] = compare(ref_path, meas_path)
     ref_image = imread(ref_path);
     meas_image = imread(meas_path);
 
+    % [~, ~, color_channels] = size(ref_image);
+    
     err = immse(meas_image, ref_image);
     peaksnr = psnr(meas_image, ref_image);
     ssimval = ssim(meas_image, ref_image);

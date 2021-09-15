@@ -1,7 +1,9 @@
 from inspect import isclass
 from typing import Optional
 
+from PySide6.QtCore import QSize
 from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import QApplication
 
 from cilissa.images import Image
 from cilissa.operations import ImageOperation, Metric, Transformation
@@ -32,3 +34,8 @@ def get_pixmap_from_image(image: Image, width: Optional[int] = None, height: Opt
         QImage.Format_BGR888,
     )
     return QPixmap.fromImage(q_im)
+
+
+def get_screen_size() -> QSize:
+    screen = QApplication.primaryScreen()
+    return screen.size()
