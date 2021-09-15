@@ -190,9 +190,8 @@ class Interface(QWidget):
         else:
             self.statusbar.showMessage("CILISSA is running...")
             results = self.operations_manager.run_all(self.collection_manager)
-            for image_results in results:
-                for operation_result in image_results:
-                    self.console_box.console.add_item(operation_result)
+            for index, image_results in enumerate(results):
+                self.console_box.console.add_item(index, image_results)
 
     def add_selected_pair_to_collection(self) -> None:
         indexes = self.explorer.images_tab.selectedIndexes()

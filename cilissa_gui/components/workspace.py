@@ -60,9 +60,9 @@ class WorkspaceListTab(WorkspaceTabMixin, QTreeWidget):
 
         self.setFrameStyle(QFrame.NoFrame)
 
-        self.setColumnCount(2)
-        self.setColumnWidth(0, 168)
-        self.setHeaderLabels(["Reference image", "Input image"])
+        self.setColumnCount(3)
+        self.setColumnWidth(0, 16)
+        self.setHeaderLabels(["#", "Reference image", "Input image"])
 
         self.setMaximumHeight(168)
 
@@ -70,8 +70,9 @@ class WorkspaceListTab(WorkspaceTabMixin, QTreeWidget):
     def refresh(self) -> None:
         self.clear()
         for item in self.collection_manager.get_order():
+            index = item[0]
             item = item[1]
-            self.addTopLevelItem(QTreeWidgetItem([item[0].name, item[1].name]))
+            self.addTopLevelItem(QTreeWidgetItem([str(index), item[0].name, item[1].name]))
 
     def show_context_menu(self, pos: QPoint) -> None:
         menu = QMenu(self)

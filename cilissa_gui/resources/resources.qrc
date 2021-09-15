@@ -10,6 +10,7 @@
     <file alias="erase">icons/erase.svg</file>
     <file alias="double-down">icons/double-down.svg</file>
     <file alias="double-up">icons/double-up.svg</file>
+    <file alias="export">icons/export.svg</file>
 </qresource>
 <qresource>
     <file alias="placeholder-128">placeholder-128.png</file>

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Type, Union
+from typing import Any, List, Union
 
 from cilissa.classes import OrderedList, Parameterized
 from cilissa.images import Image, ImageCollection, ImagePair
-from cilissa.results import AnalysisResult, Result, TransformationResult
+from cilissa.results import Result
 
 
 class ImageOperation(Parameterized, ABC):
@@ -25,17 +25,8 @@ class ImageOperation(Parameterized, ABC):
     def run(self, image_pair: ImagePair) -> Result:
         raise NotImplementedError("All ImageOperation subclasses must implement the `run` method")
 
-    @abstractmethod
-    def get_result_type(self) -> Type[Result]:
-        raise NotImplementedError("All ImageOperation subclasses must implement the `get_result_type` method")
-
     def generate_result(self, **kwargs: Any) -> Result:
-        result_type = self.get_result_type()
-        return result_type(
-            name=self.get_display_name(),
-            parameters=self.get_parameters_dict(),
-            **kwargs,
-        )  # type: ignore
+        return Result(name=self.get_display_name(), parameters=self.get_parameters_dict(), **kwargs)  # type: ignore
 
 
 class OperationsList(OrderedList):
@@ -82,9 +73,6 @@ class Transformation(ImageOperation, ABC):
     def get_display_name(cls) -> str:
         return cls.get_class_name().capitalize()
 
-    def get_result_type(self) -> Type[Result]:
-        return TransformationResult
-
     @abstractmethod
     def transform(self, image: Image) -> Image:
         pass
@@ -93,7 +81,7 @@ class Transformation(ImageOperation, ABC):
         image = image_pair[1]
         transformed_image = self.transform(image)
         image_pair[1] = transformed_image
-        return self.generate_result(value=transformed_image)
+        return self.generate_result(type=Transformation, value=transformed_image)
 
 
 class Metric(ImageOperation, ABC):
@@ -101,13 +89,10 @@ class Metric(ImageOperation, ABC):
     Base class for creating new metrics to use in the program.
     """
 
-    def get_result_type(self) -> Type[Result]:
-        return AnalysisResult
-
     @abstractmethod
     def analyze(self, image_pair: ImagePair) -> float:
         pass
 
     def run(self, image_pair: ImagePair) -> Result:
         value = self.analyze(image_pair)
-        return self.generate_result(value=value)
+        return self.generate_result(type=Metric, value=value)
