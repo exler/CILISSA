@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from cilissa.images import ImagePair
 from cilissa.results import Result, ResultGenerator
 from cilissa_gui.widgets import CQResultsDialog, CQResultsItem
 
@@ -54,7 +55,7 @@ class ConsoleBox(QGroupBox):
 
         filename = QFileDialog.getSaveFileName(self, "Save CSV...", "", "CSV file (*.csv)")[0]
 
-        ResultGenerator.to_csv(results, filename)
+        ResultGenerator(results).to_csv(filename)
 
     def clear_console(self) -> None:
         self.console.clear()
@@ -71,9 +72,9 @@ class Console(QListWidget):
         self.itemDoubleClicked.connect(self.open_result_dialog)
 
     @Slot(QListWidgetItem)
-    def open_result_dialog(self, item: QListWidgetItem) -> None:
-        dialog = CQResultsDialog(item.results)
+    def open_result_dialog(self, item: CQResultsItem) -> None:
+        dialog = CQResultsDialog(item.image_pair, item.results)
         dialog.exec()
 
-    def add_item(self, index: int, item: str) -> None:
-        self.addItem(CQResultsItem(index, item))
+    def add_item(self, index: int, image_pair: ImagePair, image_results: List[Result]) -> None:
+        self.addItem(CQResultsItem(index, image_pair, image_results))

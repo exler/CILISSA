@@ -172,6 +172,7 @@ class Interface(QWidget):
         eq = Equalization()
         trans = Translation(x=64, y=16)
         self.operations_manager.push(mse)
+        self.operations_manager.push(psnr)
         self.operations_manager.push(eq)
         self.operations_manager.push(trans)
         self.operations_manager.push(mse)
@@ -199,7 +200,8 @@ class Interface(QWidget):
             self.statusbar.showMessage("CILISSA is running...")
             results = self.operations_manager.run_all(self.collection_manager)
             for index, image_results in enumerate(results):
-                self.console_box.console.add_item(index, image_results)
+                image_pair = self.collection_manager[index]
+                self.console_box.console.add_item(index, image_pair, image_results)
 
     def add_selected_pair_to_collection(self) -> None:
         indexes = self.explorer.images_tab.selectedIndexes()

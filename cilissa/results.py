@@ -4,7 +4,7 @@ import csv
 from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import numpy as np
 
@@ -33,8 +33,21 @@ class Result(Parameterized, ABC):
 
 
 class ResultGenerator:
-    @staticmethod
-    def to_html(results: List[Result]) -> str:
+    def __init__(self, results: List[Result]) -> None:
+        self.results = results
+        self.last_changes: Dict[str, float] = {}
+
+    def get_change_in_metric(self, name: str, value: Union[float, np.floating]) -> float:
+        if name in self.last_changes:
+            change = value - self.last_changes[name]
+            self.last_changes[name] = change
+        else:
+            self.last_changes[name] = value
+            return 0
+
+        return change
+
+    def to_html(self) -> str:
         def get_table_head() -> str:
             return """
             <thead>
@@ -42,7 +55,8 @@ class ResultGenerator:
                     <th>type</th>
                     <th>name</th>
                     <th>parameters</th>
-                    <th>value</th>
+                    <th width="128">value</th>
+                    <th>change</th>
                 </tr>
             </thead>
             """
@@ -54,30 +68,44 @@ class ResultGenerator:
             return html
 
         def get_table_row(result: Result) -> str:
+            from cilissa.operations import Metric
+
+            def get_prefix_for_change(change: Union[float, np.floating]) -> str:
+                if change > 0:
+                    return "+"
+                else:
+                    return ""
+
             html = "<tr>"
             html += get_table_cell(result.type.get_class_name())
             html += get_table_cell(result.name)
             html += get_table_cell(result.parameters)
             html += get_table_cell(result.value)
+            if result.type == Metric:
+                change = self.get_change_in_metric(result.name, result.value)
+                html += get_table_cell(change if change != 0 else "", prefix=get_prefix_for_change(change))
             html += "</tr>"
             return html
 
-        def get_table_cell(value: Any) -> str:
+        def get_table_cell(value: Any = None, prefix: Optional[str] = None) -> str:
             def format_parameters(parameters: Dict[str, Any]) -> str:
                 if parameters:
-                    html = "<ul>"
-                    html += "".join(
-                        ["<li>{}: {}</li>".format(get_parameter_display_name(k), v) for k, v in parameters.items()]
+                    html = "".join(
+                        [
+                            "• <strong>{}</strong>: {}<br>".format(get_parameter_display_name(k), v)
+                            for k, v in parameters.items()
+                        ]
                     )
-                    html += "</ul>"
                 else:
                     html = "No parameters"
                 return html
 
-            html = "<td>"
+            html = "<td align='center'>"
+            if prefix:
+                html += prefix
 
             if isinstance(value, Image):
-                data_uri = value.as_data_uri(height=64)
+                data_uri = value.get_resized(height=64).as_data_uri()
                 html += f"<img src='{data_uri}'>"
             elif isinstance(value, dict):
                 html += format_parameters(value)
@@ -89,19 +117,18 @@ class ResultGenerator:
             html += "</td>"
             return html
 
-        html = "<table border='1' cellpadding='8'>"
+        html = "<table border='1' cellpadding='8' width='728'>"
         html += get_table_head()
-        html += get_table_body(results)
+        html += get_table_body(self.results)
         html += "</table>"
         return html
 
-    @staticmethod
-    def to_csv(results: List[Result], output_path: Union[Path, str]) -> None:
+    def to_csv(self, output_path: Union[Path, str]) -> None:
         with open(output_path, "w", newline="") as csvfile:
             writer = csv.writer(csvfile, delimiter=";", quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
             writer.writerow(["type", "name", "parameters", "value"])
 
-            for result in results:
+            for result in self.results:
                 writer.writerow(
                     [
                         result.type.get_class_name(),

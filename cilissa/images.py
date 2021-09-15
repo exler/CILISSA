@@ -201,9 +201,8 @@ class Image:
         """Converts the image to :data:`np.ndarray` of floats"""
         return self._as(np.float32)
 
-    def as_data_uri(self, width: Optional[int] = None, height: Optional[int] = None) -> str:
-        resized = self.get_resized(width=width, height=height)
-        encoded = cv2.imencode(".png", resized.im)[1]
+    def as_data_uri(self) -> str:
+        encoded = cv2.imencode(".png", self.im)[1]
         b64 = base64.b64encode(encoded)
         return f"data:image/png;base64,{b64.decode('ascii')}"
 
