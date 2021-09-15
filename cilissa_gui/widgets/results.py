@@ -9,7 +9,7 @@ from cilissa.results import Result, ResultGenerator
 
 class CQResultsItem(QListWidgetItem):
     def __init__(self, index: int, image_pair: ImagePair, image_results: List[Result]) -> None:
-        super().__init__(f"Run #{index} completed. Double-click here for details.")
+        super().__init__(f"Operations ran for image pair #{index + 1}. Double-click here for details.")
 
         self.image_pair = image_pair.copy()
         self.results = image_results

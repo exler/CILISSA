@@ -72,7 +72,7 @@ class WorkspaceListTab(WorkspaceTabMixin, QTreeWidget):
         for item in self.collection_manager.get_order():
             index = item[0]
             item = item[1]
-            self.addTopLevelItem(QTreeWidgetItem([str(index), item[0].name, item[1].name]))
+            self.addTopLevelItem(QTreeWidgetItem([str(index + 1), item[0].name, item[1].name]))
 
     def show_context_menu(self, pos: QPoint) -> None:
         menu = QMenu(self)
