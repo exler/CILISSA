@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import Any, Dict, List, Type, Union
 
 from cilissa.classes import OrderedList, Parameterized
@@ -37,7 +38,7 @@ class ImageOperation(Parameterized, ABC):
         raise NotImplementedError("All ImageOperation subclasses must implement the `run` method")
 
     def generate_result(self, **kwargs: Any) -> Result:
-        return Result(name=self.get_display_name(), parameters=self.get_parameters_dict(), **kwargs)  # type: ignore
+        return Result(name=self.get_display_name(), parameters=deepcopy(self.get_parameters_dict()), **kwargs)
 
 
 class OperationsList(OrderedList):
