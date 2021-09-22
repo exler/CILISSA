@@ -97,7 +97,7 @@ class Interface(QWidget):
 
     def init_right_panel(self) -> QVBoxLayout:
         right_panel = QWidget()
-        right_panel.setFixedWidth(256)
+        right_panel.setFixedWidth(286)
 
         layout = QVBoxLayout()
         layout.addWidget(self.properties_box)
