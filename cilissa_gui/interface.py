@@ -165,7 +165,7 @@ class Interface(QWidget):
         im_pair = ImagePair(im1, im2)
         # im_pair.set_roi(ROI(0, 0, 384, 512))
         self.collection_manager.push(im_pair)
-        self.workspace.list_tab.refresh()
+        self.workspace.list_tab.list.refresh()
 
         mse = MSE()
         psnr = PSNR()

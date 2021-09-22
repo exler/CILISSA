@@ -11,9 +11,6 @@
     <file alias="double-down">icons/double-down.svg</file>
     <file alias="double-up">icons/double-up.svg</file>
     <file alias="export">icons/export.svg</file>
-</qresource>
-<qresource>
-    <file alias="placeholder-128">placeholder-128.png</file>
-    <file alias="placeholder-64">placeholder-64.png</file>
+    <file alias="add">icons/add.svg</file>
 </qresource>
 </RCC>
