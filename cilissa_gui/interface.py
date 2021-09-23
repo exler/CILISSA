@@ -122,6 +122,9 @@ class Interface(QWidget):
             statusTip="Open an image folder",
             triggered=self.explorer.open_image_folder_dialog,
         )
+        self.exit_application_action = QAction(
+            QIcon(":delete"), "Exit", self, statusTip="Exit the application", triggered=self.main_window.close
+        )
         self.skip_roi_action = QAction(
             "Skip ROI",
             self,
@@ -226,6 +229,8 @@ class Interface(QWidget):
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(self.open_images_action)
         file_menu.addAction(self.open_folder_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.exit_application_action)
 
         configuration_menu = menubar.addMenu("&Configuration")
         configuration_menu.addAction(self.skip_roi_action)
