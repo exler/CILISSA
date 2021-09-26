@@ -136,10 +136,10 @@ class Interface(QWidget):
             shortcut=QKeySequence(Qt.CTRL + Qt.Key_Q),
             triggered=self.main_window.close,
         )
-        self.skip_roi_action = QAction(
-            "Skip ROI",
+        self.ignore_roi_action = QAction(
+            "Ignore ROI",
             self,
-            statusTip="Skip region of interests in operations",
+            statusTip="Ignore region of interests in operations",
             triggered=self.set_use_roi_on_collection,
             checkable=True,
         )
@@ -205,7 +205,7 @@ class Interface(QWidget):
             err_dialog.exec()
 
     def set_use_roi_on_collection(self) -> None:
-        use_roi = not self.skip_roi_action.isChecked()
+        use_roi = not self.ignore_roi_action.isChecked()
         self.collection_manager.set_use_roi(use_roi)
 
     def create_menubar(self) -> None:
@@ -218,7 +218,7 @@ class Interface(QWidget):
         file_menu.addAction(self.exit_application_action)
 
         configuration_menu = menubar.addMenu("&Configuration")
-        configuration_menu.addAction(self.skip_roi_action)
+        configuration_menu.addAction(self.ignore_roi_action)
 
         help_menu = menubar.addMenu("&Help")
         help_menu.addAction(self.documentation_action)
