@@ -63,6 +63,8 @@ class ExplorerTab(QTableWidget):
 
         self.cellClicked.connect(self.get_selected_widget)
 
+        self.setStyleSheet("QTableView { selection-background-color: #CCE8FF; }")
+
     def add_item(self, item: Any) -> None:
         row = self.get_next_row()
         column = self.get_next_column()

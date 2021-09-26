@@ -1,6 +1,4 @@
-from pathlib import Path
-
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -11,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 
 from cilissa.exceptions import ShapesNotEqual
-from cilissa.images import Image, ImagePair
+from cilissa.images import ImagePair
 from cilissa_gui.components import (
     ConsoleBox,
     Explorer,
@@ -112,7 +110,7 @@ class Interface(QWidget):
             "Open Images...",
             self,
             statusTip="Open an image file",
-            shortcut=QKeySequence.Open,
+            shortcut=QKeySequence(Qt.CTRL + Qt.Key_O),
             triggered=self.explorer.open_image_dialog,
         )
         self.open_folder_action = QAction(
@@ -120,10 +118,16 @@ class Interface(QWidget):
             "Open Folder...",
             self,
             statusTip="Open an image folder",
+            shortcut=QKeySequence(Qt.CTRL + Qt.SHIFT + Qt.Key_O),
             triggered=self.explorer.open_image_folder_dialog,
         )
         self.exit_application_action = QAction(
-            QIcon(":delete"), "Exit", self, statusTip="Exit the application", triggered=self.main_window.close
+            QIcon(":delete"),
+            "Exit",
+            self,
+            statusTip="Exit the application",
+            shortcut=QKeySequence(Qt.CTRL + Qt.Key_Q),
+            triggered=self.main_window.close,
         )
         self.skip_roi_action = QAction(
             "Skip ROI",
@@ -148,39 +152,13 @@ class Interface(QWidget):
             triggered=self.run_operations,
         )
         self.documentation_action = QAction(
+            QIcon(":document"),
             "Documentation",
             self,
             statusTip="Open documentation website",
+            shortcut=QKeySequence(Qt.Key_F1),
             triggered=lambda: QDesktopServices.openUrl("https://github.com/exler/cilissa"),
         )
-        self.debug_action = QAction(
-            "Debug", self, statusTip="Debug only action for testing purposes", triggered=self.debug
-        )
-
-    def debug(self) -> None:
-        from cilissa.metrics import MSE, PSNR
-
-        # from cilissa.roi import ROI
-        from cilissa.transformations import Equalization, Translation
-
-        im1 = Image(Path("tests", "data", "ref_images", "monarch.bmp"))
-        im2 = Image(Path("tests", "data", "transformations", "monarch_linear.bmp"))
-        im_pair = ImagePair(im1, im2)
-        # im_pair.set_roi(ROI(0, 0, 384, 512))
-        self.collection_manager.push(im_pair)
-        self.workspace.list_tab.list.refresh()
-
-        mse = MSE()
-        psnr = PSNR()
-        eq = Equalization()
-        trans = Translation(x=64, y=16)
-        self.operations_manager.push(mse)
-        self.operations_manager.push(psnr)
-        self.operations_manager.push(eq)
-        self.operations_manager.push(trans)
-        self.operations_manager.push(mse)
-        self.operations_manager.push(psnr)
-        self.operations_box.operations.refresh()
 
     def create_connections(self) -> None:
         self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
@@ -237,7 +215,7 @@ class Interface(QWidget):
 
         help_menu = menubar.addMenu("&Help")
         help_menu.addAction(self.documentation_action)
-        help_menu.addAction(self.debug_action)
+        # help_menu.addSeparator()
 
     def create_toolbar(self) -> None:
         self.toolbar = self.main_window.addToolBar("Main toolbar")
