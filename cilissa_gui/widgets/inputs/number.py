@@ -19,6 +19,7 @@ class CQNumberInputWidget(CQInputWidget):
 
         layout = QHBoxLayout()
 
+        self.sb.setMinimumWidth(104)
         self.sb.setRange(MAX_NEG_INTEGER, MAX_POS_INTEGER)
         self.sb.setSingleStep(1)
         if default:

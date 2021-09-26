@@ -14,5 +14,6 @@
     <file alias="add">icons/add.svg</file>
     <file alias="document">icons/document.svg</file>
     <file alias="info">icons/info-squared.svg</file>
+    <file alias="trash">icons/trash.svg</file>
 </qresource>
 </RCC>

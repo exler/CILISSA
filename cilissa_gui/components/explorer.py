@@ -84,10 +84,10 @@ class ExplorerTab(QTableWidget):
     def get_next_column(self) -> int:
         return self.cell_counter % 3
 
-    @Slot()
     def get_selected_widget(self, row: int, column: int) -> None:
         widget = self.get_item(row, column)
-        self.parent().parent().explorerItemSelected.emit(widget)
+        if widget:
+            self.parent().parent().explorerItemSelected.emit(widget)
 
 
 class ImagesTab(ExplorerTab):

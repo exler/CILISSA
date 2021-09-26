@@ -72,7 +72,7 @@ class Interface(QWidget):
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QWidget()
-        left_panel.setFixedWidth(324)
+        left_panel.setFixedWidth(332)
 
         layout = QVBoxLayout()
         scroll_area = QScrollArea()
@@ -120,6 +120,13 @@ class Interface(QWidget):
             statusTip="Open an image folder",
             shortcut=QKeySequence(Qt.CTRL + Qt.SHIFT + Qt.Key_O),
             triggered=self.explorer.open_image_folder_dialog,
+        )
+        self.remove_images_action = QAction(
+            QIcon(":trash"),
+            "Remove images",
+            self,
+            statusTip="Remove selected images from explorer",
+            triggered=self.explorer.images_tab.remove_selected_images,
         )
         self.exit_application_action = QAction(
             QIcon(":delete"),
@@ -224,6 +231,7 @@ class Interface(QWidget):
 
         self.toolbar.addAction(self.open_images_action)
         self.toolbar.addAction(self.open_folder_action)
+        self.toolbar.addAction(self.remove_images_action)
 
         self.toolbar.addSeparator()
 
