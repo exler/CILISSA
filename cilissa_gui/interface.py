@@ -126,7 +126,7 @@ class Interface(QWidget):
             "Remove images",
             self,
             statusTip="Remove selected images from explorer",
-            triggered=self.explorer.images_tab.remove_selected_images,
+            # triggered=self.explorer.images_tab.remove_selected_widgets,
         )
         self.exit_application_action = QAction(
             QIcon(":delete"),
