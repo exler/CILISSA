@@ -28,7 +28,8 @@ $ poetry install -E gui
 ### GUI
 
 <p align="center">
-    <img src="docs/gui_window.png">
+    <img src="docs/screenshots/window.png">
+    <img src="docs/screenshots/results.png">
 </p>
 
 More information about the GUI can be found in the [cilissa_gui/README.md](cilissa_gui/README.md) file
