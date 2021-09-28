@@ -1,11 +1,13 @@
 from PySide6.QtCore import QPoint, Qt, Slot
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
+    QGraphicsOpacityEffect,
     QHBoxLayout,
     QLabel,
     QMenu,
     QPushButton,
+    QStackedWidget,
     QTabWidget,
     QTreeWidget,
     QTreeWidgetItem,
@@ -41,9 +43,44 @@ class WorkspaceTabMixin:
         self.tab_widget = parent
 
 
-class WorkspaceListTab(WorkspaceTabMixin, QTreeWidget):
+class WorkspaceListTab(WorkspaceTabMixin, QStackedWidget):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
+
+        self.help = WorkspaceHelp()
+        self.list = WorkspaceList()
+
+        self.addWidget(self.help)
+        self.addWidget(self.list)
+
+
+class WorkspaceHelp(QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.main_layout = QVBoxLayout()
+        self.main_layout.setAlignment(Qt.AlignCenter)
+
+        self.help_icon = QLabel()
+        self.help_icon.setPixmap(QPixmap(":add"))
+        self.help_icon.setAlignment(Qt.AlignCenter)
+        self.opacity_effect = QGraphicsOpacityEffect()
+        self.opacity_effect.setOpacity(0.3)
+        self.help_icon.setGraphicsEffect(self.opacity_effect)
+
+        self.help_text = QLabel("Select an image pair and press 'Add pair' in the toolbar to add it to the collection")
+        self.help_text.setStyleSheet("QLabel { color: darkgray; }")
+        self.help_text.setWordWrap(False)
+        self.help_text.setAlignment(Qt.AlignCenter)
+
+        self.main_layout.addWidget(self.help_icon)
+        self.main_layout.addWidget(self.help_text)
+        self.setLayout(self.main_layout)
+
+
+class WorkspaceList(QTreeWidget):
+    def __init__(self) -> None:
+        super().__init__()
 
         self.collection_manager = ImageCollectionManager()
         self.collection_manager.changed.connect(self.refresh)
@@ -69,6 +106,11 @@ class WorkspaceListTab(WorkspaceTabMixin, QTreeWidget):
     @Slot()
     def refresh(self) -> None:
         self.clear()
+        if self.collection_manager.is_empty:
+            self.parent().setCurrentWidget(self.parent().help)
+        else:
+            self.parent().setCurrentWidget(self)
+
         for item in self.collection_manager.get_order():
             index = item[0]
             item = item[1]
@@ -80,7 +122,7 @@ class WorkspaceListTab(WorkspaceTabMixin, QTreeWidget):
         menu.exec(self.mapToGlobal(pos))
 
     def delete_selected(self) -> None:
-        rows = [index.row() for index in self.selectedIndexes()][::2]
+        rows = [index.row() for index in self.selectedIndexes()][::3]
         for idx, row in enumerate(rows):
             decrement = sum([1 for d_row in rows[:idx] if d_row < row])
             self.collection_manager.pop(row - decrement)
@@ -90,8 +132,8 @@ class WorkspaceListTab(WorkspaceTabMixin, QTreeWidget):
     def open_selected(self) -> None:
         row = [index.row() for index in self.selectedIndexes()][-1]
         image_pair = self.collection_manager[row]
-        self.tab_widget.details_tab.change_images(image_pair)
-        self.tab_widget.setCurrentWidget(self.tab_widget.details_tab)
+        self.parent().tab_widget.details_tab.change_images(image_pair)
+        self.parent().tab_widget.setCurrentWidget(self.parent().tab_widget.details_tab)
 
 
 class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):

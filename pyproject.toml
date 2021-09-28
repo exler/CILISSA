@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "cilissa"
-version = "0.4.1"
+version = "0.5.1"
 description = "Interactive tool for assessing digital image similarity"
-authors = ["Kamil Marut <kamil.marut@pm.me>"]
+authors = ["Kamil Marut <kamil@kamilmarut.com>"]
 readme = "README.md"
 homepage = "https://github.com/exler/CILISSA"
 repository = "https://github.com/exler/CILISSA"

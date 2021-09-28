@@ -1,6 +1,4 @@
-from pathlib import Path
-
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QAction, QDesktopServices, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -11,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 
 from cilissa.exceptions import ShapesNotEqual
-from cilissa.images import Image, ImagePair
+from cilissa.images import ImagePair
 from cilissa_gui.components import (
     ConsoleBox,
     Explorer,
@@ -65,6 +63,10 @@ class Interface(QWidget):
         self.panels.addWidget(right_panel)
         self.setLayout(self.panels)
 
+        self.panels.setStretchFactor(left_panel, 1)
+        self.panels.setStretchFactor(middle_panel, 2)
+        self.panels.setStretchFactor(right_panel, 1)
+
     def init_components(self) -> None:
         self.explorer = Explorer()
         self.workspace = Workspace()
@@ -74,7 +76,7 @@ class Interface(QWidget):
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QWidget()
-        left_panel.setFixedWidth(324)
+        left_panel.setMinimumWidth(284)
 
         layout = QVBoxLayout()
         scroll_area = QScrollArea()
@@ -97,7 +99,7 @@ class Interface(QWidget):
 
     def init_right_panel(self) -> QVBoxLayout:
         right_panel = QWidget()
-        right_panel.setFixedWidth(256)
+        right_panel.setMinimumWidth(286)
 
         layout = QVBoxLayout()
         layout.addWidget(self.properties_box)
@@ -112,7 +114,7 @@ class Interface(QWidget):
             "Open Images...",
             self,
             statusTip="Open an image file",
-            shortcut=QKeySequence.Open,
+            shortcut=QKeySequence(Qt.CTRL + Qt.Key_O),
             triggered=self.explorer.open_image_dialog,
         )
         self.open_folder_action = QAction(
@@ -120,12 +122,29 @@ class Interface(QWidget):
             "Open Folder...",
             self,
             statusTip="Open an image folder",
+            shortcut=QKeySequence(Qt.CTRL + Qt.SHIFT + Qt.Key_O),
             triggered=self.explorer.open_image_folder_dialog,
         )
-        self.skip_roi_action = QAction(
-            "Skip ROI",
+        self.remove_images_action = QAction(
+            QIcon(":trash"),
+            "Remove images",
             self,
-            statusTip="Skip region of interests in operations",
+            statusTip="Remove selected images from explorer",
+            triggered=self.explorer.images_tab.remove_selected,
+            enabled=False,
+        )
+        self.exit_application_action = QAction(
+            QIcon(":delete"),
+            "Exit",
+            self,
+            statusTip="Exit the application",
+            shortcut=QKeySequence(Qt.CTRL + Qt.Key_Q),
+            triggered=self.main_window.close,
+        )
+        self.ignore_roi_action = QAction(
+            "Ignore ROI",
+            self,
+            statusTip="Ignore region of interests in operations",
             triggered=self.set_use_roi_on_collection,
             checkable=True,
         )
@@ -145,42 +164,16 @@ class Interface(QWidget):
             triggered=self.run_operations,
         )
         self.documentation_action = QAction(
+            QIcon(":document"),
             "Documentation",
             self,
             statusTip="Open documentation website",
+            shortcut=QKeySequence(Qt.Key_F1),
             triggered=lambda: QDesktopServices.openUrl("https://github.com/exler/cilissa"),
         )
-        self.debug_action = QAction(
-            "Debug", self, statusTip="Debug only action for testing purposes", triggered=self.debug
-        )
-
-    def debug(self) -> None:
-        from cilissa.metrics import MSE, PSNR
-
-        # from cilissa.roi import ROI
-        from cilissa.transformations import Equalization, Translation
-
-        im1 = Image(Path("tests", "data", "ref_images", "monarch.bmp"))
-        im2 = Image(Path("tests", "data", "transformations", "monarch_linear.bmp"))
-        im_pair = ImagePair(im1, im2)
-        # im_pair.set_roi(ROI(0, 0, 384, 512))
-        self.collection_manager.push(im_pair)
-        self.workspace.list_tab.refresh()
-
-        mse = MSE()
-        psnr = PSNR()
-        eq = Equalization()
-        trans = Translation(x=64, y=16)
-        self.operations_manager.push(mse)
-        self.operations_manager.push(psnr)
-        self.operations_manager.push(eq)
-        self.operations_manager.push(trans)
-        self.operations_manager.push(mse)
-        self.operations_manager.push(psnr)
-        self.operations_box.operations.refresh()
 
     def create_connections(self) -> None:
-        self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
+        self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_actions)
         self.explorer.explorerItemSelected.connect(self.properties_box.properties.open_selection)
         self.operations_box.operations.itemClicked.connect(self.properties_box.properties.open_selection)
         self.console_box.console.itemClicked.connect(
@@ -204,9 +197,8 @@ class Interface(QWidget):
                 self.console_box.console.add_item(index, image_pair, image_results)
 
     def add_selected_pair_to_collection(self) -> None:
-        indexes = self.explorer.images_tab.selectedIndexes()
-        ref = self.explorer.images_tab.get_item(indexes[0].row(), indexes[0].column()).image
-        A = self.explorer.images_tab.get_item(indexes[1].row(), indexes[1].column()).image
+        items = self.explorer.images_tab.selectedItems()
+        ref, A = items[0].image, items[1].image
 
         try:
             image_pair = ImagePair(ref, A)
@@ -217,7 +209,7 @@ class Interface(QWidget):
             err_dialog.exec()
 
     def set_use_roi_on_collection(self) -> None:
-        use_roi = not self.skip_roi_action.isChecked()
+        use_roi = not self.ignore_roi_action.isChecked()
         self.collection_manager.set_use_roi(use_roi)
 
     def create_menubar(self) -> None:
@@ -226,13 +218,15 @@ class Interface(QWidget):
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(self.open_images_action)
         file_menu.addAction(self.open_folder_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.exit_application_action)
 
         configuration_menu = menubar.addMenu("&Configuration")
-        configuration_menu.addAction(self.skip_roi_action)
+        configuration_menu.addAction(self.ignore_roi_action)
 
         help_menu = menubar.addMenu("&Help")
         help_menu.addAction(self.documentation_action)
-        help_menu.addAction(self.debug_action)
+        # help_menu.addSeparator()
 
     def create_toolbar(self) -> None:
         self.toolbar = self.main_window.addToolBar("Main toolbar")
@@ -241,6 +235,7 @@ class Interface(QWidget):
 
         self.toolbar.addAction(self.open_images_action)
         self.toolbar.addAction(self.open_folder_action)
+        self.toolbar.addAction(self.remove_images_action)
 
         self.toolbar.addSeparator()
 

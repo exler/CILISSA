@@ -1,6 +1,7 @@
+from abc import abstractmethod
 from typing import Any, Optional, Union
 
-from PySide6.QtWidgets import QDoubleSpinBox, QHBoxLayout, QLabel, QSpinBox
+from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox, QHBoxLayout, QLabel, QSpinBox
 
 from cilissa_gui.widgets.inputs.base import (
     MAX_NEG_INTEGER,
@@ -9,41 +10,50 @@ from cilissa_gui.widgets.inputs.base import (
 )
 
 
-class CQIntInputWidget(CQInputWidget):
+class CQNumberInputWidget(CQInputWidget):
+    sb: Union[QSpinBox, QDoubleSpinBox]
+
+    @abstractmethod
     def __init__(self, parameter: str, default: Optional[Union[int, float]], label: Optional[str] = None) -> None:
         super().__init__(parameter)
 
         layout = QHBoxLayout()
-        layout.addWidget(QLabel(label or parameter))
 
+        self.sb.setMinimumWidth(104)
+        self.sb.setRange(MAX_NEG_INTEGER, MAX_POS_INTEGER)
+        self.sb.setSingleStep(1)
+        if default:
+            self.sb.setValue(default)
+
+        self.none_checkbox = None
+        if default is None:
+            self.none_checkbox = QCheckBox(checked=True)
+            self.none_checkbox.clicked.connect(self.change_spinbox_state)
+            self.change_spinbox_state()
+            layout.addWidget(self.none_checkbox)
+
+        layout.addWidget(QLabel(label or parameter))
+        layout.addWidget(self.sb)
+        self.setLayout(layout)
+
+    def change_spinbox_state(self) -> None:
+        self.sb.setDisabled(self.sb.isEnabled())
+
+    def get_value(self) -> Any:
+        if self.none_checkbox and self.none_checkbox.isChecked():
+            return None
+        return self.sb.value()
+
+
+class CQIntInputWidget(CQNumberInputWidget):
+    def __init__(self, parameter: str, default: Optional[Union[int, float]], label: Optional[str] = None) -> None:
         self.sb = QSpinBox()
-        self.sb.setRange(MAX_NEG_INTEGER, MAX_POS_INTEGER)
-        self.sb.setSingleStep(1)
-        if default:
-            self.sb.setValue(default)
-        layout.addWidget(self.sb)
 
-        self.setLayout(layout)
-
-    def get_value(self) -> Any:
-        return self.sb.value()
+        super().__init__(parameter, default, label)
 
 
-class CQFloatInputWidget(CQInputWidget):
+class CQFloatInputWidget(CQNumberInputWidget):
     def __init__(self, parameter: str, default: Optional[Union[int, float]], label: Optional[str] = None) -> None:
-        super().__init__(parameter)
-
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel(label or parameter))
-
         self.sb = QDoubleSpinBox()
-        self.sb.setRange(MAX_NEG_INTEGER, MAX_POS_INTEGER)
-        self.sb.setSingleStep(1)
-        if default:
-            self.sb.setValue(default)
-        layout.addWidget(self.sb)
 
-        self.setLayout(layout)
-
-    def get_value(self) -> Any:
-        return self.sb.value()
+        super().__init__(parameter, default, label)

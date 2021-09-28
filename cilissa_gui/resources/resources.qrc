@@ -1,5 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file alias="cilissa-icon">../../docs/icon.png</file>
+</qresource>
+<qresource>
     <file alias="add-file">icons/add-file.svg</file>
     <file alias="add-folder">icons/add-folder.svg</file>
     <file alias="letter-t">icons/letter-t.svg</file>
@@ -11,9 +14,9 @@
     <file alias="double-down">icons/double-down.svg</file>
     <file alias="double-up">icons/double-up.svg</file>
     <file alias="export">icons/export.svg</file>
-</qresource>
-<qresource>
-    <file alias="placeholder-128">placeholder-128.png</file>
-    <file alias="placeholder-64">placeholder-64.png</file>
+    <file alias="add">icons/add.svg</file>
+    <file alias="document">icons/document.svg</file>
+    <file alias="info">icons/info-squared.svg</file>
+    <file alias="trash">icons/trash.svg</file>
 </qresource>
 </RCC>
