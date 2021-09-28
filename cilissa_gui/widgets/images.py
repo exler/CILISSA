@@ -1,16 +1,26 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QContextMenuEvent, QPainter, QPen
-from PySide6.QtWidgets import QLabel, QMenu, QVBoxLayout, QWidget
+from PySide6.QtGui import QIcon, QPainter, QPen
+from PySide6.QtWidgets import QLabel, QListWidgetItem, QVBoxLayout, QWidget
 
 from cilissa.images import Image
 from cilissa.roi import ROI
 from cilissa_gui.helpers import get_pixmap_from_image
+
+
+class CQImageItem(QListWidgetItem):
+    def __init__(self, image: Image, width: Optional[int] = None, height: Optional[int] = None) -> None:
+        super().__init__()
+
+        self.image = image
+
+        pixmap = get_pixmap_from_image(self.image, width=width, height=height)
+        self.setIcon(QIcon(pixmap))
+        self.setToolTip(self.image.name)
 
 
 class CQImage(QWidget):
@@ -26,6 +36,7 @@ class CQImage(QWidget):
 
         self.width = width
         self.height = height
+
         self.set_image(image, roi=roi)
 
         self.main_layout.addWidget(self.image_label)
@@ -50,20 +61,9 @@ class CQImage(QWidget):
 
         self.setToolTip(self.image.name)
         self.image_label.setPixmap(pixmap)
-        self.setMaximumHeight(pixmap.height() + 32)
-
-    @staticmethod
-    def load(image_path: Union[Path, str], **kwargs: Any) -> CQImage:
-        im = Image(image_path)
-        cqimage = CQImage(im, **kwargs)
-        return cqimage
 
     @staticmethod
     def placeholder(placeholder_size: int = 512, **kwargs: Any) -> CQImage:
         im = Image(np.zeros((placeholder_size, placeholder_size)))
         cqimage = CQImage(im, **kwargs)
         return cqimage
-
-    def contextMenuEvent(self, event: QContextMenuEvent) -> None:
-        menu = QMenu(self)
-        menu.exec(event.globalPos())

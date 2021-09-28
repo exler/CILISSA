@@ -63,6 +63,10 @@ class Interface(QWidget):
         self.panels.addWidget(right_panel)
         self.setLayout(self.panels)
 
+        self.panels.setStretchFactor(left_panel, 1)
+        self.panels.setStretchFactor(middle_panel, 2)
+        self.panels.setStretchFactor(right_panel, 1)
+
     def init_components(self) -> None:
         self.explorer = Explorer()
         self.workspace = Workspace()
@@ -72,7 +76,7 @@ class Interface(QWidget):
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QWidget()
-        left_panel.setFixedWidth(332)
+        left_panel.setMinimumWidth(284)
 
         layout = QVBoxLayout()
         scroll_area = QScrollArea()
@@ -95,7 +99,7 @@ class Interface(QWidget):
 
     def init_right_panel(self) -> QVBoxLayout:
         right_panel = QWidget()
-        right_panel.setFixedWidth(286)
+        right_panel.setMinimumWidth(286)
 
         layout = QVBoxLayout()
         layout.addWidget(self.properties_box)
@@ -126,7 +130,8 @@ class Interface(QWidget):
             "Remove images",
             self,
             statusTip="Remove selected images from explorer",
-            # triggered=self.explorer.images_tab.remove_selected_widgets,
+            triggered=self.explorer.images_tab.remove_selected,
+            enabled=False,
         )
         self.exit_application_action = QAction(
             QIcon(":delete"),
@@ -168,7 +173,7 @@ class Interface(QWidget):
         )
 
     def create_connections(self) -> None:
-        self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_add_pair)
+        self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_actions)
         self.explorer.explorerItemSelected.connect(self.properties_box.properties.open_selection)
         self.operations_box.operations.itemClicked.connect(self.properties_box.properties.open_selection)
         self.console_box.console.itemClicked.connect(
@@ -192,9 +197,8 @@ class Interface(QWidget):
                 self.console_box.console.add_item(index, image_pair, image_results)
 
     def add_selected_pair_to_collection(self) -> None:
-        indexes = self.explorer.images_tab.selectedIndexes()
-        ref = self.explorer.images_tab.get_item(indexes[0].row(), indexes[0].column()).image
-        A = self.explorer.images_tab.get_item(indexes[1].row(), indexes[1].column()).image
+        items = self.explorer.images_tab.selectedItems()
+        ref, A = items[0].image, items[1].image
 
         try:
             image_pair = ImagePair(ref, A)

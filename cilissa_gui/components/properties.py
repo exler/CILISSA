@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 
 from cilissa.utils import get_parameter_display_name
 from cilissa_gui.managers import OperationsManager
-from cilissa_gui.widgets import CQImage, CQOperation
+from cilissa_gui.widgets import CQImageItem, CQOperationItem
 from cilissa_gui.widgets.inputs import get_input_widget_for_type
 
 
@@ -74,10 +74,10 @@ class PropertiesSelected(QWidget):
 
     def create_instance_widgets(self, item: QWidget) -> None:
         add = False
-        if isinstance(item, CQImage):
+        if isinstance(item, CQImageItem):
             # There is no functionality planned for image properties right now
             return
-        elif isinstance(item, CQOperation):
+        elif isinstance(item, CQOperationItem):
             # Item from Explorer
             add = True
             self.instance = item.operation()
