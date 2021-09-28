@@ -1,5 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file alias="cilissa-icon">../../docs/icon.png</file>
+</qresource>
+<qresource>
     <file alias="add-file">icons/add-file.svg</file>
     <file alias="add-folder">icons/add-folder.svg</file>
     <file alias="letter-t">icons/letter-t.svg</file>
