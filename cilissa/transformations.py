@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -27,8 +27,7 @@ class Blur(Transformation):
 
     """
 
-    def __init__(self, gaussian: bool = True, kernel_size: Tuple[int, int] = (5, 5), sigma: float = 1.0) -> None:
-
+    def __init__(self, gaussian: bool = True, kernel_size: Tuple[int, int] = (0, 0), sigma: float = 1.0) -> None:
         self.gaussian = gaussian
 
         self.kernel_size = kernel_size
@@ -63,37 +62,19 @@ class Sharpen(Transformation):
         - https://en.wikipedia.org/wiki/Unsharp_masking
     """
 
-    def __init__(self, amount: float = 1.5, threshold: int = 10, **kwargs: Any) -> None:
+    def __init__(self, amount: float = 1.5, kernel_size: Tuple[int, int] = (0, 0), sigma: float = 1.0) -> None:
         # Parameters for blur
-        self.blur_params = {}
-
-        kernel_size = kwargs.pop("kernel_size", None)
-        if kernel_size:
-            self.blur_params["kernel_size"] = kernel_size
-
-        sigma = kwargs.pop("sigma", None)
-        if sigma:
-            self.blur_params["sigma"] = sigma
+        self.kernel_size = kernel_size
+        self.sigma = sigma
 
         # Parameters for unsharp mask
         self.amount = amount
-        self.threshold = threshold
 
     def transform(self, image: Image) -> Image:
         im = image.as_int()
-        im_copy = image.copy()
 
-        blurred = Blur(gaussian=True, **self.blur_params).transform(im_copy).as_int()
-
-        new_im = im * (1 + self.amount) + blurred * (-self.amount)
-        new_im = np.maximum(new_im, np.zeros(new_im.shape))
-        new_im = np.minimum(new_im, 255 * np.ones(new_im.shape))
-        new_im = new_im.round()
-        np_type = np.result_type(new_im, np.uint8)
-        new_im = new_im.round().astype(np_type)
-        if self.threshold > 0:
-            low_contrast_mask = np.absolute(im - blurred) < self.threshold
-            np.copyto(new_im, im, where=low_contrast_mask)
+        new_im = cv2.GaussianBlur(im, self.kernel_size, self.sigma)
+        new_im = cv2.addWeighted(im, self.amount, new_im, -self.amount + 1, 0)
 
         return Image(new_im)
 

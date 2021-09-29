@@ -199,7 +199,7 @@ class Image:
 
     def as_float(self) -> np.ndarray:
         """Converts the image to :data:`np.ndarray` of floats"""
-        return self._as(np.float32)
+        return self._as(np.float64)
 
     def as_data_uri(self) -> str:
         encoded = cv2.imencode(".png", self.im)[1]
