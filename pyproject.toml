@@ -22,8 +22,10 @@ flake8 = "^3.9.2"
 flake8-annotations = "^2.6.2"
 bandit = "^1.7.0"
 mypy = "^0.902"
-pytest = "^6.2.4"
 isort = "^5.8.0"
+pytest = "^6.2.4"
+pytest-sugar = "^0.9.4"
+pytest-clarity = "^1.0.1"
 pyinstaller = "^4.5.1"
 
 [tool.poetry.extras]
