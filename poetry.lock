@@ -662,6 +662,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "verdandi"
+version = "0.1.3"
+description = "Benchmarking framework"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "zipp"
 version = "3.6.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -679,7 +687,7 @@ gui = ["PySide6"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"
-content-hash = "f473c989799ef208bdeb27ce39555591eab7cda0a75e1a40cc3a40e480051446"
+content-hash = "d2b3784deb151f92f78bd598574f4b527ccc181ac0c40298ca42a414bd26a2a0"
 
 [metadata.files]
 altgraph = [
@@ -1260,6 +1268,10 @@ typing-extensions = [
     {file = "typing_extensions-3.10.0.2-py2-none-any.whl", hash = "sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7"},
     {file = "typing_extensions-3.10.0.2-py3-none-any.whl", hash = "sha256:f1d25edafde516b146ecd0613dabcc61409817af4766fbbcfb8d1ad4ec441a34"},
     {file = "typing_extensions-3.10.0.2.tar.gz", hash = "sha256:49f75d16ff11f1cd258e1b988ccff82a3ca5570217d7ad8c5f48205dd99a677e"},
+]
+verdandi = [
+    {file = "verdandi-0.1.3-py3-none-any.whl", hash = "sha256:896e3b341a46acaab3271acb3fdab4f7fb4dbf55d16afc82daf2802aeca74db1"},
+    {file = "verdandi-0.1.3.tar.gz", hash = "sha256:97b0db7a6c3c3e3445604da6b5856ce646fdae8405da176ecef954cc2f1261e7"},
 ]
 zipp = [
     {file = "zipp-3.6.0-py3-none-any.whl", hash = "sha256:9fe5ea21568a0a70e50f273397638d39b03353731e6cbbb3fd8502a33fec40bc"},
