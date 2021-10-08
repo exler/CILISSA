@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from verdandi.benchmark import Benchmark
+from verdandi import Benchmark
 
 from cilissa.images import Image
 from cilissa.transformations import Blur, Equalization, Sharpen, Translation

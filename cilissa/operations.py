@@ -42,25 +42,18 @@ class ImageOperation(Parameterized, ABC):
 
 
 class OperationsList(OrderedList):
-    def run_all(self, images: Union[ImagePair, ImageCollection], keep_changes: bool = False) -> Any:
+    def run_all(self, images: Union[ImagePair, ImageCollection]) -> Any:
         if isinstance(images, ImagePair):
             pair_copy = images.copy()
             res = self._use_operations_on_pair(pair_copy)
-
-            if keep_changes:
-                images = pair_copy
-
             return res
 
         elif isinstance(images, ImageCollection):
             results = []
-            for index, pair in enumerate(images):
+            for pair in images:
                 pair_copy = pair.copy()
                 res = self._use_operations_on_pair(pair_copy)
                 results.append(res)
-
-                if keep_changes:
-                    images[index] = pair_copy
 
             return results
         else:

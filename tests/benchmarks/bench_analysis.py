@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from verdandi.benchmark import Benchmark
+from verdandi import Benchmark
 
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import MSE, PSNR, SSIM
