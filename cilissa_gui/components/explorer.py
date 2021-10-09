@@ -64,6 +64,7 @@ class ExplorerTab(QListWidget):
 
         self.setViewMode(QListWidget.IconMode)
         self.setIconSize(QSize(82, 82))
+        self.setUniformItemSizes(True)
         self.setMovement(QListWidget.Static)
         self.setResizeMode(QListWidget.Adjust)
         self.setFrameStyle(QListWidget.NoFrame)
