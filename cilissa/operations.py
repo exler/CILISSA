@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from copy import deepcopy
 from typing import Any, Dict, List, Type, Union
 
@@ -42,25 +43,18 @@ class ImageOperation(Parameterized, ABC):
 
 
 class OperationsList(OrderedList):
-    def run_all(self, images: Union[ImagePair, ImageCollection], keep_changes: bool = False) -> Any:
+    def run_all(self, images: Union[ImagePair, ImageCollection]) -> Any:
         if isinstance(images, ImagePair):
             pair_copy = images.copy()
             res = self._use_operations_on_pair(pair_copy)
-
-            if keep_changes:
-                images = pair_copy
-
             return res
 
         elif isinstance(images, ImageCollection):
             results = []
-            for index, pair in enumerate(images):
-                pair_copy = pair.copy()
-                res = self._use_operations_on_pair(pair_copy)
-                results.append(res)
-
-                if keep_changes:
-                    images[index] = pair_copy
+            with ThreadPoolExecutor(max_workers=None) as executor:
+                futures = [executor.submit(self._use_operations_on_pair, pair.copy()) for pair in images]
+                for future in as_completed(futures):
+                    results.append(future.result())
 
             return results
         else:
