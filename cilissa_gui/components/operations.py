@@ -24,16 +24,20 @@ class OperationsBox(QGroupBox):
 
         self.main_layout = QHBoxLayout()
 
-        self.clear_button = QPushButton(QIcon(":erase"), "")
+        self.clear_button = QPushButton(QIcon(":erase"), "", toolTip="Clear all operations")
         self.clear_button.clicked.connect(self.clear_operations)
 
-        self.delete_button = QPushButton(QIcon(":delete"), "", enabled=False)
+        self.delete_button = QPushButton(QIcon(":delete"), "", enabled=False, toolTip="Delete selected operations")
         self.delete_button.clicked.connect(self.delete_operations)
 
-        self.move_up_button = QPushButton(QIcon(":double-up"), "", enabled=False)
+        self.move_up_button = QPushButton(
+            QIcon(":double-up"), "", enabled=False, toolTip="Move selected operations up in queue"
+        )
         self.move_up_button.clicked.connect(self.move_operation_up)
 
-        self.move_down_button = QPushButton(QIcon(":double-down"), "", enabled=False)
+        self.move_down_button = QPushButton(
+            QIcon(":double-down"), "", enabled=False, toolTip="Move selected operations down in queue"
+        )
         self.move_down_button.clicked.connect(self.move_operation_down)
 
         self.buttons_panel = QVBoxLayout()

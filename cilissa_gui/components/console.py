@@ -27,10 +27,10 @@ class ConsoleBox(QGroupBox):
 
         self.main_layout = QHBoxLayout()
 
-        self.export_button = QPushButton(QIcon(":export"), "", enabled=False)
+        self.export_button = QPushButton(QIcon(":export"), "", enabled=False, toolTip="Export selected result to CSV")
         self.export_button.clicked.connect(self.export_results)
 
-        self.clear_button = QPushButton(QIcon(":erase"), "")
+        self.clear_button = QPushButton(QIcon(":erase"), "", toolTip="Clear all results")
         self.clear_button.clicked.connect(self.clear_console)
 
         self.buttons_panel = QVBoxLayout()
