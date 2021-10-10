@@ -18,7 +18,7 @@ from cilissa_gui.components import (
     Workspace,
 )
 from cilissa_gui.managers import ImageCollectionManager, OperationsManager
-from cilissa_gui.widgets.errors import CQErrorDialog
+from cilissa_gui.widgets import CQErrorDialog
 
 
 class Interface(QWidget):

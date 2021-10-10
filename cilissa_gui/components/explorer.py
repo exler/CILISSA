@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QFileDialog, QListWidget, QTabWidget
 from cilissa.images import Image
 from cilissa.metrics import all_metrics
 from cilissa.transformations import all_transformations
-from cilissa_gui.widgets import CQImageItem, CQOperationItem
+from cilissa_gui.widgets import CQImageItem, CQInfoDialog, CQOperationItem
 
 
 class Explorer(QTabWidget):
@@ -44,6 +44,11 @@ class Explorer(QTabWidget):
         dirname = QFileDialog.getExistingDirectory(self, "Open images folder...", "", QFileDialog.ShowDirsOnly)
         d = QDir(dirname)
 
+        if dirname and not d.entryList(self.IMAGE_EXTENSIONS):
+            dialog = CQInfoDialog("No images found in the selected folder", "No images found")
+            dialog.exec()
+            return
+
         for fn in d.entryList(self.IMAGE_EXTENSIONS):
             image = Image(Path(dirname, fn))
             cq_image = CQImageItem(image, width=128, height=128)
@@ -65,7 +70,7 @@ class ExplorerTab(QListWidget):
 
     def remove_selected(self) -> None:
         rows = [index.row() for index in self.selectedIndexes()]
-        for row in rows:
+        for row in reversed(rows):
             self.takeItem(row)
 
 
