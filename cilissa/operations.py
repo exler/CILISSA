@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from copy import deepcopy
 from typing import Any, Dict, List, Type, Union
 
@@ -50,10 +51,10 @@ class OperationsList(OrderedList):
 
         elif isinstance(images, ImageCollection):
             results = []
-            for pair in images:
-                pair_copy = pair.copy()
-                res = self._use_operations_on_pair(pair_copy)
-                results.append(res)
+            with ThreadPoolExecutor(max_workers=None) as executor:
+                futures = [executor.submit(self._use_operations_on_pair, pair.copy()) for pair in images]
+                for future in as_completed(futures):
+                    results.append(future.result())
 
             return results
         else:
