@@ -71,4 +71,4 @@ if __name__ == "__main__":
         print(result)
 
     if args.show_end_image:
-        image_pair.im2.display_image()
+        image_pair.im2.show()

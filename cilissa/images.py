@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Optional, Tuple, Type, Union
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 
 from cilissa.classes import OrderedList
@@ -136,9 +135,11 @@ class Image:
         """
         return Image(np.copy(self.im), name=self.name)
 
-    def display_image(self) -> None:
+    def show(self) -> None:
         """
-        Displays loaded image until user presses ESCAPE or closes window manually
+        Opens a CV2 window and displays the loaded image.
+
+        Exits when user presses ESCAPE or closes window manually.
         """
         if self.im is not None:
             cv2.imshow(self.name, self.im)
@@ -147,38 +148,6 @@ class Image:
                 if k == 27:  # ESCAPE key
                     cv2.destroyWindow(self.name)
                     break
-
-    def display_histogram(self) -> None:
-        """
-        Displays grayscale histogram of the loaded image
-        """
-        plt.figure()
-        title = self.name
-        xlim = 0
-
-        if self.channels_num == 1:
-            title += " - grayscale histogram"
-            xlim = 1
-
-            histogram, bin_edges = np.histogram(self.im, bins=256, range=(0, 1))
-            plt.plot(bin_edges[0:-1], histogram)
-        elif self.channels_num == 3:
-            title += " - RGB histogram"
-            xlim = 256
-
-            colors = ("red", "green", "blue")
-            for channel_id, color in enumerate(colors):
-                histogram, bin_edges = np.histogram(self.im[:, :, channel_id], bins=256, range=(0, 256))
-                plt.plot(bin_edges[0:-1], histogram, color=color)
-        else:
-            logging.warn(f"Cannot display histogram of image with {self.channels_num} channels!")
-            return
-
-        plt.title(title)
-        plt.xlim([0, xlim])
-        plt.xlabel("Color value")
-        plt.ylabel("Pixel count")
-        plt.show()
 
     def check_if_on_image(self, x: Optional[int] = None, y: Optional[int] = None) -> bool:
         if x and (x < 0 or x > self.width):
