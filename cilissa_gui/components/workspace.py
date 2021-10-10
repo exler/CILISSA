@@ -157,8 +157,9 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
         self.refresh()
 
     def clear_roi(self) -> None:
-        self.image_pair.clear_roi()
-        self.refresh()
+        if self.image_pair:
+            self.image_pair.clear_roi()
+            self.refresh()
 
     def init_images(self) -> None:
         self.images_panel = QHBoxLayout()
@@ -167,7 +168,7 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
         self.ref_image_layout = QVBoxLayout()
         self.ref_image_label = QLabel("Reference image")
         self.ref_image_label.setAlignment(Qt.AlignCenter)
-        self.ref_image = CQImage.placeholder(placeholder_size=164, height=164)
+        self.ref_image = CQImage.placeholder(height=164)
         self.ref_image_layout.addWidget(self.ref_image_label)
         self.ref_image_layout.addWidget(self.ref_image)
         self.images_panel.addLayout(self.ref_image_layout)
@@ -177,7 +178,7 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
         self.input_image_layout = QVBoxLayout()
         self.input_image_label = QLabel("Input image")
         self.input_image_label.setAlignment(Qt.AlignCenter)
-        self.input_image = CQImage.placeholder(placeholder_size=164, height=164)
+        self.input_image = CQImage.placeholder(height=164)
         self.input_image_layout.addWidget(self.input_image_label)
         self.input_image_layout.addWidget(self.input_image)
         self.images_panel.addLayout(self.input_image_layout)

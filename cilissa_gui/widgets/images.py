@@ -34,8 +34,8 @@ class CQImage(QWidget):
         self.image_label = QLabel()
         self.image_label.setAlignment(Qt.AlignCenter)
 
-        self.width = width
-        self.height = height
+        self.image_width = width
+        self.image_height = height
 
         self.set_image(image, roi=roi)
 
@@ -45,10 +45,10 @@ class CQImage(QWidget):
     def set_image(self, image: Image, roi: Optional[ROI] = None) -> None:
         self.image = image
 
-        pixmap = get_pixmap_from_image(self.image, width=self.width, height=self.height)
+        pixmap = get_pixmap_from_image(self.image, width=self.image_width, height=self.image_height)
 
         if roi:
-            scale_factor = self.image.get_scale_factor(width=self.width, height=self.height)
+            scale_factor = self.image.get_scale_factor(width=self.image_width, height=self.image_height)
             painter = QPainter(pixmap)
             painter.setPen(QPen(Qt.red, 2, Qt.DashDotDotLine))
             painter.drawRect(
@@ -63,7 +63,18 @@ class CQImage(QWidget):
         self.image_label.setPixmap(pixmap)
 
     @staticmethod
-    def placeholder(placeholder_size: int = 512, **kwargs: Any) -> CQImage:
-        im = Image(np.zeros((placeholder_size, placeholder_size)))
+    def placeholder(**kwargs: Any) -> CQImage:
+        width = kwargs.get("width")
+        height = kwargs.get("height")
+        if width and height:
+            placeholder_size = (width, height)
+        elif width:
+            placeholder_size = (width, width)
+        elif height:
+            placeholder_size = (height, height)
+        else:
+            placeholder_size = (128, 128)
+
+        im = Image(np.zeros(placeholder_size))
         cqimage = CQImage(im, **kwargs)
         return cqimage

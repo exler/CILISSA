@@ -17,7 +17,7 @@ class CQResultsItem(QListWidgetItem):
 
 
 class CQResultsDialog(QMessageBox):
-    def __init__(self, image_pair: ImagePair, results: Result) -> None:
+    def __init__(self, image_pair: ImagePair, results: List[Result]) -> None:
         super().__init__()
 
         self.setIcon(QMessageBox.NoIcon)

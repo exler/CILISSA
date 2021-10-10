@@ -13,7 +13,8 @@ All arguments passed after `--kwargs` flag and beginning with metric's name will
 Example: `cilissa -m ssim ssim-channels-num=3` will be created as `SSIM(channels_num=3)`
 """
 
-if __name__ == "__main__":
+
+def main() -> None:
     parser = argparse.ArgumentParser(
         description=help_message,
         formatter_class=argparse.RawTextHelpFormatter,
@@ -72,3 +73,7 @@ if __name__ == "__main__":
 
     if args.show_end_image:
         image_pair.im2.show()
+
+
+if __name__ == "__main__":
+    main()

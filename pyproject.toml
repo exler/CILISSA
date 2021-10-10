@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cilissa"
-version = "0.5.1"
+version = "0.5.2"
 description = "Interactive tool for assessing digital image similarity"
 authors = ["Kamil Marut <kamil@kamilmarut.com>"]
 readme = "README.md"
@@ -33,6 +33,10 @@ gui = ["PySide6"]
 testpaths = [
     "tests",
 ]
+
+[tool.poetry.scripts]
+cilissa = "cilissa.__main__:main"
+cilissa-gui = "cilissa_gui.application:main"
 
 [tool.mypy]
 ignore_missing_imports = true

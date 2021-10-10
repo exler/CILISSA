@@ -18,8 +18,12 @@ class Application(QMainWindow):
         self.setCentralWidget(self.interface)
 
 
-if __name__ == "__main__":
+def main() -> None:
     app = QApplication([])
     window = Application()
     window.show()
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

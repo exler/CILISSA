@@ -27,7 +27,7 @@ class CQNumberInputWidget(CQInputWidget):
 
         self.none_checkbox = None
         if default is None:
-            self.none_checkbox = QCheckBox(checked=True)
+            self.none_checkbox = QCheckBox(checked=False)
             self.none_checkbox.clicked.connect(self.change_spinbox_state)
             self.change_spinbox_state()
             layout.addWidget(self.none_checkbox)
@@ -40,7 +40,7 @@ class CQNumberInputWidget(CQInputWidget):
         self.sb.setDisabled(self.sb.isEnabled())
 
     def get_value(self) -> Any:
-        if self.none_checkbox and self.none_checkbox.isChecked():
+        if self.none_checkbox and not self.none_checkbox.isChecked():
             return None
         return self.sb.value()
 

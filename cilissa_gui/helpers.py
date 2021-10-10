@@ -1,5 +1,5 @@
 from inspect import isclass
-from typing import Optional
+from typing import Optional, Type
 
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QImage, QPixmap
@@ -9,7 +9,7 @@ from cilissa.images import Image
 from cilissa.operations import ImageOperation, Metric, Transformation
 
 
-def get_operation_icon_name(operation: ImageOperation) -> str:
+def get_operation_icon_name(operation: Type[ImageOperation]) -> str:
     if isclass(operation):
         if issubclass(operation, Transformation):
             return ":letter-t"

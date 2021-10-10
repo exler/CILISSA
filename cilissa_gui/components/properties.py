@@ -1,3 +1,5 @@
+from typing import List
+
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
     QGroupBox,
@@ -131,7 +133,7 @@ class PropertiesSelected(QWidget):
         self.buttons_layout.addWidget(cancel_button)
 
     def clear_instance(self) -> None:
-        self.widgets = []
+        self.widgets: List[QWidget] = []
         self.instance = None
 
     def set_instance_values(self, add: bool) -> None:
