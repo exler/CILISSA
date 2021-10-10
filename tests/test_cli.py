@@ -1,9 +1,9 @@
-from cilissa.cli import parse_operation_instances, parse_roi
+from cilissa.parsers import parse_operation_instances, parse_roi
 from cilissa.roi import ROI
 from tests.base import BaseTest
 
 
-class TestCLI(BaseTest):
+class TestParsers(BaseTest):
     def test_parse_operation_instances(self) -> None:
         operations_str_list = ["ssim", "linear"]
         kwargs_str_list = ["ssim-channels-num=3", "linear-contrast=2", "linear-brightness=10"]

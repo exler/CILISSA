@@ -1,8 +1,7 @@
 from typing import Optional
 
+import cv2
 import numpy as np
-from scipy.ndimage import gaussian_filter
-from scipy.ndimage.filters import uniform_filter
 
 from cilissa.helpers import apply_to_channels, crop_array, get_max_pixel_value
 from cilissa.images import ImagePair
@@ -106,16 +105,14 @@ class SSIM(Metric):
         dmin = im1.min()
         drange = dmax - dmin
 
-        filter_args = {"truncate": self.truncate, "sigma": self.sigma}
-
         # Compute weighted means using Gaussian weighting function
-        ux = gaussian_filter(im1, **filter_args)
-        uy = gaussian_filter(im2, **filter_args)
+        ux = cv2.GaussianBlur(im1, (0, 0), self.sigma)
+        uy = cv2.GaussianBlur(im2, (0, 0), self.sigma)
 
         # Compute weighted variances and covariances
-        uxx = gaussian_filter(im1 ** 2, **filter_args)
-        uyy = gaussian_filter(im2 ** 2, **filter_args)
-        uxy = gaussian_filter(im1 * im2, **filter_args)
+        uxx = cv2.GaussianBlur(im1 ** 2, (0, 0), self.sigma)
+        uyy = cv2.GaussianBlur(im2 ** 2, (0, 0), self.sigma)
+        uxy = cv2.GaussianBlur(im1 * im2, (0, 0), self.sigma)
         vx = uxx - ux * ux
         vy = uyy - uy * uy
         vxy = uxy - ux * uy
@@ -170,11 +167,13 @@ class UIQI(Metric):
         im2_sq = im2 ** 2
         im12 = im1 * im2
 
-        im1_sum = uniform_filter(im1, self.block_size)
-        im2_sum = uniform_filter(im2, self.block_size)
-        im1_sq_sum = uniform_filter(im1_sq, self.block_size)
-        im2_sq_sum = uniform_filter(im2_sq, self.block_size)
-        im12_sum = uniform_filter(im12, self.block_size)
+        unif_filter = np.ones(self.block_size)
+
+        im1_sum = cv2.filter2D(im1, ddepth=-1, kernel=unif_filter)
+        im2_sum = cv2.filter2D(im2, ddepth=-1, kernel=unif_filter)
+        im1_sq_sum = cv2.filter2D(im1_sq, ddepth=-1, kernel=unif_filter)
+        im2_sq_sum = cv2.filter2D(im2_sq, ddepth=-1, kernel=unif_filter)
+        im12_sum = cv2.filter2D(im12, ddepth=-1, kernel=unif_filter)
 
         im12_sum_mul = im1_sum * im2_sum
         im12_sq_sum_mul = im1_sum ** 2 + im2_sum ** 2
@@ -231,18 +230,18 @@ class VIFP(Metric):
             sd = N / 5.0
 
             if scale > 1:
-                im1 = gaussian_filter(im1, sd)
-                im2 = gaussian_filter(im2, sd)
+                im1 = cv2.GaussianBlur(im1, (0, 0), sd)
+                im2 = cv2.GaussianBlur(im2, (0, 0), sd)
 
-            mu1 = gaussian_filter(im1, sd)
-            mu2 = gaussian_filter(im2, sd)
+            mu1 = cv2.GaussianBlur(im1, (0, 0), sd)
+            mu2 = cv2.GaussianBlur(im2, (0, 0), sd)
             mu1_sq = mu1 ** 2
             mu2_sq = mu2 ** 2
             mu12 = mu1 * mu2
 
-            sigma1_sq = gaussian_filter(im1 ** 2, sd) - mu1_sq
-            sigma2_sq = gaussian_filter(im2 ** 2, sd) - mu2_sq
-            sigma12 = gaussian_filter(im1 * im2, sd) - mu12
+            sigma1_sq = cv2.GaussianBlur(im1 ** 2, (0, 0), sd) - mu1_sq
+            sigma2_sq = cv2.GaussianBlur(im2 ** 2, (0, 0), sd) - mu2_sq
+            sigma12 = cv2.GaussianBlur(im1 * im2, (0, 0), sd) - mu12
 
             sigma1_sq[sigma1_sq < 0] = 0
             sigma2_sq[sigma2_sq < 0] = 0

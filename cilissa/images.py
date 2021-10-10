@@ -102,6 +102,7 @@ class Image:
         Loads the image from given path
 
         Uses cv2.imdecode instead of cv2.imread to handle unicode characters in path
+
         Args:
             - image_path (Path/str): Path where the image is located.
         """

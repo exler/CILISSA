@@ -1,10 +1,10 @@
 import argparse
 import logging
 
-from cilissa.cli import parse_operation_instances, parse_roi
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import all_metrics
 from cilissa.operations import OperationsList
+from cilissa.parsers import parse_operation_instances, parse_roi
 from cilissa.transformations import all_transformations
 
 help_message = """
