@@ -1,13 +1,7 @@
 from pathlib import Path
 
-from PySide6.QtCore import QDir, QSize, Signal
-from PySide6.QtWidgets import (
-    QFileDialog,
-    QListWidget,
-    QListWidgetItem,
-    QTabWidget,
-    QWidget,
-)
+from PySide6.QtCore import QDir, QSize
+from PySide6.QtWidgets import QFileDialog, QListWidget, QTabWidget
 
 from cilissa.images import Image
 from cilissa.metrics import all_metrics
@@ -17,8 +11,6 @@ from cilissa_gui.widgets import CQImageItem, CQOperationItem
 
 class Explorer(QTabWidget):
     IMAGE_EXTENSIONS = ["*.png", "*.jpg", "*.jpeg", "*.bmp"]
-
-    explorerItemSelected = Signal(QWidget)
 
     def __init__(self) -> None:
         super().__init__()
@@ -71,11 +63,6 @@ class ExplorerTab(QListWidget):
 
         self.setMaximumWidth(parent.width())
 
-        self.itemClicked.connect(self.emit_item_selected)
-
-    def emit_item_selected(self, item: QListWidgetItem) -> None:
-        self.parent().parent().explorerItemSelected.emit(item)
-
     def remove_selected(self) -> None:
         rows = [index.row() for index in self.selectedIndexes()]
         for row in rows:
@@ -87,17 +74,6 @@ class ImagesTab(ExplorerTab):
         super().__init__(parent)
 
         self.setSelectionMode(QListWidget.ExtendedSelection)
-
-    def enable_actions(self) -> None:
-        interface = self.parent().parent().parent().parent().parent().parent()
-
-        if len(self.selectedIndexes()) > 0:
-            interface.remove_images_action.setEnabled(True)
-            if len(self.selectedIndexes()) == 2:
-                interface.add_pair_action.setEnabled(True)
-        else:
-            interface.remove_images_action.setEnabled(False)
-            interface.add_pair_action.setEnabled(False)
 
 
 class MetricsTab(ExplorerTab):

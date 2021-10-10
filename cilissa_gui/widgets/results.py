@@ -30,8 +30,8 @@ class CQResultsDialog(QMessageBox):
         self.setText(html)
         self.setStandardButtons(QMessageBox.Close)
 
-        self.layout().setSpacing(0)
-        self.layout().setContentsMargins(0, 16, 24, 8)
+        self.layout().setSpacing(16)
+        self.layout().setContentsMargins(0, 16, 24, 16)
 
     def format_image_pair_as_html(self, image_pair: ImagePair) -> str:
         im1_data_uri = image_pair[0].get_resized(height=128).as_data_uri()

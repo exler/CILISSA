@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 
 from cilissa.utils import get_parameter_display_name
 from cilissa_gui.managers import OperationsManager
-from cilissa_gui.widgets import CQImageItem, CQOperationItem
+from cilissa_gui.widgets import CQOperationItem
 from cilissa_gui.widgets.inputs import get_input_widget_for_type
 
 
@@ -73,19 +73,16 @@ class PropertiesSelected(QWidget):
         self.setLayout(self.main_layout)
 
     def create_instance_widgets(self, item: QWidget) -> None:
-        add = False
-        if isinstance(item, CQImageItem):
-            # There is no functionality planned for image properties right now
-            return
-        elif isinstance(item, CQOperationItem):
+        if isinstance(item, CQOperationItem):
             # Item from Explorer
             add = True
             self.instance = item.operation()
             self.create_properties_widgets()
         elif isinstance(item, QListWidgetItem):
             # Item from Operations
-            rows = [index.row() for index in item.listWidget().selectedIndexes()]
-            self.instance = self.operations_manager[rows[-1]]
+            add = False
+            row = [index.row() for index in item.listWidget().selectedIndexes()][-1]
+            self.instance = self.operations_manager[row]
             self.create_properties_widgets()
         else:
             raise TypeError("This slot expects items from the Explorer widget")

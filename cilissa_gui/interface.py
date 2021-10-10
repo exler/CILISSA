@@ -76,7 +76,7 @@ class Interface(QWidget):
 
     def init_left_panel(self) -> QVBoxLayout:
         left_panel = QWidget()
-        left_panel.setMinimumWidth(284)
+        left_panel.setMinimumWidth(288)
 
         layout = QVBoxLayout()
         scroll_area = QScrollArea()
@@ -99,7 +99,7 @@ class Interface(QWidget):
 
     def init_right_panel(self) -> QVBoxLayout:
         right_panel = QWidget()
-        right_panel.setMinimumWidth(286)
+        right_panel.setMinimumWidth(288)
 
         layout = QVBoxLayout()
         layout.addWidget(self.properties_box)
@@ -173,28 +173,44 @@ class Interface(QWidget):
         )
 
     def create_connections(self) -> None:
-        self.explorer.images_tab.itemSelectionChanged.connect(self.explorer.images_tab.enable_actions)
-        self.explorer.explorerItemSelected.connect(self.properties_box.properties.open_selection)
+        self.explorer.images_tab.itemSelectionChanged.connect(self.enable_actions)
+        self.explorer.metrics_tab.itemClicked.connect(self.properties_box.properties.open_selection)
+        self.explorer.transformations_tab.itemClicked.connect(self.properties_box.properties.open_selection)
         self.operations_box.operations.itemClicked.connect(self.properties_box.properties.open_selection)
         self.console_box.console.itemClicked.connect(
-            lambda: self.show_message_in_statusbar("Double-click the result in console to see detailed information")
+            lambda: self.show_message_in_statusbar("Double-click the result to see detailed information")
         )
 
+    @Slot()
+    def enable_actions(self) -> None:
+        images_selected = len(self.explorer.images_tab.selectedIndexes())
+
+        if images_selected > 0:
+            self.remove_images_action.setEnabled(True)
+            if images_selected == 2:
+                self.add_pair_action.setEnabled(True)
+            else:
+                self.add_pair_action.setEnabled(False)
+        else:
+            self.remove_images_action.setEnabled(False)
+            self.add_pair_action.setEnabled(False)
+
     @Slot(str)
-    def show_message_in_statusbar(self, message: str) -> None:
-        self.statusbar.showMessage(message, 3000)
+    def show_message_in_statusbar(self, message: str, timeout: int = 0) -> None:
+        self.statusbar.showMessage(message, timeout)
 
     def run_operations(self) -> None:
         if self.operations_manager.is_empty:
-            self.statusbar.showMessage("You have not chosen any operations!", 3000)
+            self.show_message_in_statusbar("You have not chosen any operations!", 3000)
         elif self.collection_manager.is_empty:
-            self.statusbar.showMessage("You have not chosen any images!", 3000)
+            self.show_message_in_statusbar("You have not chosen any images!", 3000)
         else:
-            self.statusbar.showMessage("CILISSA is running...")
+            self.show_message_in_statusbar("CILISSA is running...")
             results = self.operations_manager.run_all(self.collection_manager)
             for index, image_results in enumerate(results):
                 image_pair = self.collection_manager[index]
                 self.console_box.console.add_item(index, image_pair, image_results)
+            self.show_message_in_statusbar("All operations finished")
 
     def add_selected_pair_to_collection(self) -> None:
         items = self.explorer.images_tab.selectedItems()

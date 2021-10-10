@@ -167,7 +167,7 @@ class UIQI(Metric):
         im2_sq = im2 ** 2
         im12 = im1 * im2
 
-        unif_filter = np.ones(self.block_size)
+        unif_filter = np.ones(self.block_size, np.float32) / (self.block_size ** 2)
 
         im1_sum = cv2.filter2D(im1, ddepth=-1, kernel=unif_filter)
         im2_sum = cv2.filter2D(im2, ddepth=-1, kernel=unif_filter)

@@ -98,7 +98,8 @@ class WorkspaceList(QTreeWidget):
         self.setFrameStyle(QFrame.NoFrame)
 
         self.setColumnCount(3)
-        self.setColumnWidth(0, 16)
+        self.setColumnWidth(0, 32)
+        self.setColumnWidth(1, 272)
         self.setHeaderLabels(["#", "Reference image", "Input image"])
 
         self.setMaximumHeight(168)
@@ -121,6 +122,7 @@ class WorkspaceList(QTreeWidget):
         menu.addAction(QAction("Delete", self, statusTip="Delete image pair", triggered=self.delete_selected))
         menu.exec(self.mapToGlobal(pos))
 
+    @Slot()
     def delete_selected(self) -> None:
         rows = [index.row() for index in self.selectedIndexes()][::3]
         for idx, row in enumerate(rows):
@@ -165,7 +167,7 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
         self.ref_image_layout = QVBoxLayout()
         self.ref_image_label = QLabel("Reference image")
         self.ref_image_label.setAlignment(Qt.AlignCenter)
-        self.ref_image = CQImage.placeholder(placeholder_size=192, height=192)
+        self.ref_image = CQImage.placeholder(placeholder_size=164, height=164)
         self.ref_image_layout.addWidget(self.ref_image_label)
         self.ref_image_layout.addWidget(self.ref_image)
         self.images_panel.addLayout(self.ref_image_layout)
@@ -175,7 +177,7 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
         self.input_image_layout = QVBoxLayout()
         self.input_image_label = QLabel("Input image")
         self.input_image_label.setAlignment(Qt.AlignCenter)
-        self.input_image = CQImage.placeholder(placeholder_size=192, height=192)
+        self.input_image = CQImage.placeholder(placeholder_size=164, height=164)
         self.input_image_layout.addWidget(self.input_image_label)
         self.input_image_layout.addWidget(self.input_image)
         self.images_panel.addLayout(self.input_image_layout)

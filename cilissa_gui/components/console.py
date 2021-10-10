@@ -53,7 +53,7 @@ class ConsoleBox(QGroupBox):
         row = self.console.selectedIndexes()[-1].row()
         results = self.get_results_from_console(row)
 
-        filename = QFileDialog.getSaveFileName(self, "Save CSV...", "", "CSV file (*.csv)")[0]
+        filename = QFileDialog.getSaveFileName(self, "Save CSV...", "export.csv", "CSV file (*.csv)")[0]
 
         ResultGenerator(results).to_csv(filename)
 
