@@ -103,6 +103,7 @@ class WorkspaceList(QWidget):
         self.collection_manager.changed.connect(self.refresh)
 
         self.tree.setSelectionMode(QTreeWidget.ExtendedSelection)
+        self.tree.setFocusPolicy(Qt.NoFocus)
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self.show_context_menu)
 

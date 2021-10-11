@@ -41,6 +41,7 @@ class OperationsBox(QGroupBox):
         )
         self.move_down_button.clicked.connect(self.move_operation_down)
 
+        self.operations.setFocusPolicy(Qt.NoFocus)
         self.operations.setContextMenuPolicy(Qt.CustomContextMenu)
         self.operations.customContextMenuRequested.connect(self.show_context_menu)
 
