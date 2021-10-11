@@ -1,10 +1,11 @@
-from PySide6.QtCore import Qt, Slot
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import QPoint, Qt, Slot
+from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
     QListWidget,
     QListWidgetItem,
+    QMenu,
     QPushButton,
     QVBoxLayout,
 )
@@ -40,6 +41,9 @@ class OperationsBox(QGroupBox):
         )
         self.move_down_button.clicked.connect(self.move_operation_down)
 
+        self.operations.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.operations.customContextMenuRequested.connect(self.show_context_menu)
+
         self.buttons_panel = QVBoxLayout()
         self.buttons_panel.setAlignment(Qt.AlignTop)
         self.buttons_panel.addWidget(self.move_up_button)
@@ -72,6 +76,10 @@ class OperationsBox(QGroupBox):
             self.move_up_button.setEnabled(True)
             self.move_down_button.setEnabled(True)
             self.delete_button.setEnabled(True)
+        else:
+            self.move_up_button.setEnabled(False)
+            self.move_down_button.setEnabled(False)
+            self.delete_button.setEnabled(False)
 
     @Slot()
     def move_operation_up(self) -> None:
@@ -80,6 +88,12 @@ class OperationsBox(QGroupBox):
     @Slot()
     def move_operation_down(self) -> None:
         self.operations.change_selected_order(1)
+
+    def show_context_menu(self, pos: QPoint) -> None:
+        menu = QMenu(self)
+        if self.operations.selectedIndexes():
+            menu.addAction(QAction("Delete", self, statusTip="Delete image pair", triggered=self.delete_operations))
+        menu.exec(self.mapToGlobal(pos))
 
 
 class Operations(QListWidget):
@@ -90,8 +104,6 @@ class Operations(QListWidget):
         self.operations_manager.changed.connect(self.refresh)
 
         self.setSelectionMode(QListWidget.ExtendedSelection)
-
-        self.setMaximumHeight(168)
 
     @Slot()
     def refresh(self) -> None:

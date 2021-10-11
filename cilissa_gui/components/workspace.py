@@ -1,7 +1,6 @@
 from PySide6.QtCore import QPoint, Qt, Slot
-from PySide6.QtGui import QAction, QPixmap
+from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import (
-    QFrame,
     QGraphicsOpacityEffect,
     QHBoxLayout,
     QLabel,
@@ -78,35 +77,52 @@ class WorkspaceHelp(QWidget):
         self.setLayout(self.main_layout)
 
 
-class WorkspaceList(QTreeWidget):
+class WorkspaceList(QWidget):
     def __init__(self) -> None:
         super().__init__()
+
+        self.tree = QTreeWidget()
+        self.tree.setStyleSheet("QTreeWidget { border: none; border-right: 1px solid silver !important; }")
+
+        self.main_layout = QHBoxLayout()
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.info_button = QPushButton(QIcon(":info"), "", enabled=False, toolTip="Show details about image pair")
+        self.info_button.clicked.connect(self.open_selected)
+
+        self.delete_button = QPushButton(QIcon(":delete"), "", enabled=False, toolTip="Delete selected image pairs")
+        self.delete_button.clicked.connect(self.delete_selected)
+
+        self.buttons_panel = QVBoxLayout()
+        self.buttons_panel.setContentsMargins(0, 4, 6, 0)
+        self.buttons_panel.setAlignment(Qt.AlignTop)
+        self.buttons_panel.addWidget(self.info_button)
+        self.buttons_panel.addWidget(self.delete_button)
 
         self.collection_manager = ImageCollectionManager()
         self.collection_manager.changed.connect(self.refresh)
 
-        self.setSelectionMode(QTreeWidget.ExtendedSelection)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_context_menu)
+        self.tree.setSelectionMode(QTreeWidget.ExtendedSelection)
+        self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tree.customContextMenuRequested.connect(self.show_context_menu)
 
-        self.itemDoubleClicked.connect(self.open_selected)
+        self.tree.itemDoubleClicked.connect(self.open_selected)
 
-        self.main_layout = QVBoxLayout()
-        self.main_layout.setAlignment(Qt.AlignTop)
+        self.tree.setColumnCount(3)
+        self.tree.setColumnWidth(0, 32)
+        self.tree.setColumnWidth(1, 272)
+        self.tree.setHeaderLabels(["#", "Reference image", "Input image"])
+
+        self.main_layout.addWidget(self.tree)
+        self.main_layout.addLayout(self.buttons_panel)
+
+        self.tree.itemSelectionChanged.connect(self.enable_buttons)
+
         self.setLayout(self.main_layout)
-
-        self.setFrameStyle(QFrame.NoFrame)
-
-        self.setColumnCount(3)
-        self.setColumnWidth(0, 32)
-        self.setColumnWidth(1, 272)
-        self.setHeaderLabels(["#", "Reference image", "Input image"])
-
-        self.setMaximumHeight(168)
 
     @Slot()
     def refresh(self) -> None:
-        self.clear()
+        self.tree.clear()
         if self.collection_manager.is_empty:
             self.parent().setCurrentWidget(self.parent().help)
         else:
@@ -115,16 +131,20 @@ class WorkspaceList(QTreeWidget):
         for item in self.collection_manager.get_order():
             index = item[0]
             item = item[1]
-            self.addTopLevelItem(QTreeWidgetItem([str(index + 1), item[0].name, item[1].name]))
+            self.tree.addTopLevelItem(QTreeWidgetItem([str(index + 1), item[0].name, item[1].name]))
 
-    def show_context_menu(self, pos: QPoint) -> None:
-        menu = QMenu(self)
-        menu.addAction(QAction("Delete", self, statusTip="Delete image pair", triggered=self.delete_selected))
-        menu.exec(self.mapToGlobal(pos))
+    @Slot()
+    def enable_buttons(self) -> None:
+        if len(self.tree.selectedIndexes()) > 0:
+            self.info_button.setEnabled(True)
+            self.delete_button.setEnabled(True)
+        else:
+            self.info_button.setEnabled(False)
+            self.delete_button.setEnabled(False)
 
     @Slot()
     def delete_selected(self) -> None:
-        rows = [index.row() for index in self.selectedIndexes()][::3]
+        rows = [index.row() for index in self.tree.selectedIndexes()][::3]
         for idx, row in enumerate(rows):
             decrement = sum([1 for d_row in rows[:idx] if d_row < row])
             self.collection_manager.pop(row - decrement)
@@ -132,10 +152,15 @@ class WorkspaceList(QTreeWidget):
 
     @Slot()
     def open_selected(self) -> None:
-        row = [index.row() for index in self.selectedIndexes()][-1]
+        row = [index.row() for index in self.tree.selectedIndexes()][-1]
         image_pair = self.collection_manager[row]
         self.parent().tab_widget.details_tab.change_images(image_pair)
         self.parent().tab_widget.setCurrentWidget(self.parent().tab_widget.details_tab)
+
+    def show_context_menu(self, pos: QPoint) -> None:
+        menu = QMenu(self)
+        menu.addAction(QAction("Delete", self, statusTip="Delete image pair", triggered=self.delete_selected))
+        menu.exec(self.mapToGlobal(pos))
 
 
 class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
