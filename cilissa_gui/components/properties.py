@@ -102,10 +102,12 @@ class PropertiesSelected(QWidget):
             return
 
         for key, value in properties.items():
-            key_type = self.instance.get_parameter_type(key)
+            key_type, optional = self.instance.get_parameter_type(key)
             widget_class = get_input_widget_for_type(key_type)
             if widget_class:
-                widget = widget_class(parameter=key, default=value, label=get_parameter_display_name(key))
+                widget = widget_class(
+                    label=get_parameter_display_name(key), parameter=key, default=value, optional=optional
+                )
                 self.widgets.append(widget)
                 self.inputs_layout.addWidget(widget)
 

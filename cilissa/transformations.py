@@ -104,7 +104,7 @@ class Linear(Transformation):
     """
 
     def __init__(
-        self, contrast: Optional[Union[int, float]] = None, brightness: Optional[Union[int, float]] = None
+        self, contrast: Optional[Union[float, int]] = None, brightness: Optional[Union[float, int]] = None
     ) -> None:
         self.contrast = contrast
         self.brightness = brightness
