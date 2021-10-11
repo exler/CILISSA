@@ -227,6 +227,7 @@ class Interface(QWidget):
     def set_use_roi_on_collection(self) -> None:
         use_roi = not self.ignore_roi_action.isChecked()
         self.collection_manager.set_use_roi(use_roi)
+        self.workspace.details_tab.refresh()
 
     def create_menubar(self) -> None:
         menubar = self.main_window.menuBar()

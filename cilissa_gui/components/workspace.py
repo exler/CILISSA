@@ -147,8 +147,10 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
         self.image_pair = None
 
         self.init_images()
+        self.init_details()
         self.init_buttons()
 
+        self.main_layout.setStretchFactor(self.images_panel, 2)
         self.setLayout(self.main_layout)
 
     def select_roi(self) -> None:
@@ -185,6 +187,17 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
 
         self.main_layout.addLayout(self.images_panel)
 
+    def init_details(self) -> None:
+        self.details_panel = QVBoxLayout()
+        self.details_panel.setAlignment(Qt.AlignBottom)
+
+        self.shape_info = QLabel("")
+        self.roi_info = QLabel("")
+        self.details_panel.addWidget(self.shape_info)
+        self.details_panel.addWidget(self.roi_info)
+
+        self.main_layout.addLayout(self.details_panel)
+
     def init_buttons(self) -> None:
         self.buttons_panel = QHBoxLayout()
 
@@ -210,3 +223,15 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
             self.tab_widget.set_details_tab_enabled(True)
             self.ref_image.set_image(self.image_pair.im1, roi=self.image_pair.roi)
             self.input_image.set_image(self.image_pair.im2, roi=self.image_pair.roi)
+
+            self.shape_info.setText(
+                f"<b>Image pair shape:</b> {self.image_pair.im1.width}x{self.image_pair.im1.height}"
+            )
+            roi = self.image_pair.roi
+            if roi:
+                msg = f"<b>ROI:</b> start point - {roi.start_point}, end point - {roi.end_point}"
+                if not self.image_pair.use_roi:
+                    msg += " <span style='color: red;'>(ROI ignored)</span>"
+                self.roi_info.setText(msg)
+            else:
+                self.roi_info.setText("<b>ROI:</b> not selected")

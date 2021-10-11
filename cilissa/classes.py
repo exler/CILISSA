@@ -14,7 +14,7 @@ class Parameterized(ABC):
 
         Works best if the function is type hinted, fallbacks to variable's value type.
         """
-        signature = inspect.signature(self.__init__)
+        signature = inspect.signature(self.__init__)  # type: ignore
         parameter_obj = signature.parameters.get(parameter, None)
         if parameter_obj:
             annotation = parameter_obj.annotation
