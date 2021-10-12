@@ -50,13 +50,18 @@ class OperationsList(OrderedList):
             return res
 
         elif isinstance(images, ImageCollection):
-            results = []
             with ThreadPoolExecutor(max_workers=None) as executor:
-                futures = [executor.submit(self._use_operations_on_pair, pair.copy()) for pair in images]
-                for future in as_completed(futures):
-                    results.append(future.result())
+                futures = {
+                    executor.submit(self._use_operations_on_pair, pair.copy()): index
+                    for index, pair in images.get_order()
+                }
 
-            return results
+                results = {}
+                for future in as_completed(futures):
+                    results[futures[future]] = future.result()
+
+            # Sort results to their original order
+            return [result[1] for result in sorted(results.items())]
         else:
             raise TypeError("Objects must be of type: ImagePair, ImageCollection")
 

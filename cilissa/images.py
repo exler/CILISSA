@@ -241,6 +241,12 @@ class ImagePair:
         else:
             raise IndexError
 
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, ImagePair):
+            return self.im1 == o.im1 and self.im2 == o.im2
+        else:
+            raise TypeError(f"Cannot compare object of type ImagePair and {type(o)}")
+
     def swap(self) -> None:
         """
         Swaps the reference and input images in place.
