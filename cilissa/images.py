@@ -241,6 +241,12 @@ class ImagePair:
         else:
             raise IndexError
 
+    def swap(self) -> None:
+        """
+        Swaps the reference and input images in place.
+        """
+        self.im1, self.im2 = self.im2, self.im1
+
     def copy(self) -> ImagePair:
         pair_copy = ImagePair(self.im1.copy(), self.im2.copy(), roi=self.roi, use_roi=self.use_roi)
         return pair_copy

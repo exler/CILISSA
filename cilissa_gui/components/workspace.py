@@ -179,16 +179,6 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
         self.main_layout.setStretchFactor(self.images_panel, 2)
         self.setLayout(self.main_layout)
 
-    def select_roi(self) -> None:
-        dialog = CQROIDialog(self.image_pair)
-        dialog.exec()
-        self.refresh()
-
-    def clear_roi(self) -> None:
-        if self.image_pair:
-            self.image_pair.clear_roi()
-            self.refresh()
-
     def init_images(self) -> None:
         self.images_panel = QHBoxLayout()
         self.images_panel.setAlignment(Qt.AlignCenter)
@@ -227,22 +217,39 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
     def init_buttons(self) -> None:
         self.buttons_panel = QHBoxLayout()
 
-        self.select_roi_button = QPushButton("Select ROI", disabled=True)
+        self.swap_images_button = QPushButton("Swap images")
+        self.swap_images_button.clicked.connect(self.swap_images)
+        self.select_roi_button = QPushButton("Select ROI")
         self.select_roi_button.clicked.connect(self.select_roi)
-        self.clear_roi_button = QPushButton("Clear ROI", disabled=True)
+        self.clear_roi_button = QPushButton("Clear ROI")
         self.clear_roi_button.clicked.connect(self.clear_roi)
+        self.buttons_panel.addWidget(self.swap_images_button)
         self.buttons_panel.addWidget(self.select_roi_button)
         self.buttons_panel.addWidget(self.clear_roi_button)
 
         self.main_layout.addLayout(self.buttons_panel)
 
+    @Slot()
+    def swap_images(self) -> None:
+        if self.image_pair:
+            self.image_pair.swap()
+            self.refresh()
+
     def change_images(self, image_pair: ImagePair) -> None:
         self.image_pair = image_pair
         self.refresh()
 
-        buttons_disabled = False if self.image_pair else True
-        self.select_roi_button.setDisabled(buttons_disabled)
-        self.clear_roi_button.setDisabled(buttons_disabled)
+    @Slot()
+    def select_roi(self) -> None:
+        dialog = CQROIDialog(self.image_pair)
+        dialog.exec()
+        self.refresh()
+
+    @Slot()
+    def clear_roi(self) -> None:
+        if self.image_pair:
+            self.image_pair.clear_roi()
+            self.refresh()
 
     def refresh(self) -> None:
         if self.image_pair:
