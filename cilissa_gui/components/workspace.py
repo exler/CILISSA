@@ -26,13 +26,10 @@ class Workspace(QTabWidget):
         self.list_tab = WorkspaceListTab(self)
         self.details_tab = WorkspaceDetailsTab(self)
 
+        self.tabBar().hide()
+
         self.addTab(self.list_tab, "List")
         self.addTab(self.details_tab, "Details")
-
-        self.set_details_tab_enabled(False)  # Disable Details on start
-
-    def set_details_tab_enabled(self, enabled: bool) -> None:
-        self.setTabEnabled(1, enabled)
 
 
 class WorkspaceTabMixin:
@@ -223,11 +220,18 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
         self.select_roi_button.clicked.connect(self.select_roi)
         self.clear_roi_button = QPushButton("Clear ROI")
         self.clear_roi_button.clicked.connect(self.clear_roi)
+        self.back_button = QPushButton("Go back")
+        self.back_button.clicked.connect(self.go_back_to_list)
         self.buttons_panel.addWidget(self.swap_images_button)
         self.buttons_panel.addWidget(self.select_roi_button)
         self.buttons_panel.addWidget(self.clear_roi_button)
+        self.buttons_panel.addWidget(self.back_button)
 
         self.main_layout.addLayout(self.buttons_panel)
+
+    @Slot()
+    def go_back_to_list(self) -> None:
+        self.tab_widget.setCurrentWidget(self.tab_widget.list_tab)
 
     @Slot()
     def swap_images(self) -> None:
@@ -253,7 +257,6 @@ class WorkspaceDetailsTab(WorkspaceTabMixin, QWidget):
 
     def refresh(self) -> None:
         if self.image_pair:
-            self.tab_widget.set_details_tab_enabled(True)
             self.ref_image.set_image(self.image_pair.im1, roi=self.image_pair.roi)
             self.input_image.set_image(self.image_pair.im2, roi=self.image_pair.roi)
 
