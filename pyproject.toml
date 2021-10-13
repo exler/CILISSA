@@ -42,7 +42,7 @@ cilissa-gui = "cilissa_gui.application:main"
 
 [tool.mypy]
 ignore_missing_imports = true
-exclude = "(tests|cilissa_gui)"
+exclude = "(tests|docs|cilissa_gui)"
 
 [tool.isort]
 profile = "black"
