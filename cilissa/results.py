@@ -37,7 +37,7 @@ class ResultGenerator:
         self.results = results
         self.last_changes: Dict[str, float] = {}
 
-    def get_change_in_metric(self, name: str, value: Union[float, np.floating]) -> float:
+    def get_change_in_metric(self, name: str, value: float) -> float:
         if name in self.last_changes:
             change = value - self.last_changes[name]
             self.last_changes[name] = change
@@ -82,7 +82,7 @@ class ResultGenerator:
             html += get_table_cell(result.parameters)
             html += get_table_cell(result.value)
             if result.type == Metric:
-                change = self.get_change_in_metric(result.name, result.value)
+                change = self.get_change_in_metric(result.name, float(result.value))  # type: ignore
                 html += get_table_cell(change if change != 0 else "", prefix=get_prefix_for_change(change))
             html += "</tr>"
             return html

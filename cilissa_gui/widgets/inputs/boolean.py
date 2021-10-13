@@ -6,7 +6,7 @@ from cilissa_gui.widgets.inputs.base import CQInputWidget
 
 
 class CQBooleanInputWidget(CQInputWidget):
-    def __init__(self, parameter: str, default: bool, label: Optional[str] = None) -> None:
+    def __init__(self, parameter: str, default: bool, label: Optional[str] = None, **kwargs: Any) -> None:
         super().__init__(parameter)
 
         layout = QHBoxLayout()

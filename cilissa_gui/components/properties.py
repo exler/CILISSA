@@ -1,3 +1,5 @@
+from typing import List
+
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
     QGroupBox,
@@ -13,7 +15,7 @@ from PySide6.QtWidgets import (
 
 from cilissa.utils import get_parameter_display_name
 from cilissa_gui.managers import OperationsManager
-from cilissa_gui.widgets import CQImage, CQOperation
+from cilissa_gui.widgets import CQOperationItem
 from cilissa_gui.widgets.inputs import get_input_widget_for_type
 
 
@@ -73,19 +75,16 @@ class PropertiesSelected(QWidget):
         self.setLayout(self.main_layout)
 
     def create_instance_widgets(self, item: QWidget) -> None:
-        add = False
-        if isinstance(item, CQImage):
-            # There is no functionality planned for image properties right now
-            return
-        elif isinstance(item, CQOperation):
+        if isinstance(item, CQOperationItem):
             # Item from Explorer
             add = True
             self.instance = item.operation()
             self.create_properties_widgets()
         elif isinstance(item, QListWidgetItem):
             # Item from Operations
-            rows = [index.row() for index in item.listWidget().selectedIndexes()]
-            self.instance = self.operations_manager[rows[-1]]
+            add = False
+            row = [index.row() for index in item.listWidget().selectedIndexes()][-1]
+            self.instance = self.operations_manager[row]
             self.create_properties_widgets()
         else:
             raise TypeError("This slot expects items from the Explorer widget")
@@ -103,10 +102,12 @@ class PropertiesSelected(QWidget):
             return
 
         for key, value in properties.items():
-            key_type = self.instance.get_parameter_type(key)
+            key_type, optional = self.instance.get_parameter_type(key)
             widget_class = get_input_widget_for_type(key_type)
             if widget_class:
-                widget = widget_class(parameter=key, default=value, label=get_parameter_display_name(key))
+                widget = widget_class(
+                    label=get_parameter_display_name(key), parameter=key, default=value, optional=optional
+                )
                 self.widgets.append(widget)
                 self.inputs_layout.addWidget(widget)
 
@@ -134,7 +135,7 @@ class PropertiesSelected(QWidget):
         self.buttons_layout.addWidget(cancel_button)
 
     def clear_instance(self) -> None:
-        self.widgets = []
+        self.widgets: List[QWidget] = []
         self.instance = None
 
     def set_instance_values(self, add: bool) -> None:

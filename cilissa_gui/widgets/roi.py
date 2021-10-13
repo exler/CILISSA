@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
-from PySide6.QtCore import QRect, Qt
+from PySide6.QtCore import QPoint, QRect, Qt
 from PySide6.QtGui import QMouseEvent, QPainter, QPaintEvent, QPen
 from PySide6.QtWidgets import (
     QDialog,
@@ -55,8 +55,8 @@ class CQROIImage(QLabel):
 
         self.set_image(image)
 
-        self.point1 = None
-        self.point2 = None
+        self.point1: Optional[QPoint] = None
+        self.point2: Optional[QPoint] = None
         self.draw_flag = False
 
     def mousePressEvent(self, ev: QMouseEvent) -> None:
@@ -87,14 +87,11 @@ class CQROIImage(QLabel):
 
     def paintEvent(self, ev: QPaintEvent) -> None:
         super().paintEvent(ev)
-        try:
+        if self.point1 and self.point2:
             rect = QRect(self.point1, self.point2)
             painter = QPainter(self)
             painter.setPen(QPen(Qt.red, 2, Qt.DashDotDotLine))
             painter.drawRect(rect)
-        except TypeError:
-            # Object was just initialized
-            pass
 
     def set_dimensions(self, image: Image) -> None:
         self.image_width = image.width
@@ -118,7 +115,7 @@ class CQROIImage(QLabel):
         pixmap = get_pixmap_from_image(image, width=self.image_width, height=self.image_height)
         self.setPixmap(pixmap)
 
-    def get_roi(self) -> ROI:
+    def get_roi(self) -> Optional[ROI]:
         if self.point1 and self.point2:
             x0 = int(self.point1.x() / self.scale_factor)
             y0 = int(self.point1.y() / self.scale_factor)
@@ -126,4 +123,4 @@ class CQROIImage(QLabel):
             y1 = int(self.point2.y() / self.scale_factor)
 
             return ROI(x0, y0, x1, y1)
-        return ROI()
+        return None

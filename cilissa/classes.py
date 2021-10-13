@@ -1,15 +1,6 @@
+import inspect
 from abc import ABC
-from typing import (
-    Any,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    get_type_hints,
-)
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
 
 
 class Parameterized(ABC):
@@ -17,23 +8,30 @@ class Parameterized(ABC):
         d = vars(self)
         return d
 
-    def get_parameter_type(self, parameter: str) -> Union[Type, None]:
+    def get_parameter_type(self, parameter: str) -> Tuple[Union[Type, None], bool]:
+        """
+        Gets class variable's type from the `__init__` function.
+
+        Works best if the function is type hinted, fallbacks to variable's value type.
+        """
+        signature = inspect.signature(self.__init__)  # type: ignore
+        parameter_obj = signature.parameters.get(parameter, None)
+        if parameter_obj:
+            annotation = parameter_obj.annotation
+            try:
+                if annotation.__origin__ == Union:
+                    t = annotation.__args__
+                    optional = type(None) in t
+                    return t[0], optional
+            except AttributeError:
+                t = annotation
+                return t, False
+
         attr = self.get_parameter(parameter, None)
         if attr is not None:
-            return type(attr)
+            return type(attr), False
 
-        # Try to get the type from type hinting
-        try:
-            t = get_type_hints(self.__init__).get(parameter)  # type: ignore
-            t_args = t.__args__  # type: ignore
-            for arg in t_args:
-                if not isinstance(None, arg):
-                    return arg
-        except AttributeError:
-            # `t` is a type or None
-            return t
-
-        return None
+        return None, True
 
     def set_parameter(self, parameter: str, value: Any) -> None:
         setattr(self, parameter, value)

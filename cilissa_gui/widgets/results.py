@@ -1,6 +1,7 @@
 from typing import List
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QListWidgetItem, QMessageBox
 
 from cilissa.images import ImagePair
@@ -16,10 +17,11 @@ class CQResultsItem(QListWidgetItem):
 
 
 class CQResultsDialog(QMessageBox):
-    def __init__(self, image_pair: ImagePair, results: Result) -> None:
+    def __init__(self, image_pair: ImagePair, results: List[Result]) -> None:
         super().__init__()
 
         self.setIcon(QMessageBox.NoIcon)
+        self.setWindowIcon(QIcon(":cilissa-icon"))
         self.setWindowTitle("Results Window")
 
         html = self.format_image_pair_as_html(image_pair)
@@ -28,8 +30,8 @@ class CQResultsDialog(QMessageBox):
         self.setText(html)
         self.setStandardButtons(QMessageBox.Close)
 
-        self.layout().setSpacing(0)
-        self.layout().setContentsMargins(0, 16, 24, 8)
+        self.layout().setSpacing(16)
+        self.layout().setContentsMargins(0, 16, 24, 16)
 
     def format_image_pair_as_html(self, image_pair: ImagePair) -> str:
         im1_data_uri = image_pair[0].get_resized(height=128).as_data_uri()

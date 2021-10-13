@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from copy import deepcopy
 from typing import Any, Dict, List, Type, Union
 
 from cilissa.classes import OrderedList, Parameterized
@@ -37,31 +39,29 @@ class ImageOperation(Parameterized, ABC):
         raise NotImplementedError("All ImageOperation subclasses must implement the `run` method")
 
     def generate_result(self, **kwargs: Any) -> Result:
-        return Result(name=self.get_display_name(), parameters=self.get_parameters_dict(), **kwargs)  # type: ignore
+        return Result(name=self.get_display_name(), parameters=deepcopy(self.get_parameters_dict()), **kwargs)
 
 
 class OperationsList(OrderedList):
-    def run_all(self, images: Union[ImagePair, ImageCollection], keep_changes: bool = False) -> Any:
+    def run_all(self, images: Union[ImagePair, ImageCollection]) -> Any:
         if isinstance(images, ImagePair):
             pair_copy = images.copy()
             res = self._use_operations_on_pair(pair_copy)
-
-            if keep_changes:
-                images = pair_copy
-
             return res
 
         elif isinstance(images, ImageCollection):
-            results = []
-            for index, pair in enumerate(images):
-                pair_copy = pair.copy()
-                res = self._use_operations_on_pair(pair_copy)
-                results.append(res)
+            with ThreadPoolExecutor(max_workers=None) as executor:
+                futures = {
+                    executor.submit(self._use_operations_on_pair, pair.copy()): index
+                    for index, pair in images.get_order()
+                }
 
-                if keep_changes:
-                    images[index] = pair_copy
+                results = {}
+                for future in as_completed(futures):
+                    results[futures[future]] = future.result()
 
-            return results
+            # Sort results to their original order
+            return [result[1] for result in sorted(results.items())]
         else:
             raise TypeError("Objects must be of type: ImagePair, ImageCollection")
 

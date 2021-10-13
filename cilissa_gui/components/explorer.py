@@ -1,18 +1,16 @@
 from pathlib import Path
-from typing import Any
 
-from PySide6.QtCore import QDir, Signal, Slot
-from PySide6.QtWidgets import QFileDialog, QFrame, QTableWidget, QTabWidget, QWidget
+from PySide6.QtCore import QDir, QSize
+from PySide6.QtWidgets import QFileDialog, QListWidget, QTabWidget
 
+from cilissa.images import Image
 from cilissa.metrics import all_metrics
 from cilissa.transformations import all_transformations
-from cilissa_gui.widgets import CQImage, CQOperation
+from cilissa_gui.widgets import CQImageItem, CQInfoDialog, CQOperationItem
 
 
 class Explorer(QTabWidget):
     IMAGE_EXTENSIONS = ["*.png", "*.jpg", "*.jpeg", "*.bmp"]
-
-    explorerItemSelected = Signal(QWidget)
 
     def __init__(self) -> None:
         super().__init__()
@@ -25,6 +23,12 @@ class Explorer(QTabWidget):
         self.addTab(self.metrics_tab, "Metrics")
         self.addTab(self.transformations_tab, "Transformations")
 
+        self.currentChanged.connect(self.clear_selection_in_tabs)
+
+    def clear_selection_in_tabs(self) -> None:
+        for index in range(self.count()):
+            self.widget(index).clearSelection()
+
     def open_image_dialog(self) -> None:
         # This returns a tuple ([filenames], "filter"), we are interested only in the filenames
         filenames = QFileDialog.getOpenFileNames(
@@ -32,73 +36,49 @@ class Explorer(QTabWidget):
         )[0]
 
         for fn in filenames:
-            image = CQImage.load(fn, width=96, height=96)
-            self.images_tab.add_item(image)
+            image = Image(fn)
+            cq_image = CQImageItem(image, width=128, height=128)
+            self.images_tab.addItem(cq_image)
 
     def open_image_folder_dialog(self) -> None:
         dirname = QFileDialog.getExistingDirectory(self, "Open images folder...", "", QFileDialog.ShowDirsOnly)
         d = QDir(dirname)
 
+        if dirname and not d.entryList(self.IMAGE_EXTENSIONS):
+            dialog = CQInfoDialog("No images found in the selected folder", "No images found")
+            dialog.exec()
+            return
+
         for fn in d.entryList(self.IMAGE_EXTENSIONS):
-            path = Path(dirname, fn)
-            image = CQImage.load(path.resolve(), width=96, height=96)
-            self.images_tab.add_item(image)
+            image = Image(Path(dirname, fn))
+            cq_image = CQImageItem(image, width=128, height=128)
+            self.images_tab.addItem(cq_image)
 
 
-class ExplorerTab(QTableWidget):
+class ExplorerTab(QListWidget):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__()
 
-        self.setShowGrid(False)
-        self.setColumnCount(3)
-        self.horizontalHeader().hide()
-        self.horizontalHeader().setDefaultSectionSize(96)
-        self.verticalHeader().hide()
-        self.verticalHeader().setDefaultSectionSize(96)
-        self.verticalHeader()
-        self.setFrameStyle(QFrame.NoFrame)
+        self.setViewMode(QListWidget.IconMode)
+        self.setIconSize(QSize(82, 82))
+        self.setUniformItemSizes(True)
+        self.setMovement(QListWidget.Static)
+        self.setResizeMode(QListWidget.Adjust)
+        self.setFrameStyle(QListWidget.NoFrame)
+
         self.setMaximumWidth(parent.width())
 
-        self.cell_counter = 0
-
-        self.cellClicked.connect(self.get_selected_widget)
-
-    def add_item(self, item: Any) -> None:
-        row = self.get_next_row()
-        column = self.get_next_column()
-
-        if row >= self.rowCount():
-            self.insertRow(row)
-
-        self.setCellWidget(row, column, item)
-        self.cell_counter += 1
-
-    def get_item(self, row: int, column: int) -> Any:
-        return self.cellWidget(row, column)
-
-    def get_next_row(self) -> int:
-        return int((self.cell_counter - self.cell_counter % 3) / 3)
-
-    def get_next_column(self) -> int:
-        return self.cell_counter % 3
-
-    @Slot()
-    def get_selected_widget(self, row: int, column: int) -> None:
-        widget = self.get_item(row, column)
-        self.parent().parent().explorerItemSelected.emit(widget)
+    def remove_selected(self) -> None:
+        rows = [index.row() for index in self.selectedIndexes()]
+        for row in reversed(rows):
+            self.takeItem(row)
 
 
 class ImagesTab(ExplorerTab):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
-    @Slot()
-    def enable_add_pair(self) -> None:
-        interface = self.parent().parent().parent().parent().parent().parent()
-        if len(self.selectedIndexes()) == 2:
-            interface.add_pair_action.setEnabled(True)
-        else:
-            interface.add_pair_action.setEnabled(False)
+        self.setSelectionMode(QListWidget.ExtendedSelection)
 
 
 class MetricsTab(ExplorerTab):
@@ -106,7 +86,7 @@ class MetricsTab(ExplorerTab):
         super().__init__(parent)
 
         for metric in all_metrics.values():
-            self.add_item(CQOperation(metric))
+            self.addItem(CQOperationItem(metric))
 
 
 class TransformationsTab(ExplorerTab):
@@ -114,4 +94,4 @@ class TransformationsTab(ExplorerTab):
         super().__init__(parent)
 
         for transformation in all_transformations.values():
-            self.add_item(CQOperation(transformation))
+            self.addItem(CQOperationItem(transformation))

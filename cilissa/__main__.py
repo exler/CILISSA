@@ -1,10 +1,10 @@
 import argparse
 import logging
 
-from cilissa.cli import parse_operation_instances, parse_roi
 from cilissa.images import Image, ImagePair
 from cilissa.metrics import all_metrics
 from cilissa.operations import OperationsList
+from cilissa.parsers import parse_operation_instances, parse_roi
 from cilissa.transformations import all_transformations
 
 help_message = """
@@ -13,7 +13,8 @@ All arguments passed after `--kwargs` flag and beginning with metric's name will
 Example: `cilissa -m ssim ssim-channels-num=3` will be created as `SSIM(channels_num=3)`
 """
 
-if __name__ == "__main__":
+
+def main() -> None:
     parser = argparse.ArgumentParser(
         description=help_message,
         formatter_class=argparse.RawTextHelpFormatter,
@@ -71,4 +72,8 @@ if __name__ == "__main__":
         print(result)
 
     if args.show_end_image:
-        image_pair.im2.display_image()
+        image_pair.im2.show()
+
+
+if __name__ == "__main__":
+    main()
