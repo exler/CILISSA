@@ -1,12 +1,19 @@
 # CILISSA GUI
 
-## Basic usage
+## Quickstart
 
 1. Add images to Explorer via open files / open folder
 2. Choose image pairs by selecting 2 images with the CTRL key and then pressing the "Add pair" button in the toolbar
 3. Select metrics and transformations to use from the Explorer, configure them in the Properties widget
 4. Press the "Run" button in the toolbar
 5. The results will be displayed in the Console widget at the bottom, double click for more information
+
+## Screenshots
+
+<p align="center">
+    <img src="../docs/_static/screenshots/window.png">
+    <img src="../docs/_static/screenshots/results.png">
+</p>
 
 ## Development
 
