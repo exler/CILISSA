@@ -59,12 +59,11 @@ class SSIM(Metric):
     The overall index is a multiplicative combination of the three terms.
 
     Args:
-        - channels_num (int/None):
-        If None, image is assumed to be grayscale (single channel).
-        Otherwise the number of channels should be specified here.
+        channels_num (int/None): If None, image is assumed to be grayscale (single channel).
+            Otherwise the number of channels should be specified here.
 
     Returns:
-        mssim (float) - Overall quality measure of the entire image (MSSIM)
+        float: Overall quality measure of the entire image (MSSIM)
 
     References:
         - https://en.wikipedia.org/wiki/Structural_similarity

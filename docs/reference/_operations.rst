@@ -1,6 +1,9 @@
 ``cilissa.operations`` - Base operation classes
 ===============================================
 
+Classes
+-------
+
 .. autoapiclass:: cilissa.operations.ImageOperation
     :members:
 

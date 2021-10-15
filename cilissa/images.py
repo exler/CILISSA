@@ -103,7 +103,7 @@ class Image:
         Uses cv2.imdecode instead of cv2.imread to handle unicode characters in path
 
         Args:
-            - image_path (Path/str): Path where the image is located.
+            image_path (Path/str): Path where the image is located.
         """
         self.path = str(image_path)
         self.name = os.path.basename(self.path)
@@ -117,9 +117,8 @@ class Image:
         Saves the image
 
         Args:
-            - save_path (Path/str):
-            Path to save the image at. Must contain the filename with extension.
-            If empty string, then will save to the path the image was loaded from (if available)
+            save_path (Path/str): Path to save the image at. Must contain the filename with extension.
+                If empty string, then will save to the path the image was loaded from (if available)
         """
         if save_path:
             self.path = str(save_path)

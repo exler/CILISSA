@@ -12,14 +12,13 @@ class Blur(Transformation):
     Blurs an image.
 
     Args:
-        - gaussian (bool):
-        If True, uses a Gaussian filter to blur the image.
-        If False, uses normalized box filter.
-        - kernel_size (Tuple[int, int]):
-        Gaussian/blurring kernel size. Elements in tuple can differ but they both must be positive and odd.
-        If using Gaussian filter they can be zero's and then they are computed from sigma.
-        - sigma (float):
-        Gaussian kernel standard deviation in X direction. Used only with Gaussian filter.
+        gaussian (bool): If True, uses a Gaussian filter to blur the image.
+            If False, uses normalized box filter.
+        kernel_size (Tuple[int, int]): Gaussian/blurring kernel size.
+            Elements in tuple can differ but they both must be positive and odd.
+            If using Gaussian filter they can be zero's and then they are computed from sigma.
+        sigma (float): Gaussian kernel standard deviation in X direction.
+            Used only with Gaussian filter.
 
     References:
         - https://docs.opencv.org/4.5.2/d4/d86/group__imgproc__filter.html#ga8c45db9afe636703801b0b2e440fce37
@@ -49,14 +48,11 @@ class Sharpen(Transformation):
     Sharpens an image using an unsharp mask.
 
     Args:
-        - amount (float):
-        Amount of sharpening applied.
-        - threshold (int):
-        Threshold for the low-constrast mask.
-        Pixels for which the difference between the input and blurred images is less than threshold
-        will remain unchanged.
-        - kwargs (Any):
-        Arguments passed as kwargs will be passed to the blur transformation.
+        amount (float): Amount of sharpening applied.
+        threshold (int): Threshold for the low-constrast mask.
+            Pixels for which the difference between the input and blurred images is less than threshold
+            will remain unchanged.
+        kwargs (Any): Arguments passed as kwargs will be passed to the blur transformation.
 
     References:
         - https://en.wikipedia.org/wiki/Unsharp_masking
@@ -92,12 +88,12 @@ class Linear(Transformation):
     Increasing the contrast makes light areas lighter and dark area in the frame becomes much darker.
 
     Args:
-        - contrast (int/float/None):
-        Value by which to change the contrast. 1 and None is the original image.
-        A float from interval (0, 1) reduces the contrast. Values above 1 increase the contrast.
-        - brightness (int/float/None):
-        Value by which to change the brightness. 0 and None is the original image.
-        Negative values reduce the brightness. Positive values increase the brightness.
+        contrast (int/float/None): Value by which to change the contrast.
+            1 and None is the original image.
+            A float from interval (0, 1) reduces the contrast. Values above 1 increase the contrast.
+        brightness (int/float/None): Value by which to change the brightness.
+            0 and None is the original image.
+            Negative values reduce the brightness. Positive values increase the brightness.
 
     References:
         - https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
@@ -125,10 +121,10 @@ class Translation(Transformation):
     Uses an affine transformation to perform image translation.
 
     Args:
-        - x (int): Value (in px) to move the image along X-axis.
-        Positive - right, negative - left.
-        - y (int): Value (in px) to move the image along Y-axis.
-        Positive - down, negative - up.
+        x (int): Value (in px) to move the image along X-axis.
+            Positive - right, negative - left.
+        y (int): Value (in px) to move the image along Y-axis.
+            Positive - down, negative - up.
 
     References:
         - https://en.wikipedia.org/wiki/Affine_transformation
