@@ -1,6 +1,19 @@
 <p align="center">
     <img src="docs/_static/logo.png" width="328">
-    <p align="center"><strong>C</strong>omputer <strong>I</strong>mage <strong>Li</strong>keness A<strong>ss</strong>essing <strong>A</strong>utomation</p>
+</p>
+<p align="center">
+    <strong>C</strong>omputer <strong>I</strong>mage <strong>Li</strong>keness A<strong>ss</strong>essing <strong>A</strong>utomation
+</p>
+<p align="center">
+    <!-- Badges -->
+    <img src="https://github.com/exler/CILISSA/actions/workflows/quality.yml/badge.svg">
+    <img src="https://github.com/exler/CILISSA/actions/workflows/tests.yml/badge.svg">
+    <a href="https://codecov.io/gh/exler/CILISSA">
+        <img src="https://codecov.io/gh/exler/CILISSA/branch/main/graph/badge.svg?token=Dixb5buMQr"/>
+    </a>
+    <a href="https://cilissa.readthedocs.io/en/latest/">
+        <img src="https://img.shields.io/readthedocs/cilissa">
+    </a>    
 </p>
 
 ## Overview
