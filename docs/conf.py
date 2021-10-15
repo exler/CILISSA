@@ -31,6 +31,7 @@ release = "0.5.2"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "autoapi.extension",
 ]
@@ -46,6 +47,7 @@ exclude_patterns = []
 # -- Options for AutoAPI -----------------------------------------------------
 autoapi_type = "python"
 autoapi_dirs = ["../cilissa"]
+autoapi_generate_api_docs = False
 
 # -- Options for HTML output -------------------------------------------------
 

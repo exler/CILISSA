@@ -33,7 +33,7 @@ CILISSA has an optional Qt-based graphical interface that lets you experiment wi
 
    installation.rst
    examples.rst
-   autoapi/index.rst
+   reference/index.rst
 
 
 Indices and tables
