@@ -1,2 +1,5 @@
-``cilissa.roi`` - Region of Interest
+``cilissa.roi`` - Region of interest
 ====================================
+
+.. automodule:: cilissa.roi
+    :members:

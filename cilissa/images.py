@@ -117,7 +117,7 @@ class Image:
         Saves the image
 
         Args:
-            - save_path (Path/str/None):
+            - save_path (Path/str):
             Path to save the image at. Must contain the filename with extension.
             If empty string, then will save to the path the image was loaded from (if available)
         """
