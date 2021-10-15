@@ -1,5 +1,11 @@
 ``cilissa.results`` - Operations results
 ========================================
 
-.. automodule:: cilissa.results
+Classes
+-------
+
+.. autoapiclass:: cilissa.results.Result
+    :members:
+
+.. autoapiclass:: cilissa.results.ResultGenerator
     :members:

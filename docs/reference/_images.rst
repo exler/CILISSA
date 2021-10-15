@@ -1,5 +1,14 @@
 ``cilissa.images`` - Image structures
 =====================================
 
-.. automodule:: cilissa.images
+Classes
+-------
+
+.. autoapiclass:: cilissa.images.Image
+    :members:
+
+.. autoapiclass:: cilissa.images.ImagePair
+    :members:
+
+.. autoapiclass:: cilissa.images.ImageCollection
     :members:

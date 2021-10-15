@@ -1,5 +1,8 @@
 ``cilissa.roi`` - Region of interest
 ====================================
 
-.. automodule:: cilissa.roi
+Classes
+-------
+
+.. autoapiclass:: cilissa.roi.ROI
     :members:

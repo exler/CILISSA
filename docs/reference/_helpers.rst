@@ -1,5 +1,11 @@
 ``cilissa.helpers`` - Helper functions
 ======================================
 
-.. automodule:: cilissa.helpers
-    :members:
+Functions
+---------
+
+.. autoapifunction:: cilissa.helpers.get_max_pixel_value
+
+.. autoapifunction:: cilissa.helpers.apply_to_channels
+
+.. autoapifunction:: cilissa.helpers.crop_array
