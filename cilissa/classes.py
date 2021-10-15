@@ -44,7 +44,7 @@ class OrderedList:
     """
     Simple list that can be reordered.
 
-    Behaviour similar to :type:`list`, but does not derive from it to avoid lay-out conflict with QObject
+    Behaviour similar to `list`, but does not derive from it to avoid lay-out conflict with QObject
 
     Implements `get_order` and `change_order` methods to manage the list's order.
     """

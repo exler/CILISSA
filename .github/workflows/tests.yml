@@ -1,4 +1,4 @@
-name: Test
+name: Tests
 on: [push]
 
 jobs:
@@ -41,5 +41,12 @@ jobs:
           pip install poetry
           poetry install
 
-      - name: Run tests
-        run: poetry run pytest -vv
+      - name: Run tests and collect coverage
+        run: |
+          poetry run coverage run -m pytest -vv
+          poetry run coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

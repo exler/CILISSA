@@ -32,7 +32,7 @@ release = "0.5.2"
 # ones.
 extensions = [
     "sphinx.ext.napoleon",
-    "sphinx.ext.autodoc",
+    "autoapi.extension",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -43,6 +43,9 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# -- Options for AutoAPI -----------------------------------------------------
+autoapi_type = "python"
+autoapi_dirs = ["../cilissa"]
 
 # -- Options for HTML output -------------------------------------------------
 

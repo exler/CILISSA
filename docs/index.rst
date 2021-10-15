@@ -3,6 +3,20 @@ CILISSA
 
 CILISSA stands for **C**\ omputer **I**\ mage **Li**\ keness A\ **ss**\ essing **A**\ utomation.
 
+.. image:: https://github.com/exler/CILISSA/actions/workflows/quality.yml/badge.svg
+   :alt: Quality CI
+
+.. image:: https://github.com/exler/CILISSA/actions/workflows/tests.yml/badge.svg
+   :alt: Tests CI
+
+.. image:: https://codecov.io/gh/exler/CILISSA/branch/main/graph/badge.svg?token=Dixb5buMQr
+   :target: https://codecov.io/gh/exler/CILISSA
+   :alt: Code coverage
+
+.. image:: https://img.shields.io/readthedocs/cilissa
+   :target: https://cilissa.readthedocs.io/en/latest/">
+   :alt: Documentation Status
+
 Overview
 ========
 
@@ -19,7 +33,7 @@ CILISSA has an optional Qt-based graphical interface that lets you experiment wi
 
    installation.rst
    examples.rst
-   reference/index.rst
+   autoapi/index.rst
 
 
 Indices and tables
