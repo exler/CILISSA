@@ -194,14 +194,12 @@ class ImagePair:
 
     If any of the attributes in the image pair are mismatched, the attribute of the reference image
     will be used if necessary.
-
-    Attributes:
-        im1 (:class:`cilissa.images.Image`): Reference image against which quality is measured
-        im2 (:class:`cilissa.images.Image`): Image whose quality is to be measured
     """
 
     im1: Image
+    """Reference image against which quality is measured"""
     im2: Image
+    """Image whose quality is to be measured"""
 
     roi: Optional[ROI]
     use_roi: bool
