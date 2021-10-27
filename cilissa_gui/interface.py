@@ -125,6 +125,18 @@ class Interface(QWidget):
             shortcut=QKeySequence(Qt.CTRL + Qt.SHIFT + Qt.Key_O),
             triggered=self.explorer.open_image_folder_dialog,
         )
+        self.save_operations_action = QAction(
+            "Save Operations List...",
+            self,
+            statusTip="Save current operations list",
+            triggered=self.operations_box.save_operations,
+        )
+        self.load_operations_action = QAction(
+            "Load Operations List...",
+            self,
+            statusTip="Open and restore operations list",
+            triggered=self.operations_box.load_operations,
+        )
         self.remove_images_action = QAction(
             QIcon(":trash"),
             "Remove images",
@@ -169,7 +181,7 @@ class Interface(QWidget):
             self,
             statusTip="Open documentation website",
             shortcut=QKeySequence(Qt.Key_F1),
-            triggered=lambda: QDesktopServices.openUrl("https://github.com/exler/cilissa"),
+            triggered=lambda: QDesktopServices.openUrl("https://cilissa.readthedocs.io/"),
         )
 
     def create_connections(self) -> None:
@@ -235,6 +247,9 @@ class Interface(QWidget):
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(self.open_images_action)
         file_menu.addAction(self.open_folder_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.save_operations_action)
+        file_menu.addAction(self.load_operations_action)
         file_menu.addSeparator()
         file_menu.addAction(self.exit_application_action)
 

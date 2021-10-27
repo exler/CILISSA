@@ -1,19 +1,29 @@
 import ast
+import json
 import logging
-from typing import Any, Dict, List
+from typing import Any, List, TextIO
 
-from cilissa.metrics import Metric, all_metrics
+from cilissa import metrics  # noqa
+from cilissa import transformations  # noqa
 from cilissa.operations import ImageOperation
 from cilissa.roi import ROI
-from cilissa.transformations import Transformation, all_transformations
+
+_all_operations_dict = {op.get_class_name(): op for op in ImageOperation.get_subclasses()}
 
 
-def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[str, List[ImageOperation]]:
-    all_operations = {**all_metrics, **all_transformations}
+def parse_operations_from_str(operations: List[str], kwargs: List[Any]) -> List[ImageOperation]:
+    """
+    Parses operations and their parameters from string input.
 
-    instances: Dict[str, List[ImageOperation]] = {"metrics": [], "transformations": []}
+    Parameters use the following format:
+
+    `<operation-name>-<parameter-name>=<value>`
+
+    where `parameter-name` uses hyphens (-) instead of underscores (_).
+    """
+    instances: List[ImageOperation] = []
     for op_name in operations:
-        operation = all_operations.get(op_name)
+        operation = _all_operations_dict.get(op_name)
         if not operation:
             continue
 
@@ -42,13 +52,49 @@ def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[
             parsed_kwargs[key] = value
 
         instance = operation(**parsed_kwargs)  # type: ignore
+        instances.append(instance)
 
-        if issubclass(operation, Metric):
-            key = "metrics"
-        elif issubclass(operation, Transformation):
-            key = "transformations"
+    return instances
 
-        instances[key].append(instance)
+
+def parse_operations_from_json(fp: TextIO) -> List[ImageOperation]:
+    """
+    Parses operations and their parameters from a JSON file.
+
+    Expected dictionary structure:
+
+    ```
+    [
+        {
+            "name": "ssim",
+            "parameters": {
+                "channels_num": 3,
+                "sigma": 1.5,
+                "truncate": 3.5,
+                "K1": 0.01,
+                "K2": 0.03,
+            }
+        }
+    ]
+    ```
+    """
+    data = json.load(fp)
+
+    instances: List[ImageOperation] = []
+    try:
+        for operation in data:
+            cls = _all_operations_dict.get(operation["name"])
+            if not cls:
+                continue
+
+            instance = cls()
+            for param, value in operation["parameters"].items():
+                instance.set_parameter(param, value)
+
+            instances.append(instance)
+    except (KeyError, TypeError):
+        logging.error("Malformed JSON file supplied")
+        return []
 
     return instances
 

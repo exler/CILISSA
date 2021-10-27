@@ -1,6 +1,9 @@
+import json
+
 from PySide6.QtCore import QPoint, Qt, Slot
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import (
+    QFileDialog,
     QGroupBox,
     QHBoxLayout,
     QListWidget,
@@ -11,6 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from cilissa.operations import ImageOperation
+from cilissa.parsers import parse_operations_from_json
 from cilissa_gui.helpers import get_operation_icon_name
 from cilissa_gui.managers import OperationsManager
 
@@ -89,6 +93,33 @@ class OperationsBox(QGroupBox):
     @Slot()
     def move_operation_down(self) -> None:
         self.operations.change_selected_order(1)
+
+    @Slot()
+    def load_operations(self) -> None:
+        file_name, _ = QFileDialog.getOpenFileName(self, "Load operations list", "", "JSON files (*.json)")
+        if file_name:
+            f = open(file_name)
+            instances = parse_operations_from_json(f)
+            f.close()
+
+            self.operations.operations_manager.clear()
+            for instance in instances:
+                self.operations.operations_manager.push(instance)
+            self.operations.refresh()
+
+    @Slot()
+    def save_operations(self) -> None:
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save operations list", "", "JSON file (*.json)")
+
+        if file_name:
+            f = open(file_name, "w")
+
+            data = []
+            for operation in self.operations.operations_manager:
+                data.append({"name": operation.get_class_name(), "parameters": operation.get_parameters_dict()})
+
+            json.dump(data, f, indent=4)
+            f.close()
 
     def show_context_menu(self, pos: QPoint) -> None:
         menu = QMenu(self)

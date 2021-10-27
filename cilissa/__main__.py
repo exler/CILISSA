@@ -1,11 +1,8 @@
 import argparse
-import logging
 
 from cilissa.images import Image, ImagePair
-from cilissa.metrics import all_metrics
 from cilissa.operations import OperationsList
-from cilissa.parsers import parse_operation_instances, parse_roi
-from cilissa.transformations import all_transformations
+from cilissa.parsers import parse_operations_from_str, parse_roi
 
 help_message = """
 CILISSA - Interactive computer image likeness assessing.
@@ -22,22 +19,12 @@ def main() -> None:
     parser.add_argument("-r", "--ref-image", required=True, help="Reference image against which quality is measured")
     parser.add_argument("-i", "--input-image", required=True, help="Image to be analyzed and transformed")
     parser.add_argument(
-        "-M",
-        "--metric",
-        choices=list(all_metrics.keys()),
+        "-O",
+        "--operation",
         action="extend",
         nargs="+",
-        required=False,
-        help="Which metrics to use for analysis",
-    )
-    parser.add_argument(
-        "-T",
-        "--transformation",
-        choices=list(all_transformations.keys()),
-        action="extend",
-        nargs="+",
-        required=False,
-        help="Which transformations to use on the compared image",
+        required=True,
+        help="Which operations to use (execution order depends on the order the arguments are passed)",
     )
     parser.add_argument(
         "-R", "--roi", help="ROI start and end points for analysis/transformation. Example: `0x0,384x512`"
@@ -48,11 +35,7 @@ def main() -> None:
         help="Keyword arguments to be passed to their respective operation. Example: `ssim-channels-num=3`",
     )
     parser.add_argument("-s", "--show-end-image", action="store_true", help="Shows the image after all transformations")
-    parser.add_argument("-d", "--debug", action="store_true", help="Turn on debugging messages")
     args = parser.parse_args()
-
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
 
     image1 = Image(args.ref_image)
     image2 = Image(args.input_image)
@@ -62,10 +45,8 @@ def main() -> None:
         roi = parse_roi(args.roi)
         image_pair.set_roi(roi)
 
-    operations_choices = list(args.metric or []) + list(args.transformation or [])
-    instances = parse_operation_instances(operations_choices, args.kwargs or [])
-
-    operations = OperationsList(instances["transformations"] + instances["metrics"])
+    instances = parse_operations_from_str(args.operation or [], args.kwargs or [])
+    operations = OperationsList(instances)
     result = operations.run_all(image_pair)
 
     if result:
