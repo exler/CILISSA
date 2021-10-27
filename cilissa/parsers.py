@@ -1,11 +1,14 @@
 import ast
+import json
 import logging
-from typing import Any, List
+from typing import Any, List, TextIO
 
 from cilissa import metrics  # noqa
 from cilissa import transformations  # noqa
 from cilissa.operations import ImageOperation
 from cilissa.roi import ROI
+
+_all_operations_dict = {op.get_class_name(): op for op in ImageOperation.get_subclasses()}
 
 
 def parse_operations_from_str(operations: List[str], kwargs: List[Any]) -> List[ImageOperation]:
@@ -18,11 +21,9 @@ def parse_operations_from_str(operations: List[str], kwargs: List[Any]) -> List[
 
     where `parameter-name` uses hyphens (-) instead of underscores (_).
     """
-    op_dict = {op.get_class_name(): op for op in ImageOperation.get_subclasses()}
-
     instances: List[ImageOperation] = []
     for op_name in operations:
-        operation = op_dict.get(op_name)
+        operation = _all_operations_dict.get(op_name)
         if not operation:
             continue
 
@@ -52,6 +53,47 @@ def parse_operations_from_str(operations: List[str], kwargs: List[Any]) -> List[
 
         instance = operation(**parsed_kwargs)  # type: ignore
         instances.append(instance)
+
+    return instances
+
+
+def parse_operations_from_json(fp: TextIO) -> List[ImageOperation]:
+    """
+    Parses operations and their parameters from a JSON file.
+
+    Expected dictionary structure:
+
+    ```
+    [
+        {
+            "name": "ssim",
+            "parameters": {
+                "channels_num": 3,
+                "sigma": 1.5,
+                "truncate": 3.5,
+                "K1": 0.01,
+                "K2": 0.03,
+            }
+        }
+    ]
+    ```
+    """
+    data = json.load(fp)
+
+    instances: List[ImageOperation] = []
+    try:
+        for operation in data:
+            instance = _all_operations_dict.get(operation["name"])()
+            if not instance:
+                continue
+
+            for param, value in operation["parameters"].items():
+                instance.set_parameter(param, value)
+
+            instances.append(instance)
+    except (KeyError, TypeError):
+        logging.error("Malformed JSON file supplied")
+        return []
 
     return instances
 

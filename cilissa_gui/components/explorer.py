@@ -4,8 +4,7 @@ from PySide6.QtCore import QDir, QSize
 from PySide6.QtWidgets import QFileDialog, QListWidget, QTabWidget
 
 from cilissa.images import Image
-from cilissa.metrics import all_metrics
-from cilissa.transformations import all_transformations
+from cilissa.operations import Metric, Transformation
 from cilissa_gui.widgets import CQImageItem, CQInfoDialog, CQOperationItem
 
 
@@ -85,7 +84,7 @@ class MetricsTab(ExplorerTab):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
-        for metric in all_metrics.values():
+        for metric in Metric.get_subclasses():
             self.addItem(CQOperationItem(metric))
 
 
@@ -93,5 +92,5 @@ class TransformationsTab(ExplorerTab):
     def __init__(self, parent: QTabWidget) -> None:
         super().__init__(parent)
 
-        for transformation in all_transformations.values():
+        for transformation in Transformation.get_subclasses():
             self.addItem(CQOperationItem(transformation))
