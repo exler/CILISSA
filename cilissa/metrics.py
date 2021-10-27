@@ -306,6 +306,3 @@ class SAM(Metric):
             sam_angles *= 180 / np.pi
 
         return np.mean(np.nan_to_num(sam_angles))
-
-
-all_metrics = Metric.get_operation_subclasses()

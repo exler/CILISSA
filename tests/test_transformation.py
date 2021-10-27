@@ -1,15 +1,8 @@
 from pathlib import Path
 
 from cilissa.images import Image
-from cilissa.transformations import (
-    Blur,
-    Equalization,
-    Linear,
-    Sharpen,
-    Transformation,
-    Translation,
-    all_transformations,
-)
+from cilissa.operations import Transformation
+from cilissa.transformations import Blur, Equalization, Linear, Sharpen, Translation
 from tests.base import BaseTest
 
 
@@ -69,7 +62,7 @@ class TestImageTransformation(BaseTest):
     def test_transform_grayscale_image(self) -> None:
         grayscale_image = Image(Path(self.data_path, "other", "monarch_grayscale.bmp"))
 
-        for transformation in all_transformations.values():
+        for transformation in Transformation.get_subclasses():
             try:
                 transformation().transform(grayscale_image)
             except Exception:
@@ -82,7 +75,7 @@ class TestImageTransformation(BaseTest):
         image_32bit_float = Image(Path(self.data_path, "other", "monarch_32bit_float.tiff"))
         images = [image_16bit, image_32bit, image_16bit_float, image_32bit_float]
 
-        for transformation in all_transformations.values():
+        for transformation in Transformation.get_subclasses():
             for image in images:
                 try:
                     transformation().transform(image)

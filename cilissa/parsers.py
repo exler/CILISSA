@@ -2,13 +2,13 @@ import ast
 import logging
 from typing import Any, List
 
-from cilissa.metrics import all_metrics
+from cilissa import metrics  # noqa
+from cilissa import transformations  # noqa
 from cilissa.operations import ImageOperation
 from cilissa.roi import ROI
-from cilissa.transformations import all_transformations
 
 
-def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> List[ImageOperation]:
+def parse_operations_from_str(operations: List[str], kwargs: List[Any]) -> List[ImageOperation]:
     """
     Parses operations and their parameters from string input.
 
@@ -18,11 +18,11 @@ def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> List[
 
     where `parameter-name` uses hyphens (-) instead of underscores (_).
     """
-    all_operations = {**all_metrics, **all_transformations}
+    op_dict = {op.get_class_name(): op for op in ImageOperation.get_subclasses()}
 
     instances: List[ImageOperation] = []
     for op_name in operations:
-        operation = all_operations.get(op_name)
+        operation = op_dict.get(op_name)
         if not operation:
             continue
 

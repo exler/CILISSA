@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from copy import deepcopy
-from typing import Any, Dict, List, Type, Union
+from typing import Any, List, Type, Union
 
 from cilissa.classes import OrderedList, Parameterized
 from cilissa.images import Image, ImageCollection, ImagePair
@@ -18,13 +18,14 @@ class ImageOperation(Parameterized, ABC):
     """
 
     @classmethod
-    def get_operation_subclasses(cls) -> Dict[str, Type[ImageOperation]]:
-        subclasses = cls.__subclasses__()
-        operations = {}
-        for subcls in subclasses:
-            operations[subcls.get_class_name()] = subcls
+    def get_subclasses(cls) -> List[Type[ImageOperation]]:
+        subclasses = []
 
-        return operations
+        for subclass in cls.__subclasses__():
+            subclasses.append(subclass)
+            subclasses.extend(subclass.get_subclasses())
+
+        return subclasses
 
     @classmethod
     def get_class_name(cls) -> str:

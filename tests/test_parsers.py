@@ -1,4 +1,4 @@
-from cilissa.parsers import parse_operation_instances, parse_roi
+from cilissa.parsers import parse_operations_from_str, parse_roi
 from cilissa.roi import ROI
 from tests.base import BaseTest
 
@@ -8,7 +8,7 @@ class TestParsers(BaseTest):
         operations_str_list = ["ssim", "linear"]
         kwargs_str_list = ["ssim-channels-num=3", "linear-contrast=2", "linear-brightness=10"]
 
-        parsed_operations = parse_operation_instances(operations_str_list, kwargs_str_list)
+        parsed_operations = parse_operations_from_str(operations_str_list, kwargs_str_list)
 
         self.assertEqual(parsed_operations[0].get_class_name(), "ssim")
         self.assertEqual(parsed_operations[0].channels_num, 3)

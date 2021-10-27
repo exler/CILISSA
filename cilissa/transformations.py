@@ -172,6 +172,3 @@ class Equalization(Transformation):
         new_im = image_equalized.reshape(im.shape).astype(np.uint8, casting="unsafe")
 
         return Image(new_im)
-
-
-all_transformations = Transformation.get_operation_subclasses()

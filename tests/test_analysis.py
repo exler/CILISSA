@@ -3,7 +3,8 @@ from pathlib import Path
 from numpy import isinf
 
 from cilissa.images import Image, ImagePair
-from cilissa.metrics import MSE, PSNR, SSIM, all_metrics
+from cilissa.metrics import MSE, PSNR, SSIM
+from cilissa.operations import Metric
 from tests.base import BaseTest
 
 
@@ -54,7 +55,7 @@ class TestImageAnalysis(BaseTest):
         grayscale_image = Image(Path(self.data_path, "other", "monarch_grayscale.bmp"))
         image_pair = ImagePair(grayscale_image, grayscale_image.copy())
 
-        for metric in all_metrics.values():
+        for metric in Metric.get_subclasses():
             try:
                 metric().analyze(image_pair)
             except Exception:
@@ -67,7 +68,7 @@ class TestImageAnalysis(BaseTest):
         image_32bit_float = Image(Path(self.data_path, "other", "monarch_32bit_float.tiff"))
         images = [image_16bit, image_32bit, image_16bit_float, image_32bit_float]
 
-        for metric in all_metrics.values():
+        for metric in Metric.get_subclasses():
             for image in images:
                 image_pair = ImagePair(image, image.copy())
                 try:

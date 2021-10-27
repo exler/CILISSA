@@ -2,7 +2,7 @@ import argparse
 
 from cilissa.images import Image, ImagePair
 from cilissa.operations import OperationsList
-from cilissa.parsers import parse_operation_instances, parse_roi
+from cilissa.parsers import parse_operations_from_str, parse_roi
 
 help_message = """
 CILISSA - Interactive computer image likeness assessing.
@@ -45,7 +45,7 @@ def main() -> None:
         roi = parse_roi(args.roi)
         image_pair.set_roi(roi)
 
-    instances = parse_operation_instances(args.operation or [], args.kwargs or [])
+    instances = parse_operations_from_str(args.operation or [], args.kwargs or [])
     operations = OperationsList(instances)
     result = operations.run_all(image_pair)
 
