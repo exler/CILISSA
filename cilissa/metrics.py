@@ -18,9 +18,14 @@ class MSE(Metric):
         - https://en.wikipedia.org/wiki/Mean_squared_error
     """
 
+    def __init__(self, rmse: bool = False) -> None:
+        self.root_mean_square_error = rmse
+
     def analyze(self, image_pair: ImagePair) -> float:
         im1, im2 = image_pair.as_floats()
         result = np.mean(np.square((im1 - im2)), dtype=np.float64)
+        if self.root_mean_square_error:
+            result = np.sqrt(result)
         return result
 
 
