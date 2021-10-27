@@ -1,17 +1,26 @@
 import ast
 import logging
-from typing import Any, Dict, List
+from typing import Any, List
 
-from cilissa.metrics import Metric, all_metrics
+from cilissa.metrics import all_metrics
 from cilissa.operations import ImageOperation
 from cilissa.roi import ROI
-from cilissa.transformations import Transformation, all_transformations
+from cilissa.transformations import all_transformations
 
 
-def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[str, List[ImageOperation]]:
+def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> List[ImageOperation]:
+    """
+    Parses operations and their parameters from string input.
+
+    Parameters use the following format:
+
+    `<operation-name>-<parameter-name>=<value>`
+
+    where `parameter-name` uses hyphens (-) instead of underscores (_).
+    """
     all_operations = {**all_metrics, **all_transformations}
 
-    instances: Dict[str, List[ImageOperation]] = {"metrics": [], "transformations": []}
+    instances: List[ImageOperation] = []
     for op_name in operations:
         operation = all_operations.get(op_name)
         if not operation:
@@ -42,13 +51,7 @@ def parse_operation_instances(operations: List[str], kwargs: List[Any]) -> Dict[
             parsed_kwargs[key] = value
 
         instance = operation(**parsed_kwargs)  # type: ignore
-
-        if issubclass(operation, Metric):
-            key = "metrics"
-        elif issubclass(operation, Transformation):
-            key = "transformations"
-
-        instances[key].append(instance)
+        instances.append(instance)
 
     return instances
 
