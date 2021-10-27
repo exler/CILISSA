@@ -118,7 +118,7 @@ class OperationsBox(QGroupBox):
             for operation in self.operations.operations_manager:
                 data.append({"name": operation.get_class_name(), "parameters": operation.get_parameters_dict()})
 
-            json.dump(data, f)
+            json.dump(data, f, indent=4)
             f.close()
 
     def show_context_menu(self, pos: QPoint) -> None:

@@ -1,0 +1,15 @@
+[
+    {
+        "name": "mse",
+        "parameters": {
+            "root_mean_square_error": true
+        }
+    },
+    {
+        "name": "linear",
+        "parameters": {
+            "contrast": 4.0,
+            "brightness": 10.0
+        }
+    }
+]
