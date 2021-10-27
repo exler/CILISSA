@@ -83,10 +83,11 @@ def parse_operations_from_json(fp: TextIO) -> List[ImageOperation]:
     instances: List[ImageOperation] = []
     try:
         for operation in data:
-            instance = _all_operations_dict.get(operation["name"])()
-            if not instance:
+            cls = _all_operations_dict.get(operation["name"])
+            if not cls:
                 continue
 
+            instance = cls()
             for param, value in operation["parameters"].items():
                 instance.set_parameter(param, value)
 
