@@ -169,7 +169,7 @@ class Interface(QWidget):
             self,
             statusTip="Open documentation website",
             shortcut=QKeySequence(Qt.Key_F1),
-            triggered=lambda: QDesktopServices.openUrl("https://github.com/exler/cilissa"),
+            triggered=lambda: QDesktopServices.openUrl("https://cilissa.readthedocs.io/"),
         )
 
     def create_connections(self) -> None:
