@@ -62,21 +62,7 @@ def parse_operations_from_json(fp: TextIO) -> List[ImageOperation]:
     Parses operations and their parameters from a JSON file.
 
     Expected dictionary structure:
-
-    ```
-    [
-        {
-            "name": "ssim",
-            "parameters": {
-                "channels_num": 3,
-                "sigma": 1.5,
-                "truncate": 3.5,
-                "K1": 0.01,
-                "K2": 0.03,
-            }
-        }
-    ]
-    ```
+    `[{"name": "ssim", "parameters": {"channels_num": 3, "sigma": 1.5}}]`
     """
     data = json.load(fp)
 
@@ -100,6 +86,12 @@ def parse_operations_from_json(fp: TextIO) -> List[ImageOperation]:
 
 
 def parse_roi(string: str) -> ROI:
+    """
+    Parses ROI from string.
+
+    Expected string format:
+    `0x0,512x512` (width x height)
+    """
     points = string.split(",")
 
     start_point = points[0].split("x")
