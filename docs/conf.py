@@ -22,7 +22,7 @@ copyright = "2021, Kamil Marut"
 author = "Kamil Marut"
 
 # The full version, including alpha/beta/rc tags
-release = "0.5.2"
+release = "0.7.0"
 
 
 # -- General configuration ---------------------------------------------------
