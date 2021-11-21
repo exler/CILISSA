@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file alias="cilissa-icon">../../docs/icon.png</file>
+    <file alias="cilissa-icon">../../docs/_static/icon.png</file>
 </qresource>
 <qresource>
     <file alias="add-file">icons/add-file.svg</file>

@@ -137,6 +137,12 @@ class Interface(QWidget):
             statusTip="Open and restore operations list",
             triggered=self.operations_box.load_operations,
         )
+        self.load_plugin_action = QAction(
+            "Load Plugin...",
+            self,
+            statusTip="Load new operations from a Python file",
+            triggered=self.explorer.load_plugin,
+        )
         self.remove_images_action = QAction(
             QIcon(":trash"),
             "Remove images",
@@ -250,6 +256,8 @@ class Interface(QWidget):
         file_menu.addSeparator()
         file_menu.addAction(self.save_operations_action)
         file_menu.addAction(self.load_operations_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.load_plugin_action)
         file_menu.addSeparator()
         file_menu.addAction(self.exit_application_action)
 

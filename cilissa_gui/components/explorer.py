@@ -1,3 +1,6 @@
+import importlib
+import inspect
+import os
 from pathlib import Path
 
 from PySide6.QtCore import QDir, QSize
@@ -5,6 +8,7 @@ from PySide6.QtWidgets import QFileDialog, QListWidget, QTabWidget
 
 from cilissa.images import Image
 from cilissa.operations import Metric, Transformation
+from cilissa_gui.decorators import PathInsert
 from cilissa_gui.widgets import CQImageItem, CQInfoDialog, CQOperationItem
 
 
@@ -52,6 +56,22 @@ class Explorer(QTabWidget):
             image = Image(Path(dirname, fn))
             cq_image = CQImageItem(image, width=128, height=128)
             self.images_tab.addItem(cq_image)
+
+    def load_plugin(self) -> None:
+        filename = QFileDialog.getOpenFileName(self, "Open Python plugin", "", "Python files (*.py)")[0]
+
+        with PathInsert(os.path.dirname(filename)):
+            spec = importlib.util.spec_from_file_location(filename, filename)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            for _, attr in inspect.getmembers(module):
+                if not inspect.isclass(attr):
+                    continue
+
+                if issubclass(attr, Metric) and attr != Metric:
+                    self.metrics_tab.addItem(CQOperationItem(attr))
+                elif issubclass(attr, Transformation) and attr != Transformation:
+                    self.transformations_tab.addItem(CQOperationItem(attr))
 
 
 class ExplorerTab(QListWidget):

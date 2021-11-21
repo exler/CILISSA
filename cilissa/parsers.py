@@ -6,6 +6,7 @@ from typing import Any, List, TextIO
 from cilissa import metrics  # noqa
 from cilissa import transformations  # noqa
 from cilissa.operations import ImageOperation
+from cilissa.plugins import *  # noqa
 from cilissa.roi import ROI
 
 _all_operations_dict = {op.get_class_name(): op for op in ImageOperation.get_subclasses()}
