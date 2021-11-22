@@ -30,14 +30,15 @@ CILISSA has an optional Qt-based graphical interface that lets you experiment wi
 * Python >= 3.7
 
 ## Installation
-### Install 
+
+### Install from PyPI
 ```bash
 $ pip install cilissa
 ```
 
 ### Releases
 
-Binaries for Windows and Linux can be found in [GitHub releases](https://github.com/exler/CILISSA/releases).
+Binaries for Windows and Linux can be found on [GitHub releases](https://github.com/exler/CILISSA/releases).
 
 ## Usage
 
