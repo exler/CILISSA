@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="docs/_static/logo.png" width="328">
+    <img src="https://raw.githubusercontent.com/exler/CILISSA/main/docs/_static/logo.png" width="328">
 </p>
 <p align="center">
     <strong>C</strong>omputer <strong>I</strong>mage <strong>Li</strong>keness A<strong>ss</strong>essing <strong>A</strong>utomation
@@ -30,15 +30,14 @@ CILISSA has an optional Qt-based graphical interface that lets you experiment wi
 * Python >= 3.7
 
 ## Installation
-### Build from source
-
+### Install 
 ```bash
-# Using poetry
-$ poetry install
-
-# Install optional dependencies for GUI
-$ poetry install -E gui
+$ pip install cilissa
 ```
+
+### Releases
+
+Binaries for Windows and Linux can be found in [GitHub releases](https://github.com/exler/CILISSA/releases).
 
 ## Usage
 

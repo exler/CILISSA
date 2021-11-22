@@ -1,11 +1,22 @@
 [tool.poetry]
 name = "cilissa"
-version = "0.7.0"
+version = "0.7.1"
 description = "Interactive tool for assessing digital image similarity"
 authors = ["Kamil Marut <kamil@kamilmarut.com>"]
 readme = "README.md"
 homepage = "https://github.com/exler/CILISSA"
 repository = "https://github.com/exler/CILISSA"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Environment :: Console",
+    "Environment :: X11 Applications :: Qt",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Operating System :: OS Independent",
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/exler/CILISSA/issues"
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.11"
@@ -40,7 +51,6 @@ testpaths = [
 
 [tool.poetry.scripts]
 cilissa = "cilissa.__main__:main"
-cilissa-gui = "cilissa_gui.application:main"
 
 [tool.mypy]
 ignore_missing_imports = true
