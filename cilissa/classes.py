@@ -53,7 +53,7 @@ class OrderedList:
         self.items = list(items)
 
     def __str__(self) -> str:
-        return f"OrderedList(items=[{', '.join([item.get_display_name() for item in self.items])}])"
+        return f"OrderedList(items=[{', '.join([str(item) for item in self.items])}])"
 
     def __len__(self) -> int:
         return len(self.items)
