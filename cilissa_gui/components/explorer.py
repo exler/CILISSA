@@ -13,7 +13,7 @@ from cilissa_gui.widgets import CQImageItem, CQInfoDialog, CQOperationItem
 
 
 class Explorer(QTabWidget):
-    IMAGE_EXTENSIONS = ["*.png", "*.jpg", "*.jpeg", "*.bmp"]
+    IMAGE_EXTENSIONS = ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.tiff"]
 
     def __init__(self) -> None:
         super().__init__()
