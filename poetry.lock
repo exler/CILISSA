@@ -875,7 +875,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "verdandi"
-version = "0.2.2"
+version = "0.2.3"
 description = "Benchmarking framework"
 category = "dev"
 optional = false
@@ -1491,8 +1491,8 @@ urllib3 = [
     {file = "urllib3-1.26.7.tar.gz", hash = "sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece"},
 ]
 verdandi = [
-    {file = "verdandi-0.2.2-py3-none-any.whl", hash = "sha256:3232e77b3e0e099e741cdad5503f72d44be0e777bdf7345f4d96cde18a7f3eb7"},
-    {file = "verdandi-0.2.2.tar.gz", hash = "sha256:35c0efdb8b9fdf7b94c9309d85c9a6d343e6717ff4793f653e947f096ef2c6fa"},
+    {file = "verdandi-0.2.3-py3-none-any.whl", hash = "sha256:2fe5ae7583a3a82309aa11be02ba4bf9e842d662fb2203d5c935410c564786e3"},
+    {file = "verdandi-0.2.3.tar.gz", hash = "sha256:c6b0eb1ef61f2168c707a907a882e774adcd425da9b942bd5243516d86aa9f3a"},
 ]
 wrapt = [
     {file = "wrapt-1.13.3-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:e05e60ff3b2b0342153be4d1b597bbcfd8330890056b9619f4ad6b8d5c96a81a"},
