@@ -59,3 +59,7 @@ where `parameter-name` uses hyphens (-) instead of underscores (_)
 ## Documentation
 
 Documentation is hosted on [Read the Docs](https://cilissa.readthedocs.io/).
+
+## License
+
+`CILISSA` is under the terms of the [MIT License](https://www.tldrlegal.com/l/mit), following all clarifications stated in the [license file](LICENSE).
