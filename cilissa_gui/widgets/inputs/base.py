@@ -3,7 +3,7 @@ from typing import Any
 
 from PySide6.QtWidgets import QWidget
 
-MAX_NEG_INTEGER = -int(2 ** 32 / 2)
+MAX_NEG_INTEGER = -int(2**32 / 2)
 MAX_POS_INTEGER = -MAX_NEG_INTEGER - 1
 
 

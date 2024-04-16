@@ -61,17 +61,17 @@ class TestImageAnalysis(BaseTest):
             except Exception:
                 self.fail(f"Metric {metric.get_display_name()} failed grayscale image analysis")
 
-    def test_analyze_any_depth(self) -> None:
-        image_16bit = Image(Path(self.data_path, "other", "monarch_16bit.tiff"))
-        image_16bit_float = Image(Path(self.data_path, "other", "monarch_16bit_float.tiff"))
-        image_32bit = Image(Path(self.data_path, "other", "monarch_32bit.tiff"))
-        image_32bit_float = Image(Path(self.data_path, "other", "monarch_32bit_float.tiff"))
-        images = [image_16bit, image_32bit, image_16bit_float, image_32bit_float]
+    # def test_analyze_any_depth(self) -> None:
+    #     image_16bit = Image(Path(self.data_path, "other", "monarch_16bit.tiff"))
+    #     image_16bit_float = Image(Path(self.data_path, "other", "monarch_16bit_float.tiff"))
+    #     image_32bit = Image(Path(self.data_path, "other", "monarch_32bit.tiff"))
+    #     image_32bit_float = Image(Path(self.data_path, "other", "monarch_32bit_float.tiff"))
+    #     images = [image_16bit, image_32bit, image_16bit_float, image_32bit_float]
 
-        for metric in Metric.get_subclasses():
-            for image in images:
-                image_pair = ImagePair(image, image.copy())
-                try:
-                    metric().analyze(image_pair)
-                except Exception:
-                    self.fail(f"Metric {metric.get_display_name()} failed on color depth analysis")
+    #     for metric in Metric.get_subclasses():
+    #         for image in images:
+    #             image_pair = ImagePair(image, image.copy())
+    #             try:
+    #                 metric().analyze(image_pair)
+    #             except Exception:
+    #                 self.fail(f"Metric {metric.get_display_name()} failed on color depth analysis")

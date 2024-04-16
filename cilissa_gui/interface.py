@@ -114,7 +114,7 @@ class Interface(QWidget):
             "Open Images...",
             self,
             statusTip="Open an image file",
-            shortcut=QKeySequence(Qt.CTRL + Qt.Key_O),
+            shortcut=QKeySequence(Qt.CTRL | Qt.Key_O),
             triggered=self.explorer.open_image_dialog,
         )
         self.open_folder_action = QAction(
@@ -122,7 +122,7 @@ class Interface(QWidget):
             "Open Folder...",
             self,
             statusTip="Open an image folder",
-            shortcut=QKeySequence(Qt.CTRL + Qt.SHIFT + Qt.Key_O),
+            shortcut=QKeySequence(Qt.CTRL | Qt.SHIFT | Qt.Key_O),
             triggered=self.explorer.open_image_folder_dialog,
         )
         self.save_operations_action = QAction(
@@ -156,7 +156,7 @@ class Interface(QWidget):
             "Exit",
             self,
             statusTip="Exit the application",
-            shortcut=QKeySequence(Qt.CTRL + Qt.Key_Q),
+            shortcut=QKeySequence(Qt.CTRL | Qt.Key_Q),
             triggered=self.main_window.close,
         )
         self.ignore_roi_action = QAction(

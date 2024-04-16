@@ -27,7 +27,7 @@ CILISSA has an optional Qt-based graphical interface that lets you experiment wi
 
 ## Requirements
 
-* Python >= 3.7
+* Python >=3.9,<3.12
 
 ## Installation
 

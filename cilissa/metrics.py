@@ -114,8 +114,8 @@ class SSIM(Metric):
         uy = cv2.GaussianBlur(im2, (0, 0), self.sigma)
 
         # Compute weighted variances and covariances
-        uxx = cv2.GaussianBlur(im1 ** 2, (0, 0), self.sigma)
-        uyy = cv2.GaussianBlur(im2 ** 2, (0, 0), self.sigma)
+        uxx = cv2.GaussianBlur(im1**2, (0, 0), self.sigma)
+        uyy = cv2.GaussianBlur(im2**2, (0, 0), self.sigma)
         uxy = cv2.GaussianBlur(im1 * im2, (0, 0), self.sigma)
         vx = uxx - ux * ux
         vy = uyy - uy * uy
@@ -127,7 +127,7 @@ class SSIM(Metric):
         C2 = (self.K2 * L) ** 2
 
         # Final form of the SSIM index (formula 13, page 605)
-        A1, A2, B1, B2 = (2 * ux * uy + C1, 2 * vxy + C2, ux ** 2 + uy ** 2 + C1, vx + vy + C2)
+        A1, A2, B1, B2 = (2 * ux * uy + C1, 2 * vxy + C2, ux**2 + uy**2 + C1, vx + vy + C2)
         D = B1 * B2
         S = (A1 * A2) / D
 
@@ -165,13 +165,13 @@ class UIQI(Metric):
         self.block_size = block_size
 
     def uiqi_single_channel(self, im1: np.ndarray, im2: np.ndarray) -> float:
-        N = self.block_size ** 2
+        N = self.block_size**2
 
-        im1_sq = im1 ** 2
-        im2_sq = im2 ** 2
+        im1_sq = im1**2
+        im2_sq = im2**2
         im12 = im1 * im2
 
-        unif_filter = np.ones(self.block_size, np.float32) / (self.block_size ** 2)
+        unif_filter = np.ones(self.block_size, np.float32) / (self.block_size**2)
 
         im1_sum = cv2.filter2D(im1, ddepth=-1, kernel=unif_filter)
         im2_sum = cv2.filter2D(im2, ddepth=-1, kernel=unif_filter)
@@ -180,7 +180,7 @@ class UIQI(Metric):
         im12_sum = cv2.filter2D(im12, ddepth=-1, kernel=unif_filter)
 
         im12_sum_mul = im1_sum * im2_sum
-        im12_sq_sum_mul = im1_sum ** 2 + im2_sum ** 2
+        im12_sq_sum_mul = im1_sum**2 + im2_sum**2
         numerator = 4 * (N * im12_sum - im12_sum_mul) * im12_sum_mul
         denominator1 = N * (im1_sq_sum + im2_sq_sum) - im12_sq_sum_mul
         denominator = denominator1 * im12_sq_sum_mul
@@ -239,12 +239,12 @@ class VIFP(Metric):
 
             mu1 = cv2.GaussianBlur(im1, (0, 0), sd)
             mu2 = cv2.GaussianBlur(im2, (0, 0), sd)
-            mu1_sq = mu1 ** 2
-            mu2_sq = mu2 ** 2
+            mu1_sq = mu1**2
+            mu2_sq = mu2**2
             mu12 = mu1 * mu2
 
-            sigma1_sq = cv2.GaussianBlur(im1 ** 2, (0, 0), sd) - mu1_sq
-            sigma2_sq = cv2.GaussianBlur(im2 ** 2, (0, 0), sd) - mu2_sq
+            sigma1_sq = cv2.GaussianBlur(im1**2, (0, 0), sd) - mu1_sq
+            sigma2_sq = cv2.GaussianBlur(im2**2, (0, 0), sd) - mu2_sq
             sigma12 = cv2.GaussianBlur(im1 * im2, (0, 0), sd) - mu12
 
             sigma1_sq[sigma1_sq < 0] = 0
@@ -264,7 +264,7 @@ class VIFP(Metric):
             g[g < 0] = 0
             sv_sq[sv_sq <= eps] = eps
 
-            numerator += np.sum(np.log10(1 + g ** 2 * (sigma1_sq / (sv_sq + self.sigma))))
+            numerator += np.sum(np.log10(1 + g**2 * (sigma1_sq / (sv_sq + self.sigma))))
             denominator += np.sum(np.log10(1 + (sigma1_sq / self.sigma)))
 
         return numerator / denominator

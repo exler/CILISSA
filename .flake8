@@ -5,11 +5,13 @@ filename =
 exclude = 
     .git,
     __pycache__,
-    cilissa_gui/resources/*
+    cilissa_gui/resources/*,
+    .venv
 
 ignore = 
     ANN101,
     ANN102,
+    ANN401,
     # See https://github.com/PyCQA/pycodestyle/issues/373
     E203,
 
